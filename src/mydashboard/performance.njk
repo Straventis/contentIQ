@@ -20,8 +20,29 @@ title: "Post Performance"
 </div>
 
 <div class="card">
-  <h2>All post performance</h2>
-  <p style="color:var(--ink-soft); font-size:14px;">Sortable table with inline tags and CSV export lands here — STRV-52.</p>
+  <div class="table-toolbar">
+    <h2 style="margin:0;">All post performance</h2>
+    <button class="export-btn" id="export-csv" type="button">Export CSV</button>
+  </div>
+  <table id="perf-table">
+    <thead>
+      <tr>
+        <th class="sortable" data-sort="date">Date <span class="sort-arrow">&#9660;</span></th>
+        <th>Content</th>
+        <th class="sortable" data-sort="contentType">Type <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="pillar">Pillar <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="impressions">Impr. <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="reactions">React. <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="comments">Comm. <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="shares">Repo. <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="engagements">Engag. <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="engagementRate">Engag.% <span class="sort-arrow">&#9660;</span></th>
+        <th>Tags</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="perf-tbody"><!-- filled in by JS below --></tbody>
+  </table>
 </div>
 
 <script>
@@ -71,4 +92,104 @@ title: "Post Performance"
     renderRanking(select.value);
     setStored(select.value);
   });
+
+  // ---------- All Post Performance: sortable table + tags + export ----------
+  (function(){
+    var tbody = document.getElementById('perf-tbody');
+    var headers = document.querySelectorAll('th.sortable');
+    var sortKey = 'date';
+    var sortDir = -1; // newest / highest first by default
+
+    function getTags(){ try { return JSON.parse(localStorage.getItem('contentiq-post-tags') || '{}'); } catch(e){ return {}; } }
+    function setTags(tags){ try { localStorage.setItem('contentiq-post-tags', JSON.stringify(tags)); } catch(e){} }
+    var tagStore = getTags();
+
+    function escapeHtml(s){
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+        return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+      });
+    }
+
+    function renderTable(){
+      var sorted = posts.slice().sort(function(a, b){
+        var av = a[sortKey], bv = b[sortKey];
+        if (sortKey === 'date') { av = new Date(av).getTime(); bv = new Date(bv).getTime(); }
+        if (typeof av === 'string') { av = av.toLowerCase(); bv = bv.toLowerCase(); }
+        if (av < bv) return -1 * sortDir;
+        if (av > bv) return 1 * sortDir;
+        return 0;
+      });
+
+      tbody.innerHTML = sorted.map(function(p){
+        var tag = tagStore[p.id] || '';
+        return '' +
+          '<tr>' +
+            '<td>' + p.date + '</td>' +
+            '<td><a class="post-link" href="/mydashboard/posts/' + p.slug + '/">' + escapeHtml(p.topic).slice(0, 60) + '</a></td>' +
+            '<td><span class="type-pill">' + escapeHtml(p.contentType) + '</span></td>' +
+            '<td>' + escapeHtml(p.pillar) + '</td>' +
+            '<td>' + p.impressions.toLocaleString() + '</td>' +
+            '<td>' + p.reactions.toLocaleString() + '</td>' +
+            '<td>' + p.comments.toLocaleString() + '</td>' +
+            '<td>' + p.shares.toLocaleString() + '</td>' +
+            '<td>' + p.engagements.toLocaleString() + '</td>' +
+            '<td class="' + (p.engagementRate >= 0.015 ? 'rate-good' : '') + '">' + (p.engagementRate * 100).toFixed(2) + '%</td>' +
+            '<td><input class="tag-input" type="text" placeholder="Add tags" value="' + escapeHtml(tag) + '" data-post-id="' + p.id + '"></td>' +
+            '<td><div class="row-actions">' +
+              '<a class="action-icon" href="' + p.url + '" target="_blank" rel="noopener" title="Open on LinkedIn">&#8599;</a>' +
+              '<a class="action-icon" href="/mydashboard/posts/' + p.slug + '/" title="View details">&#128065;</a>' +
+            '</div></td>' +
+          '</tr>';
+      }).join('');
+
+      tbody.querySelectorAll('.tag-input').forEach(function(input){
+        input.addEventListener('change', function(){
+          tagStore[input.dataset.postId] = input.value;
+          setTags(tagStore);
+        });
+      });
+    }
+
+    headers.forEach(function(th){
+      th.addEventListener('click', function(){
+        var key = th.dataset.sort;
+        if (key === sortKey) {
+          sortDir = sortDir * -1;
+        } else {
+          sortKey = key;
+          sortDir = -1;
+        }
+        headers.forEach(function(h){ h.classList.toggle('sorted', h === th); });
+        th.querySelector('.sort-arrow').innerHTML = sortDir === -1 ? '&#9660;' : '&#9650;';
+        renderTable();
+      });
+    });
+
+    document.getElementById('export-csv').addEventListener('click', function(){
+      var cols = ['date','topic','contentType','pillar','impressions','reactions','comments','shares','engagements','engagementRate'];
+      var header = ['Date','Topic','Type','Pillar','Impressions','Reactions','Comments','Reposts','Engagements','Engagement Rate'];
+      var lines = [header.join(',')];
+      posts.forEach(function(p){
+        var row = cols.map(function(c){
+          var v = p[c];
+          if (typeof v === 'string' && (v.indexOf(',') > -1 || v.indexOf('"') > -1)) {
+            v = '"' + v.replace(/"/g, '""') + '"';
+          }
+          return v;
+        });
+        lines.push(row.join(','));
+      });
+      var blob = new Blob([lines.join('\\n')], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'contentiq-posts-' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    renderTable();
+  })();
 </script>
