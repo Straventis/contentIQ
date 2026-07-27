@@ -1,13 +1,42 @@
 const fs = require("fs");
 const path = require("path");
 
+// Proper quote-aware CSV parsing. A plain line.split(",") breaks the moment
+// any field (e.g. a post title) contains a comma inside quotes -- which
+// happens routinely with real post titles ("Output, Inference, and
+// Prediction: Why Engineers...") and silently shifts every column after it,
+// corrupting pillar/content_type/impressions for that row. This parser
+// respects quoted fields per standard CSV rules, including escaped "" for a
+// literal quote character inside a quoted field.
+function parseCSVLine(line) {
+  const values = [];
+  let current = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (inQuotes) {
+      if (char === '"') {
+        if (line[i + 1] === '"') { current += '"'; i++; } // escaped quote
+        else { inQuotes = false; }
+      } else {
+        current += char;
+      }
+    } else {
+      if (char === '"') { inQuotes = true; }
+      else if (char === ",") { values.push(current); current = ""; }
+      else { current += char; }
+    }
+  }
+  values.push(current);
+  return values;
+}
+
 function parseCSV(filePath) {
   const raw = fs.readFileSync(filePath, "utf-8").trim();
   const lines = raw.split(/\r?\n/);
-  const headers = lines[0].split(",");
+  const headers = parseCSVLine(lines[0]);
   return lines.slice(1).map((line) => {
-    // Simple CSV split is fine here, our data has no embedded commas in quotes
-    const values = line.split(",");
+    const values = parseCSVLine(line);
     const row = {};
     headers.forEach((h, i) => { row[h] = values[i] !== undefined ? values[i] : ""; });
     return row;
