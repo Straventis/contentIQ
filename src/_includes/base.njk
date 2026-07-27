@@ -81,6 +81,18 @@
   .wrap{ max-width:var(--page-width, 1080px); margin:0 auto; padding:0 28px; transition:max-width .2s ease; }
   .topbar{ padding:24px 0; border-bottom:1px solid var(--line); margin-bottom:40px; }
   .topbar .wrap{ display:flex; align-items:center; justify-content:space-between; }
+
+  /* ---------- V2.0: tab navigation shell ---------- */
+  .tabbar{ padding:0 0 20px; }
+  .tabbar .wrap{ display:flex; gap:4px; }
+  .tab-pill{
+    font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:.05em;
+    padding:9px 20px; border-radius:8px 8px 0 0; border:1px solid var(--line); border-bottom:none;
+    background:var(--bg); color:var(--ink-soft); text-decoration:none; transition:all .15s ease;
+    position:relative; top:1px;
+  }
+  .tab-pill:hover{ color:var(--ink); }
+  .tab-pill.active{ background:var(--surface); color:var(--ink); border-bottom:1px solid var(--surface); font-weight:600; }
   .brandmark{ display:flex; align-items:center; gap:10px; text-decoration:none; }
   .brandmark .word{ font-family:var(--mono); font-size:13px; letter-spacing:.08em; color:var(--ink-soft); text-transform:uppercase; }
   .brandmark .word b{ color:var(--ink); font-weight:600; }
@@ -231,6 +243,12 @@
 
       </div>
     </div>
+  </div>
+</div>
+<div class="tabbar">
+  <div class="wrap">
+    <a class="tab-pill{% if page.url == '/mydashboard/' %} active{% endif %}" href="/mydashboard/">Overview</a>
+    <a class="tab-pill{% if page.url == '/mydashboard/performance/' %} active{% endif %}" href="/mydashboard/performance/">Post Performance</a>
   </div>
 </div>
 <main class="wrap">
