@@ -201,6 +201,27 @@
   .chart-controls .range-toggle{ margin-bottom:0; }
   .control-label{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin:0 8px 0 0; align-self:center; }
 
+  /* ---------- V2.0: 5-metric KPI row ---------- */
+  .kpi-row{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:32px; }
+  .kpi-row .kpi-card{ padding:14px; }
+  .kpi-row .kpi-label{ font-size:10px; margin-bottom:6px; }
+  .kpi-row .kpi-value{ font-size:20px; }
+  @media (max-width:900px){ .kpi-row{ grid-template-columns:repeat(2,1fr); } }
+
+  /* ---------- V2.0: charts side by side ---------- */
+  .charts-row{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .charts-row .card{ margin-bottom:0; }
+  @media (max-width:900px){ .charts-row{ grid-template-columns:1fr; } }
+
+  /* ---------- V2.0: Taplio-style mini metric cards ---------- */
+  .mini-metric-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px; }
+  .mini-metric-card{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:18px 20px; }
+  .mini-metric-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:2px; }
+  .mini-metric-value{ font-family:var(--display); font-weight:600; font-size:24px; }
+  .mini-metric-label{ font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); }
+  .mini-metric-note{ font-size:11px; color:var(--ink-soft); margin:0 0 10px; }
+  @media (max-width:900px){ .mini-metric-grid{ grid-template-columns:1fr; } }
+
   /* ---------- V2.0: All Post Performance sortable table ---------- */
   .table-toolbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
   .export-btn{
