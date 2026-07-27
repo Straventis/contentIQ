@@ -169,6 +169,32 @@
   tr:last-child td{ border-bottom:none; }
   tr:hover td{ background:var(--accent-soft); }
   .type-pill{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.04em; background:var(--accent-soft); color:var(--accent); padding:3px 9px; border-radius:20px; white-space:nowrap; }
+
+  /* ---------- V2.0: Top Post Performance ranked cards ---------- */
+  .rank-header{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
+  .metric-select{
+    font-family:var(--mono); font-size:12px; padding:8px 12px; border-radius:8px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer;
+  }
+  .rank-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .rank-card{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:18px; }
+  .rank-card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .rank-badge{
+    font-family:var(--mono); font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px;
+    background:var(--accent-soft); color:var(--accent);
+  }
+  .rank-badge.gold{ background:#F0E4D0; color:#A5680A; }
+  .rank-badge.silver{ background:#E4E4E2; color:#6E6A62; }
+  .rank-badge.bronze{ background:#EDDCCB; color:#9A5A2E; }
+  html[data-theme="dark"] .rank-badge.gold{ background:#3A2E18; color:#E0A94D; }
+  html[data-theme="dark"] .rank-badge.silver{ background:#2E2F2F; color:#8F8B82; }
+  html[data-theme="dark"] .rank-badge.bronze{ background:#3A2A1C; color:#C98A5E; }
+  .rank-metric-value{ font-family:var(--display); font-weight:600; font-size:26px; }
+  .rank-metric-label{ font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin:2px 0 12px; }
+  .rank-topic{ display:block; font-weight:600; color:var(--ink); text-decoration:none; margin-bottom:6px; line-height:1.4; }
+  .rank-topic:hover{ color:var(--accent); }
+  .rank-meta{ display:flex; gap:8px; align-items:center; font-size:12px; color:var(--ink-soft); }
+  @media (max-width:700px){ .rank-grid{ grid-template-columns:1fr; } }
   .rate-good{ color:var(--accent); font-weight:600; }
   a.post-link{ text-decoration:none; color:var(--accent); font-weight:500; }
   a.post-link:hover{ text-decoration:underline; }

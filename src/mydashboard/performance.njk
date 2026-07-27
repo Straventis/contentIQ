@@ -4,14 +4,71 @@ title: "Post Performance"
 ---
 <p class="eyebrow">Content Intelligence</p>
 <h1 class="page-title">Post Performance</h1>
-<p class="subtitle">Top-performing posts and the full post table — coming in STRV-51 and STRV-52</p>
+<p class="subtitle">Tracking {{ posts.length }} tagged posts</p>
 
 <div class="card">
-  <h2>Top post performance</h2>
-  <p style="color:var(--ink-soft); font-size:14px;">Ranked cards with a metric selector (Impressions / Engagement Rate / Reactions / Engagements) land here — STRV-51.</p>
+  <div class="rank-header">
+    <h2 style="margin:0;">Top post performance</h2>
+    <select class="metric-select" id="rank-metric">
+      <option value="impressions">Impressions</option>
+      <option value="engagementRate">Engagement Rate</option>
+      <option value="reactions">Reactions</option>
+      <option value="engagements">Engagements</option>
+    </select>
+  </div>
+  <div class="rank-grid" id="rank-grid"><!-- filled in by JS below --></div>
 </div>
 
 <div class="card">
   <h2>All post performance</h2>
   <p style="color:var(--ink-soft); font-size:14px;">Sortable table with inline tags and CSV export lands here — STRV-52.</p>
 </div>
+
+<script>
+  var posts = {{ posts | json | safe }};
+
+  var METRIC_LABELS = {
+    impressions: 'Impressions',
+    engagementRate: 'Engagement Rate',
+    reactions: 'Reactions',
+    engagements: 'Engagements'
+  };
+  var RANK_CLASS = ['gold', 'silver', 'bronze'];
+
+  function formatMetric(metric, value){
+    if (metric === 'engagementRate') return (value * 100).toFixed(2) + '%';
+    return value.toLocaleString();
+  }
+
+  function renderRanking(metric){
+    var top3 = posts.slice().sort(function(a, b){ return b[metric] - a[metric]; }).slice(0, 3);
+    var grid = document.getElementById('rank-grid');
+    grid.innerHTML = top3.map(function(p, i){
+      return '' +
+        '<div class="rank-card">' +
+          '<div class="rank-card-head">' +
+            '<span class="rank-badge ' + RANK_CLASS[i] + '">#' + (i + 1) + '</span>' +
+            '<span class="type-pill">' + p.contentType + '</span>' +
+          '</div>' +
+          '<p class="rank-metric-value">' + formatMetric(metric, p[metric]) + '</p>' +
+          '<p class="rank-metric-label">' + METRIC_LABELS[metric] + '</p>' +
+          '<a class="rank-topic" href="/mydashboard/posts/' + p.slug + '/">' + p.topic + '</a>' +
+          '<div class="rank-meta"><span>' + p.date + '</span><span>&middot;</span><span>' + p.pillar + '</span></div>' +
+        '</div>';
+    }).join('');
+  }
+
+  var select = document.getElementById('rank-metric');
+
+  function getStored(){ try { return localStorage.getItem('contentiq-rank-metric'); } catch(e){ return null; } }
+  function setStored(v){ try { localStorage.setItem('contentiq-rank-metric', v); } catch(e){} }
+
+  var initial = getStored() || 'impressions';
+  select.value = initial;
+  renderRanking(initial);
+
+  select.addEventListener('change', function(){
+    renderRanking(select.value);
+    setStored(select.value);
+  });
+</script>
