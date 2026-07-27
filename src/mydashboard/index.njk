@@ -6,66 +6,106 @@ title: "Dashboard"
 <h1 class="page-title">Post Performance Dashboard</h1>
 <p class="subtitle" id="page-subtitle">Tracking {{ posts.length }} tagged posts across {{ dailyTotals.length }} days of data</p>
 
-<div class="metrics-toggle">
-  <button class="metrics-btn active" data-metrics="relative" type="button">Relative view</button>
-  <button class="metrics-btn" data-metrics="absolute" type="button">Exact numbers</button>
+<div class="chart-controls">
+  <div>
+    <span class="control-label">Range</span>
+    <div class="range-toggle" id="range-toggle-group">
+      <button class="range-btn" data-range="7" type="button">7 days</button>
+      <button class="range-btn" data-range="14" type="button">14 days</button>
+      <button class="range-btn" data-range="30" type="button">30 days</button>
+      <button class="range-btn active" data-range="all" type="button">All time</button>
+      <button class="range-btn" data-range="custom" type="button">Custom</button>
+    </div>
+  </div>
+  <div>
+    <span class="control-label">View</span>
+    <div class="range-toggle" id="mode-toggle-group">
+      <button class="range-btn active" data-mode="daily" type="button">Daily</button>
+      <button class="range-btn" data-mode="cumulative" type="button">Cumulative</button>
+    </div>
+  </div>
+  <div>
+    <span class="control-label">Chart</span>
+    <div class="range-toggle" id="type-toggle-group">
+      <button class="range-btn active" data-type="line" type="button">Line</button>
+      <button class="range-btn" data-type="bar" type="button">Bar</button>
+    </div>
+  </div>
+</div>
+<div class="custom-range-inputs" id="custom-range-inputs" style="display:none;">
+  <input type="date" id="range-start">
+  <span>to</span>
+  <input type="date" id="range-end">
+  <button type="button" id="apply-custom-range">Apply</button>
 </div>
 
-<div class="kpi-grid">
+<div class="kpi-row">
   <div class="kpi-card">
-    <p class="kpi-label" id="kpi-impressions-label">Avg Impressions / Post</p>
-    <p class="kpi-value" id="kpi-impressions-value">&mdash;</p>
+    <p class="kpi-label">Total Impressions</p>
+    <p class="kpi-value" id="kpi-total-impressions">&mdash;</p>
   </div>
   <div class="kpi-card">
-    <p class="kpi-label" id="kpi-engagements-label">Avg Engagements / Post</p>
-    <p class="kpi-value" id="kpi-engagements-value">&mdash;</p>
+    <p class="kpi-label">Total Engagements</p>
+    <p class="kpi-value" id="kpi-total-engagements">&mdash;</p>
   </div>
   <div class="kpi-card">
     <p class="kpi-label">Avg Engagement Rate</p>
     <p class="kpi-value" id="kpi-rate-value">&mdash;</p>
   </div>
+  <div class="kpi-card">
+    <p class="kpi-label">Avg Impressions / Post</p>
+    <p class="kpi-value" id="kpi-avg-impressions">&mdash;</p>
+  </div>
+  <div class="kpi-card">
+    <p class="kpi-label">Avg Engagements / Post</p>
+    <p class="kpi-value" id="kpi-avg-engagements">&mdash;</p>
+  </div>
+</div>
+
+<div class="charts-row">
+  <div class="card">
+    <h2>Account Impressions Over Time</h2>
+    <canvas id="timelineChart" height="90"></canvas>
+  </div>
+  <div class="card">
+    <h2>Engagement Rate by Pillar</h2>
+    <canvas id="pillarChart" height="90"></canvas>
+  </div>
 </div>
 
 <div class="card">
-  <h2>Engagement Rate by Pillar</h2>
-  <canvas id="pillarChart" height="90"></canvas>
-</div>
-
-<div class="card">
-  <h2>Account Impressions Over Time</h2>
-  <div class="chart-controls">
-    <div>
-      <span class="control-label">Range</span>
-      <div class="range-toggle" id="range-toggle-group">
-        <button class="range-btn" data-range="7" type="button">7 days</button>
-        <button class="range-btn" data-range="14" type="button">14 days</button>
-        <button class="range-btn" data-range="30" type="button">30 days</button>
-        <button class="range-btn active" data-range="all" type="button">All time</button>
-        <button class="range-btn" data-range="custom" type="button">Custom</button>
+  <h2>Growth Overview</h2>
+  <p class="mini-metric-note">Cumulative over the range selected above. Impressions and Engagement duplicate the numbers above by design, shown here in the same compact format as the reference dashboard. Follower Growth is new followers gained within the tracked window, not a lifetime total &mdash; no historical baseline exists before tracking started. Posts counts only posts falling within daily_totals.csv's tracked window, so it can undercount vs. the total tagged post count above if older posts predate that window. Profile Views isn't available in any current data source (LinkedIn's export doesn't include it), so it's omitted rather than faked.</p>
+  <div class="mini-metric-grid">
+    <div class="mini-metric-card">
+      <div class="mini-metric-head">
+        <span class="mini-metric-value" id="mini-followers-value">&mdash;</span>
+        <span class="mini-metric-label">Follower Growth</span>
       </div>
+      <canvas id="miniFollowersChart" height="60"></canvas>
     </div>
-    <div>
-      <span class="control-label">View</span>
-      <div class="range-toggle" id="mode-toggle-group">
-        <button class="range-btn active" data-mode="daily" type="button">Daily</button>
-        <button class="range-btn" data-mode="cumulative" type="button">Cumulative</button>
+    <div class="mini-metric-card">
+      <div class="mini-metric-head">
+        <span class="mini-metric-value" id="mini-posts-value">&mdash;</span>
+        <span class="mini-metric-label">Posts</span>
       </div>
+      <canvas id="miniPostsChart" height="60"></canvas>
     </div>
-    <div>
-      <span class="control-label">Chart</span>
-      <div class="range-toggle" id="type-toggle-group">
-        <button class="range-btn active" data-type="line" type="button">Line</button>
-        <button class="range-btn" data-type="bar" type="button">Bar</button>
+    <div class="mini-metric-card">
+      <div class="mini-metric-head">
+        <span class="mini-metric-value" id="mini-impressions-value">&mdash;</span>
+        <span class="mini-metric-label">Impressions</span>
       </div>
+      <canvas id="miniImpressionsChart" height="60"></canvas>
+    </div>
+    <div class="mini-metric-card">
+      <div class="mini-metric-head">
+        <span class="mini-metric-value" id="mini-engagement-value">&mdash;</span>
+        <span class="mini-metric-label">Engagement</span>
+      </div>
+      <canvas id="miniEngagementChart" height="60"></canvas>
     </div>
   </div>
-  <div class="custom-range-inputs" id="custom-range-inputs" style="display:none;">
-    <input type="date" id="range-start">
-    <span>to</span>
-    <input type="date" id="range-end">
-    <button type="button" id="apply-custom-range">Apply</button>
-  </div>
-  <canvas id="timelineChart" height="90"></canvas>
 </div>
 
 <div class="card">
@@ -74,9 +114,7 @@ title: "Dashboard"
     <thead>
       <tr>
         <th>Date</th><th>Topic</th><th>Type</th><th>Pillar</th>
-        <th class="abs-hide">Impressions</th><th class="abs-hide">Engagements</th>
-        <th class="rel-hide" style="display:none;">Reach Index</th>
-        <th>Rate</th>
+        <th>Impressions</th><th>Engagements</th><th>Rate</th>
       </tr>
     </thead>
     <tbody>
@@ -86,14 +124,8 @@ title: "Dashboard"
         <td><a class="post-link" href="/mydashboard/posts/{{ post.slug }}/">{{ post.topic | truncate(35) }}</a></td>
         <td><span class="type-pill">{{ post.contentType }}</span></td>
         <td>{{ post.pillar }}</td>
-        <td class="abs-hide">{{ post.impressions }}</td>
-        <td class="abs-hide">{{ post.engagements }}</td>
-        <!-- Note: this Reach Index still compares against the all-time average
-             (stats.avgImpressions), not the currently selected date range above.
-             Left as-is for now -- this table predates the range/KPI unification
-             and is largely superseded by the Post Performance tab's sortable
-             table (STRV-52), which has no such mismatch. -->
-        <td class="rel-hide" style="display:none;" data-impressions="{{ post.impressions }}" data-avg="{{ stats.avgImpressions }}"></td>
+        <td>{{ post.impressions }}</td>
+        <td>{{ post.engagements }}</td>
         <td class="{% if post.engagementRate >= 0.015 %}rate-good{% endif %}">{{ post.engagementRate | pct }}</td>
       </tr>
       {% endfor %}
@@ -116,13 +148,10 @@ title: "Dashboard"
 
   var styles = getComputedStyle(document.documentElement);
   var accent = styles.getPropertyValue('--accent').trim();
+  var accentSoft = styles.getPropertyValue('--accent-soft').trim();
   var inkSoft = styles.getPropertyValue('--ink-soft').trim();
   var line = styles.getPropertyValue('--line').trim();
 
-  // Fixed multi-color palette for this chart specifically, deliberately
-  // NOT tied to the theme's accent color, stays constant regardless of
-  // which color palette or theme is selected, so each pillar bar stays
-  // visually distinct.
   var pillarPalette = ['#3E5C55', '#2A5C7A', '#A5680A', '#7A3B5C', '#5F7A3E', '#8A5C3E', '#3E5C7A', '#7A5C3E'];
   var pillarColors = pillarLabels.map(function(_, i){ return pillarPalette[i % pillarPalette.length]; });
 
@@ -139,7 +168,7 @@ title: "Dashboard"
     }
   });
 
-  // ---------- Shared date-range filter, drives both the KPI cards and the chart ----------
+  // ---------- Shared date-range filter ----------
   var currentRange = { value: 'all', start: null, end: null };
   var currentMode = 'daily';
   var currentType = 'line';
@@ -163,34 +192,25 @@ title: "Dashboard"
   function filteredDaily(){ return daily.filter(function(d){ return inRange(d.date); }); }
   function filteredPosts(){ return posts.filter(function(p){ return inRange(p.date); }); }
 
-  function cumulativeSeries(dailyArr){
+  function cumulativeSeries(dailyArr, key){
     var running = 0;
-    return dailyArr.map(function(d){ running += d.impressions; return { date: d.date, impressions: running }; });
+    return dailyArr.map(function(d){ running += d[key]; return { date: d.date, value: running }; });
   }
 
-  // ---------- KPI cards ----------
+  // ---------- 5-metric KPI row ----------
   function updateKpis(){
     var fp = filteredPosts();
-    var activeBtn = document.querySelector('.metrics-btn.active');
-    var isAbs = activeBtn && activeBtn.dataset.metrics === 'absolute';
-
     var totalImpressions = fp.reduce(function(a, p){ return a + p.impressions; }, 0);
     var totalEngagements = fp.reduce(function(a, p){ return a + p.engagements; }, 0);
     var avgRate = fp.length ? fp.reduce(function(a, p){ return a + p.engagementRate; }, 0) / fp.length : 0;
     var avgImpressions = fp.length ? totalImpressions / fp.length : 0;
     var avgEngagements = fp.length ? totalEngagements / fp.length : 0;
 
-    document.getElementById('kpi-impressions-label').textContent = isAbs ? 'Total Impressions' : 'Avg Impressions / Post';
-    document.getElementById('kpi-impressions-value').textContent = isAbs
-      ? totalImpressions.toLocaleString()
-      : (fp.length ? Math.round(avgImpressions).toLocaleString() : '\u2014');
-
-    document.getElementById('kpi-engagements-label').textContent = isAbs ? 'Total Engagements' : 'Avg Engagements / Post';
-    document.getElementById('kpi-engagements-value').textContent = isAbs
-      ? totalEngagements.toLocaleString()
-      : (fp.length ? avgEngagements.toFixed(1) : '\u2014');
-
+    document.getElementById('kpi-total-impressions').textContent = totalImpressions.toLocaleString();
+    document.getElementById('kpi-total-engagements').textContent = totalEngagements.toLocaleString();
     document.getElementById('kpi-rate-value').textContent = (avgRate * 100).toFixed(2) + '%';
+    document.getElementById('kpi-avg-impressions').textContent = fp.length ? Math.round(avgImpressions).toLocaleString() : '\u2014';
+    document.getElementById('kpi-avg-engagements').textContent = fp.length ? avgEngagements.toFixed(1) : '\u2014';
 
     var subtitleEl = document.getElementById('page-subtitle');
     if (subtitleEl) {
@@ -200,10 +220,12 @@ title: "Dashboard"
     }
   }
 
-  // ---------- Timeline chart (rebuilt on range / mode / type change) ----------
+  // ---------- Main timeline chart ----------
   var timelineChart = null;
   function buildTimelineChart(){
-    var source = currentMode === 'cumulative' ? cumulativeSeries(filteredDaily()) : filteredDaily();
+    var source = currentMode === 'cumulative'
+      ? cumulativeSeries(filteredDaily(), 'impressions').map(function(d){ return { date: d.date, impressions: d.value }; })
+      : filteredDaily();
     var labels = source.map(function(d){ return d.date; });
     var values = source.map(function(d){ return d.impressions; });
 
@@ -216,7 +238,7 @@ title: "Dashboard"
           label: currentMode === 'cumulative' ? 'Cumulative Impressions' : 'Impressions',
           data: values,
           borderColor: accent,
-          backgroundColor: currentType === 'bar' ? accent : accent,
+          backgroundColor: accent,
           tension: 0.3,
           fill: false,
           borderRadius: currentType === 'bar' ? 4 : 0
@@ -233,7 +255,59 @@ title: "Dashboard"
     });
   }
 
-  // ---------- Wire up the three toggle groups ----------
+  // ---------- Taplio-style mini metric cards (always cumulative, tiny sparkline area charts) ----------
+  var miniCharts = {};
+  function buildMiniChart(canvasId, labels, values, valueEl, formatFn){
+    if (miniCharts[canvasId]) miniCharts[canvasId].destroy();
+    miniCharts[canvasId] = new Chart(document.getElementById(canvasId), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: accent,
+          backgroundColor: accentSoft,
+          fill: true,
+          tension: 0.25,
+          pointRadius: 0,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+        scales: {
+          y: { display: false, beginAtZero: true },
+          x: { display: false }
+        }
+      }
+    });
+    var last = values.length ? values[values.length - 1] : 0;
+    document.getElementById(valueEl).textContent = formatFn ? formatFn(last) : last.toLocaleString();
+  }
+
+  function buildMiniCharts(){
+    var fd = filteredDaily();
+    var fp = filteredPosts();
+
+    var followerSeries = cumulativeSeries(fd, 'newFollowers');
+    buildMiniChart('miniFollowersChart', followerSeries.map(function(d){ return d.date; }), followerSeries.map(function(d){ return d.value; }), 'mini-followers-value');
+
+    // Posts: cumulative count of tagged posts published within the range, by day
+    var postsByDate = {};
+    fp.forEach(function(p){ postsByDate[p.date] = (postsByDate[p.date] || 0) + 1; });
+    var runningPosts = 0;
+    var postsSeries = fd.map(function(d){ runningPosts += (postsByDate[d.date] || 0); return { date: d.date, value: runningPosts }; });
+    buildMiniChart('miniPostsChart', postsSeries.map(function(d){ return d.date; }), postsSeries.map(function(d){ return d.value; }), 'mini-posts-value');
+
+    var impressionsSeries = cumulativeSeries(fd, 'impressions');
+    buildMiniChart('miniImpressionsChart', impressionsSeries.map(function(d){ return d.date; }), impressionsSeries.map(function(d){ return d.value; }), 'mini-impressions-value');
+
+    var engagementSeries = cumulativeSeries(fd, 'engagements');
+    buildMiniChart('miniEngagementChart', engagementSeries.map(function(d){ return d.date; }), engagementSeries.map(function(d){ return d.value; }), 'mini-engagement-value');
+  }
+
+  // ---------- Wire up controls ----------
   (function(){
     var rangeButtons = document.querySelectorAll('#range-toggle-group .range-btn');
     var modeButtons = document.querySelectorAll('#mode-toggle-group .range-btn');
@@ -246,6 +320,7 @@ title: "Dashboard"
     function refresh(){
       buildTimelineChart();
       updateKpis();
+      buildMiniCharts();
     }
 
     function setRange(rangeValue, customStart, customEnd){
@@ -269,7 +344,7 @@ title: "Dashboard"
       btn.addEventListener('click', function(){
         currentMode = btn.dataset.mode;
         modeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
-        refresh();
+        buildTimelineChart();
       });
     });
 
@@ -277,46 +352,10 @@ title: "Dashboard"
       btn.addEventListener('click', function(){
         currentType = btn.dataset.type;
         typeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
-        refresh();
+        buildTimelineChart();
       });
     });
 
     setRange(getStoredRange() || 'all');
-  })();
-
-  // ---------- Relative / Absolute metrics toggle ----------
-  (function(){
-    var buttons = document.querySelectorAll('.metrics-btn');
-
-    function getStored(){ try { return localStorage.getItem('contentiq-metrics-view'); } catch(e){ return null; } }
-    function setStored(v){ try { localStorage.setItem('contentiq-metrics-view', v); } catch(e){} }
-
-    // All Posts table's Reach Index column: unchanged from before, still
-    // compares against the all-time average, see note in the markup above.
-    document.querySelectorAll('[data-impressions]').forEach(function(cell){
-      var impressions = parseFloat(cell.dataset.impressions) || 0;
-      var avg = parseFloat(cell.dataset.avg) || 0;
-      if (avg > 0) {
-        var multiplier = impressions / avg;
-        cell.textContent = multiplier.toFixed(1) + 'x avg';
-      } else {
-        cell.textContent = '\u2014';
-      }
-    });
-
-    function setView(view){
-      var showAbs = view === 'absolute';
-      document.querySelectorAll('.abs-hide').forEach(function(el){ el.style.display = showAbs ? '' : 'none'; });
-      document.querySelectorAll('.rel-hide').forEach(function(el){ el.style.display = showAbs ? 'none' : ''; });
-      buttons.forEach(function(b){ b.classList.toggle('active', b.dataset.metrics === view); });
-      setStored(view);
-      updateKpis();
-    }
-
-    setView(getStored() || 'relative');
-
-    buttons.forEach(function(btn){
-      btn.addEventListener('click', function(){ setView(btn.dataset.metrics); });
-    });
   })();
 </script>
