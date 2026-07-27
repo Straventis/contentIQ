@@ -4,7 +4,7 @@ title: "Dashboard"
 ---
 <p class="eyebrow">Content Intelligence</p>
 <h1 class="page-title">Post Performance Dashboard</h1>
-<p class="subtitle">Tracking {{ posts.length }} tagged posts across {{ dailyTotals.length }} days of data</p>
+<p class="subtitle" id="page-subtitle">Tracking {{ posts.length }} tagged posts across {{ dailyTotals.length }} days of data</p>
 
 <div class="metrics-toggle">
   <button class="metrics-btn active" data-metrics="relative" type="button">Relative view</button>
@@ -13,22 +13,16 @@ title: "Dashboard"
 
 <div class="kpi-grid">
   <div class="kpi-card">
-    <p class="kpi-label">Reach vs. Average Post</p>
-    <p class="kpi-value abs-hide">{{ (posts | sum("impressions")) or 0 }}</p>
-    <p class="kpi-value rel-hide" id="kpi-reach-index" style="display:none;" data-avg="{{ stats.avgImpressions }}" data-posts="{{ posts.length }}">—</p>
+    <p class="kpi-label" id="kpi-impressions-label">Avg Impressions / Post</p>
+    <p class="kpi-value" id="kpi-impressions-value">&mdash;</p>
   </div>
   <div class="kpi-card">
-    <p class="kpi-label">Engagement vs. Average Post</p>
-    <p class="kpi-value abs-hide">{{ (posts | sum("engagements")) or 0 }}</p>
-    <p class="kpi-value rel-hide" id="kpi-engagement-index" style="display:none;" data-avg="{{ stats.avgEngagements }}" data-posts="{{ posts.length }}">—</p>
+    <p class="kpi-label" id="kpi-engagements-label">Avg Engagements / Post</p>
+    <p class="kpi-value" id="kpi-engagements-value">&mdash;</p>
   </div>
   <div class="kpi-card">
     <p class="kpi-label">Avg Engagement Rate</p>
-    <p class="kpi-value">{{ stats.avgRate | pct }}</p>
-  </div>
-  <div class="kpi-card">
-    <p class="kpi-label">Best Performer</p>
-    <p class="kpi-value" style="font-size:16px;">{{ stats.bestPost.topic | truncate(28) }}</p>
+    <p class="kpi-value" id="kpi-rate-value">&mdash;</p>
   </div>
 </div>
 
@@ -39,12 +33,31 @@ title: "Dashboard"
 
 <div class="card">
   <h2>Account Impressions Over Time</h2>
-  <div class="range-toggle">
-    <button class="range-btn" data-range="7" type="button">7 days</button>
-    <button class="range-btn" data-range="14" type="button">14 days</button>
-    <button class="range-btn" data-range="30" type="button">30 days</button>
-    <button class="range-btn active" data-range="all" type="button">All time</button>
-    <button class="range-btn" data-range="custom" type="button">Custom</button>
+  <div class="chart-controls">
+    <div>
+      <span class="control-label">Range</span>
+      <div class="range-toggle" id="range-toggle-group">
+        <button class="range-btn" data-range="7" type="button">7 days</button>
+        <button class="range-btn" data-range="14" type="button">14 days</button>
+        <button class="range-btn" data-range="30" type="button">30 days</button>
+        <button class="range-btn active" data-range="all" type="button">All time</button>
+        <button class="range-btn" data-range="custom" type="button">Custom</button>
+      </div>
+    </div>
+    <div>
+      <span class="control-label">View</span>
+      <div class="range-toggle" id="mode-toggle-group">
+        <button class="range-btn active" data-mode="daily" type="button">Daily</button>
+        <button class="range-btn" data-mode="cumulative" type="button">Cumulative</button>
+      </div>
+    </div>
+    <div>
+      <span class="control-label">Chart</span>
+      <div class="range-toggle" id="type-toggle-group">
+        <button class="range-btn active" data-type="line" type="button">Line</button>
+        <button class="range-btn" data-type="bar" type="button">Bar</button>
+      </div>
+    </div>
   </div>
   <div class="custom-range-inputs" id="custom-range-inputs" style="display:none;">
     <input type="date" id="range-start">
@@ -75,6 +88,11 @@ title: "Dashboard"
         <td>{{ post.pillar }}</td>
         <td class="abs-hide">{{ post.impressions }}</td>
         <td class="abs-hide">{{ post.engagements }}</td>
+        <!-- Note: this Reach Index still compares against the all-time average
+             (stats.avgImpressions), not the currently selected date range above.
+             Left as-is for now -- this table predates the range/KPI unification
+             and is largely superseded by the Post Performance tab's sortable
+             table (STRV-52), which has no such mismatch. -->
         <td class="rel-hide" style="display:none;" data-impressions="{{ post.impressions }}" data-avg="{{ stats.avgImpressions }}"></td>
         <td class="{% if post.engagementRate >= 0.015 %}rate-good{% endif %}">{{ post.engagementRate | pct }}</td>
       </tr>
@@ -121,72 +139,149 @@ title: "Dashboard"
     }
   });
 
-  var timelineChart = new Chart(document.getElementById('timelineChart'), {
-    type: 'line',
-    data: {
-      labels: daily.map(function(d){ return d.date; }),
-      datasets: [{ label: 'Impressions', data: daily.map(function(d){ return d.impressions; }), borderColor: accent, backgroundColor: accent, tension: 0.3, fill: false }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft } },
-        x: { grid: { display: false }, ticks: { color: inkSoft } }
-      }
-    }
-  });
+  // ---------- Shared date-range filter, drives both the KPI cards and the chart ----------
+  var currentRange = { value: 'all', start: null, end: null };
+  var currentMode = 'daily';
+  var currentType = 'line';
 
-  // ---------- Date range filter ----------
+  function getStoredRange(){ try { return localStorage.getItem('contentiq-date-range'); } catch(e){ return null; } }
+  function setStoredRange(v){ try { localStorage.setItem('contentiq-date-range', v); } catch(e){} }
+
+  function inRange(dateStr){
+    if (currentRange.value === 'all') return true;
+    var d = new Date(dateStr);
+    if (currentRange.value === 'custom') {
+      if (!currentRange.start || !currentRange.end) return true;
+      return d >= new Date(currentRange.start) && d <= new Date(currentRange.end);
+    }
+    var days = parseInt(currentRange.value, 10);
+    var cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    return d >= cutoff;
+  }
+
+  function filteredDaily(){ return daily.filter(function(d){ return inRange(d.date); }); }
+  function filteredPosts(){ return posts.filter(function(p){ return inRange(p.date); }); }
+
+  function cumulativeSeries(dailyArr){
+    var running = 0;
+    return dailyArr.map(function(d){ running += d.impressions; return { date: d.date, impressions: running }; });
+  }
+
+  // ---------- KPI cards ----------
+  function updateKpis(){
+    var fp = filteredPosts();
+    var activeBtn = document.querySelector('.metrics-btn.active');
+    var isAbs = activeBtn && activeBtn.dataset.metrics === 'absolute';
+
+    var totalImpressions = fp.reduce(function(a, p){ return a + p.impressions; }, 0);
+    var totalEngagements = fp.reduce(function(a, p){ return a + p.engagements; }, 0);
+    var avgRate = fp.length ? fp.reduce(function(a, p){ return a + p.engagementRate; }, 0) / fp.length : 0;
+    var avgImpressions = fp.length ? totalImpressions / fp.length : 0;
+    var avgEngagements = fp.length ? totalEngagements / fp.length : 0;
+
+    document.getElementById('kpi-impressions-label').textContent = isAbs ? 'Total Impressions' : 'Avg Impressions / Post';
+    document.getElementById('kpi-impressions-value').textContent = isAbs
+      ? totalImpressions.toLocaleString()
+      : (fp.length ? Math.round(avgImpressions).toLocaleString() : '\u2014');
+
+    document.getElementById('kpi-engagements-label').textContent = isAbs ? 'Total Engagements' : 'Avg Engagements / Post';
+    document.getElementById('kpi-engagements-value').textContent = isAbs
+      ? totalEngagements.toLocaleString()
+      : (fp.length ? avgEngagements.toFixed(1) : '\u2014');
+
+    document.getElementById('kpi-rate-value').textContent = (avgRate * 100).toFixed(2) + '%';
+
+    var subtitleEl = document.getElementById('page-subtitle');
+    if (subtitleEl) {
+      subtitleEl.textContent = currentRange.value === 'all'
+        ? 'Tracking ' + fp.length + ' tagged posts across ' + daily.length + ' days of data'
+        : 'Tracking ' + fp.length + ' tagged posts in the selected range';
+    }
+  }
+
+  // ---------- Timeline chart (rebuilt on range / mode / type change) ----------
+  var timelineChart = null;
+  function buildTimelineChart(){
+    var source = currentMode === 'cumulative' ? cumulativeSeries(filteredDaily()) : filteredDaily();
+    var labels = source.map(function(d){ return d.date; });
+    var values = source.map(function(d){ return d.impressions; });
+
+    if (timelineChart) timelineChart.destroy();
+    timelineChart = new Chart(document.getElementById('timelineChart'), {
+      type: currentType,
+      data: {
+        labels: labels,
+        datasets: [{
+          label: currentMode === 'cumulative' ? 'Cumulative Impressions' : 'Impressions',
+          data: values,
+          borderColor: accent,
+          backgroundColor: currentType === 'bar' ? accent : accent,
+          tension: 0.3,
+          fill: false,
+          borderRadius: currentType === 'bar' ? 4 : 0
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft } },
+          x: { grid: { display: false }, ticks: { color: inkSoft } }
+        }
+      }
+    });
+  }
+
+  // ---------- Wire up the three toggle groups ----------
   (function(){
-    var rangeButtons = document.querySelectorAll('.range-btn');
+    var rangeButtons = document.querySelectorAll('#range-toggle-group .range-btn');
+    var modeButtons = document.querySelectorAll('#mode-toggle-group .range-btn');
+    var typeButtons = document.querySelectorAll('#type-toggle-group .range-btn');
     var customInputs = document.getElementById('custom-range-inputs');
     var startInput = document.getElementById('range-start');
     var endInput = document.getElementById('range-end');
     var applyCustomBtn = document.getElementById('apply-custom-range');
 
-    function getStored(){ try { return localStorage.getItem('contentiq-date-range'); } catch(e){ return null; } }
-    function setStored(v){ try { localStorage.setItem('contentiq-date-range', v); } catch(e){} }
-
-    function filterDaily(rangeValue, customStart, customEnd){
-      if (rangeValue === 'all') return daily;
-
-      if (rangeValue === 'custom') {
-        if (!customStart || !customEnd) return daily;
-        var s = new Date(customStart), e = new Date(customEnd);
-        return daily.filter(function(d){
-          var dd = new Date(d.date);
-          return dd >= s && dd <= e;
-        });
-      }
-
-      var days = parseInt(rangeValue, 10);
-      var cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - days);
-      return daily.filter(function(d){ return new Date(d.date) >= cutoff; });
+    function refresh(){
+      buildTimelineChart();
+      updateKpis();
     }
 
-    function applyRange(rangeValue, customStart, customEnd){
-      var filtered = filterDaily(rangeValue, customStart, customEnd);
-      timelineChart.data.labels = filtered.map(function(d){ return d.date; });
-      timelineChart.data.datasets[0].data = filtered.map(function(d){ return d.impressions; });
-      timelineChart.update();
-
+    function setRange(rangeValue, customStart, customEnd){
+      currentRange.value = rangeValue;
+      currentRange.start = customStart || null;
+      currentRange.end = customEnd || null;
       rangeButtons.forEach(function(b){ b.classList.toggle('active', b.dataset.range === rangeValue); });
       customInputs.style.display = rangeValue === 'custom' ? 'flex' : 'none';
-
-      if (rangeValue !== 'custom') setStored(rangeValue);
+      if (rangeValue !== 'custom') setStoredRange(rangeValue);
+      refresh();
     }
 
     rangeButtons.forEach(function(btn){
-      btn.addEventListener('click', function(){ applyRange(btn.dataset.range); });
+      btn.addEventListener('click', function(){ setRange(btn.dataset.range); });
     });
-
     applyCustomBtn.addEventListener('click', function(){
-      applyRange('custom', startInput.value, endInput.value);
+      setRange('custom', startInput.value, endInput.value);
     });
 
-    applyRange(getStored() || 'all');
+    modeButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        currentMode = btn.dataset.mode;
+        modeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
+        refresh();
+      });
+    });
+
+    typeButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        currentType = btn.dataset.type;
+        typeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
+        refresh();
+      });
+    });
+
+    setRange(getStoredRange() || 'all');
   })();
 
   // ---------- Relative / Absolute metrics toggle ----------
@@ -196,7 +291,8 @@ title: "Dashboard"
     function getStored(){ try { return localStorage.getItem('contentiq-metrics-view'); } catch(e){ return null; } }
     function setStored(v){ try { localStorage.setItem('contentiq-metrics-view', v); } catch(e){} }
 
-    // Fill in the reach index cells once, from their data attributes
+    // All Posts table's Reach Index column: unchanged from before, still
+    // compares against the all-time average, see note in the markup above.
     document.querySelectorAll('[data-impressions]').forEach(function(cell){
       var impressions = parseFloat(cell.dataset.impressions) || 0;
       var avg = parseFloat(cell.dataset.avg) || 0;
@@ -204,22 +300,9 @@ title: "Dashboard"
         var multiplier = impressions / avg;
         cell.textContent = multiplier.toFixed(1) + 'x avg';
       } else {
-        cell.textContent = '—';
+        cell.textContent = '\u2014';
       }
     });
-
-    // Top KPI cards: relative view shows "per post" average instead of the
-    // full account total, a more size-agnostic number than the raw sum.
-    var reachIndexEl = document.getElementById('kpi-reach-index');
-    var engagementIndexEl = document.getElementById('kpi-engagement-index');
-    if (reachIndexEl) {
-      var avgImp = parseFloat(reachIndexEl.dataset.avg) || 0;
-      reachIndexEl.textContent = avgImp > 0 ? Math.round(avgImp) + ' / post' : '—';
-    }
-    if (engagementIndexEl) {
-      var avgEng = parseFloat(engagementIndexEl.dataset.avg) || 0;
-      engagementIndexEl.textContent = avgEng > 0 ? avgEng.toFixed(1) + ' / post' : '—';
-    }
 
     function setView(view){
       var showAbs = view === 'absolute';
@@ -227,6 +310,7 @@ title: "Dashboard"
       document.querySelectorAll('.rel-hide').forEach(function(el){ el.style.display = showAbs ? 'none' : ''; });
       buttons.forEach(function(b){ b.classList.toggle('active', b.dataset.metrics === view); });
       setStored(view);
+      updateKpis();
     }
 
     setView(getStored() || 'relative');
