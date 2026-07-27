@@ -42,6 +42,7 @@ MASTER_PATH = Path("src/_data/master.csv")
 DAILY_PATH = Path("src/_data/daily_totals.csv")
 DISCOVERY_LOG_PATH = Path("src/_data/discovery_log.csv")
 SNAPSHOT_PATH = Path("src/_data/post_snapshots.csv")
+DEMOGRAPHICS_PATH = Path("src/_data/demographics.csv")
 
 FIELDNAMES = [
     "date", "post_url", "post_topic", "content_type", "pillar",
@@ -60,6 +61,10 @@ DISCOVERY_FIELDNAMES = [
 SNAPSHOT_FIELDNAMES = [
     "pulled_at", "post_id", "post_url", "post_topic", "impressions",
     "total_engagements", "engagement_rate",
+]
+
+DEMOGRAPHICS_FIELDNAMES = [
+    "pulled_at", "category", "value", "percentage",
 ]
 
 
@@ -174,6 +179,27 @@ def parse_discovery(ws):
         elif row[0] == "Members reached":
             values["total_members_reached"] = row[1]
     return values
+
+
+def parse_demographics(ws):
+    """Return a list of {category, value, percentage} from the DEMOGRAPHICS
+    sheet. LinkedIn buckets this into several category types on one sheet
+    (Company, Location, Company size, Seniority, Job title, Industry) --
+    read them all, categorize by whatever's in column A."""
+    rows = []
+    header_seen = False
+    for row in ws.iter_rows(min_row=1, values_only=True):
+        if not row or not row[0]:
+            continue
+        if row[0] == "Top Demographics":
+            header_seen = True
+            continue
+        if not header_seen:
+            continue
+        category, value, percentage = row[0], row[1], row[2]
+        if category and value is not None:
+            rows.append({"category": category, "value": value, "percentage": percentage})
+    return rows
 
 
 def build_rows(xlsx_path: str):
@@ -299,6 +325,35 @@ def append_discovery_log(xlsx_path: str):
     print(f"  -> {DISCOVERY_LOG_PATH.resolve()}")
 
 
+def write_demographics(xlsx_path: str):
+    """Overwrite demographics.csv with the latest pull's snapshot -- this is
+    a point-in-time audience breakdown, not additive data like posts, so
+    unlike master.csv there's nothing to merge. Every re-run just replaces
+    it with whatever the newest export says."""
+    wb = openpyxl.load_workbook(xlsx_path, data_only=True)
+    if "DEMOGRAPHICS" not in wb.sheetnames:
+        return
+    demo_rows = parse_demographics(wb["DEMOGRAPHICS"])
+    if not demo_rows:
+        return
+
+    pulled_at = datetime.now().strftime("%Y-%m-%d %H:%M")
+    DEMOGRAPHICS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(DEMOGRAPHICS_PATH, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=DEMOGRAPHICS_FIELDNAMES)
+        writer.writeheader()
+        for row in demo_rows:
+            writer.writerow({
+                "pulled_at": pulled_at,
+                "category": row["category"],
+                "value": row["value"],
+                "percentage": row["percentage"],
+            })
+
+    print(f"Demographics: wrote {len(demo_rows)} rows from this pull's snapshot.")
+    print(f"  -> {DEMOGRAPHICS_PATH.resolve()}")
+
+
 def append_snapshots(rows, xlsx_path):
     """Append one row per post for this pull, using the export's range_end
     as the 'as of' date. Never overwrites, every pull adds new rows, this
@@ -403,6 +458,9 @@ def main():
 
     print()
     append_discovery_log(xlsx_path)
+
+    print()
+    write_demographics(xlsx_path)
 
 
 if __name__ == "__main__":

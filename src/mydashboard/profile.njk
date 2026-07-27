@@ -1,0 +1,248 @@
+---
+layout: base.njk
+title: "Profile Views"
+---
+<p class="eyebrow">Content Intelligence</p>
+<h1 class="page-title">Profile Views</h1>
+<p class="subtitle">Follower growth and audience demographics{% if demographics.pulledAt %} &middot; demographics last pulled {{ demographics.pulledAt }}{% endif %}</p>
+
+<div class="chart-controls">
+  <div>
+    <span class="control-label">Range</span>
+    <div class="range-toggle" id="range-toggle-group">
+      <button class="range-btn" data-range="7" type="button">7 days</button>
+      <button class="range-btn" data-range="14" type="button">14 days</button>
+      <button class="range-btn" data-range="30" type="button">30 days</button>
+      <button class="range-btn active" data-range="all" type="button">All time</button>
+      <button class="range-btn" data-range="custom" type="button">Custom</button>
+    </div>
+  </div>
+  <div>
+    <span class="control-label">View</span>
+    <div class="range-toggle" id="mode-toggle-group">
+      <button class="range-btn active" data-mode="daily" type="button">Daily</button>
+      <button class="range-btn" data-mode="cumulative" type="button">Cumulative</button>
+    </div>
+  </div>
+  <div>
+    <span class="control-label">Chart</span>
+    <div class="range-toggle" id="type-toggle-group">
+      <button class="range-btn active" data-type="line" type="button">Line</button>
+      <button class="range-btn" data-type="bar" type="button">Bar</button>
+    </div>
+  </div>
+</div>
+<div class="custom-range-inputs" id="custom-range-inputs" style="display:none;">
+  <input type="date" id="range-start">
+  <span>to</span>
+  <input type="date" id="range-end">
+  <button type="button" id="apply-custom-range">Apply</button>
+</div>
+
+<div class="kpi-row" style="grid-template-columns:repeat(3,1fr);">
+  <div class="kpi-card">
+    <p class="kpi-label">Follower Growth (selected range)</p>
+    <p class="kpi-value" id="kpi-follower-growth">&mdash;</p>
+  </div>
+  <div class="kpi-card">
+    <p class="kpi-label">Connections</p>
+    <p class="kpi-value" style="font-size:calc(var(--content-font-size, 16px) * 0.85); color:var(--ink-soft);">Not available</p>
+  </div>
+  <div class="kpi-card">
+    <p class="kpi-label">Following</p>
+    <p class="kpi-value" style="font-size:calc(var(--content-font-size, 16px) * 0.85); color:var(--ink-soft);">Not available</p>
+  </div>
+</div>
+<p class="mini-metric-note" style="margin-top:-16px; margin-bottom:28px;">Follower Growth is new followers gained within the tracked window, not a lifetime total &mdash; there's no historical baseline from before tracking started. Connections and Following aren't in LinkedIn's Content Analytics export at all (they're profile-page stats, not content-analytics stats) &mdash; shown honestly as unavailable rather than faked.</p>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Follower Growth Over Time</h2>
+    <button class="expand-btn" type="button" id="expand-followers" title="Expand">&#9974;</button>
+  </div>
+  <canvas id="followersChart" height="90"></canvas>
+</div>
+
+<div class="card">
+  <h2>Audience Demographics</h2>
+  {% if demographics.categories | length %}
+  <div class="demo-grid">
+    {% for category, items in demographics.categories %}
+    <div class="demo-card">
+      <h3>{{ category }}</h3>
+      {% for item in items %}
+      <div class="demo-row">
+        <span class="demo-row-label" title="{{ item.value }}">{{ item.value }}</span>
+        <span class="demo-row-bar-track"><span class="demo-row-bar-fill" style="width:{{ item.percentageValue }}%;"></span></span>
+        <span class="demo-row-pct">{{ item.percentage }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="not-available-card">No demographics data yet &mdash; run parse_linkedin_export.py against a fresh export to populate this section.</div>
+  {% endif %}
+</div>
+
+<script>
+  var daily = {{ dailyTotals | json | safe }};
+
+  function shortDate(dateStr){
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  var currentRange = { value: 'all', start: null, end: null };
+  var currentMode = 'daily';
+  var currentType = 'line';
+
+  function getStoredRange(){ try { return localStorage.getItem('contentiq-profile-date-range'); } catch(e){ return null; } }
+  function setStoredRange(v){ try { localStorage.setItem('contentiq-profile-date-range', v); } catch(e){} }
+
+  function inRange(dateStr){
+    if (currentRange.value === 'all') return true;
+    var d = new Date(dateStr);
+    if (currentRange.value === 'custom') {
+      if (!currentRange.start || !currentRange.end) return true;
+      return d >= new Date(currentRange.start) && d <= new Date(currentRange.end);
+    }
+    var days = parseInt(currentRange.value, 10);
+    var cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    return d >= cutoff;
+  }
+
+  function filteredDaily(){ return daily.filter(function(d){ return inRange(d.date); }); }
+
+  function cumulativeSeries(dailyArr, key){
+    var running = 0;
+    return dailyArr.map(function(d){ running += d[key]; return { date: d.date, value: running }; });
+  }
+
+  var styles = getComputedStyle(document.documentElement);
+  var accent = styles.getPropertyValue('--accent').trim();
+  var inkSoft = styles.getPropertyValue('--ink-soft').trim();
+  var line = styles.getPropertyValue('--line').trim();
+
+  function buildFollowersDataset(range, mode){
+    var fd = daily.filter(function(d){
+      if (range === 'all') return true;
+      var dt = new Date(d.date);
+      var days = parseInt(range, 10);
+      if (isNaN(days)) return true;
+      var cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
+      return dt >= cutoff;
+    });
+    var source = mode === 'cumulative'
+      ? cumulativeSeries(fd, 'newFollowers').map(function(d){ return { date: d.date, newFollowers: d.value }; })
+      : fd;
+    return {
+      labels: source.map(function(d){ return shortDate(d.date); }),
+      values: source.map(function(d){ return d.newFollowers; }),
+      total: fd.reduce(function(a, d){ return a + d.newFollowers; }, 0)
+    };
+  }
+
+  var followersChart = null;
+  function buildFollowersChart(){
+    var ds = buildFollowersDataset(currentRange.value === 'custom' ? 'all' : currentRange.value, currentMode);
+    if (followersChart) followersChart.destroy();
+    followersChart = new Chart(document.getElementById('followersChart'), {
+      type: currentType,
+      data: {
+        labels: ds.labels,
+        datasets: [{
+          label: currentMode === 'cumulative' ? 'Cumulative New Followers' : 'New Followers',
+          data: ds.values,
+          borderColor: accent,
+          backgroundColor: accent,
+          tension: 0.3,
+          fill: false,
+          borderRadius: currentType === 'bar' ? 4 : 0
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft },
+            title: { display: true, text: currentMode === 'cumulative' ? 'Cumulative New Followers' : 'New Followers', color: inkSoft, font: { size: 11 } }
+          },
+          x: {
+            grid: { display: false }, ticks: { color: inkSoft, maxRotation: 0, autoSkip: true },
+            title: { display: true, text: 'Date', color: inkSoft, font: { size: 11 } }
+          }
+        }
+      }
+    });
+    document.getElementById('kpi-follower-growth').textContent = '+' + ds.total.toLocaleString();
+  }
+
+  (function(){
+    var rangeButtons = document.querySelectorAll('#range-toggle-group .range-btn');
+    var modeButtons = document.querySelectorAll('#mode-toggle-group .range-btn');
+    var typeButtons = document.querySelectorAll('#type-toggle-group .range-btn');
+    var customInputs = document.getElementById('custom-range-inputs');
+    var startInput = document.getElementById('range-start');
+    var endInput = document.getElementById('range-end');
+    var applyCustomBtn = document.getElementById('apply-custom-range');
+
+    function setRange(rangeValue, customStart, customEnd){
+      currentRange.value = rangeValue;
+      currentRange.start = customStart || null;
+      currentRange.end = customEnd || null;
+      rangeButtons.forEach(function(b){ b.classList.toggle('active', b.dataset.range === rangeValue); });
+      customInputs.style.display = rangeValue === 'custom' ? 'flex' : 'none';
+      if (rangeValue !== 'custom') setStoredRange(rangeValue);
+      buildFollowersChart();
+    }
+
+    rangeButtons.forEach(function(btn){ btn.addEventListener('click', function(){ setRange(btn.dataset.range); }); });
+    applyCustomBtn.addEventListener('click', function(){ setRange('custom', startInput.value, endInput.value); });
+
+    modeButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        currentMode = btn.dataset.mode;
+        modeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
+        buildFollowersChart();
+      });
+    });
+    typeButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        currentType = btn.dataset.type;
+        typeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
+        buildFollowersChart();
+      });
+    });
+
+    setRange(getStoredRange() || 'all');
+  })();
+
+  document.getElementById('expand-followers').addEventListener('click', function(){
+    ContentIQModal.open({
+      title: 'Follower Growth Over Time',
+      hasControls: true, hasModeToggle: true, hasTypeToggle: true,
+      defaultRange: currentRange.value === 'custom' ? 'all' : currentRange.value,
+      defaultMode: currentMode, defaultType: currentType,
+      onRender: function(canvas, range, mode, type){
+        var ds = buildFollowersDataset(range, mode);
+        return new Chart(canvas, {
+          type: type,
+          data: { labels: ds.labels, datasets: [{ label: mode === 'cumulative' ? 'Cumulative New Followers' : 'New Followers', data: ds.values, borderColor: accent, backgroundColor: accent, tension: 0.3, fill: false, borderRadius: type === 'bar' ? 4 : 0 }] },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft }, title: { display: true, text: mode === 'cumulative' ? 'Cumulative New Followers' : 'New Followers', color: inkSoft } },
+              x: { grid: { display: false }, ticks: { color: inkSoft, maxRotation: 0, autoSkip: true }, title: { display: true, text: 'Date', color: inkSoft } }
+            }
+          }
+        });
+      }
+    });
+  });
+</script>

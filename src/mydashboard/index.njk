@@ -64,46 +64,64 @@ title: "Dashboard"
 
 <div class="charts-row">
   <div class="card">
-    <h2>Account Impressions Over Time</h2>
+    <div class="card-header">
+      <h2>Account Impressions Over Time</h2>
+      <button class="expand-btn" type="button" id="expand-timeline" title="Expand">&#9974;</button>
+    </div>
     <canvas id="timelineChart" height="90"></canvas>
   </div>
   <div class="card">
-    <h2>Engagement Rate by Pillar</h2>
+    <div class="card-header">
+      <h2>Engagement Rate by Pillar</h2>
+      <button class="expand-btn" type="button" id="expand-pillar" title="Expand">&#9974;</button>
+    </div>
     <canvas id="pillarChart" height="90"></canvas>
   </div>
 </div>
 
 <div class="card">
   <h2>Growth Overview</h2>
-  <p class="mini-metric-note">Cumulative over the range selected above. Impressions and Engagement duplicate the numbers above by design, shown here in the same compact format as the reference dashboard. Follower Growth is new followers gained within the tracked window, not a lifetime total &mdash; no historical baseline exists before tracking started. Posts counts only posts falling within daily_totals.csv's tracked window, so it can undercount vs. the total tagged post count above if older posts predate that window. Profile Views isn't available in any current data source (LinkedIn's export doesn't include it), so it's omitted rather than faked.</p>
+  <p class="mini-metric-note">Follows the same Range / View / Chart controls above. Impressions and Engagement duplicate the numbers above by design, shown here in the same compact format as the reference dashboard. Follower Growth is new followers gained within the tracked window, not a lifetime total &mdash; no historical baseline exists before tracking started. Posts counts only posts falling within daily_totals.csv's tracked window, so it can undercount vs. the total tagged post count above if older posts predate that window. Profile Views isn't available in any current data source (see the new Profile Views tab for what's genuinely trackable), so it's omitted rather than faked.</p>
   <div class="mini-metric-grid">
     <div class="mini-metric-card">
-      <div class="mini-metric-head">
-        <span class="mini-metric-value" id="mini-followers-value">&mdash;</span>
-        <span class="mini-metric-label">Follower Growth</span>
+      <div class="card-header" style="margin-bottom:8px;">
+        <div class="mini-metric-head" style="flex:1;">
+          <span class="mini-metric-value" id="mini-followers-value">&mdash;</span>
+          <span class="mini-metric-label">Follower Growth</span>
+        </div>
+        <button class="expand-btn" type="button" id="expand-mini-followers" title="Expand">&#9974;</button>
       </div>
-      <canvas id="miniFollowersChart" height="60"></canvas>
+      <canvas id="miniFollowersChart" height="70"></canvas>
     </div>
     <div class="mini-metric-card">
-      <div class="mini-metric-head">
-        <span class="mini-metric-value" id="mini-posts-value">&mdash;</span>
-        <span class="mini-metric-label">Posts</span>
+      <div class="card-header" style="margin-bottom:8px;">
+        <div class="mini-metric-head" style="flex:1;">
+          <span class="mini-metric-value" id="mini-posts-value">&mdash;</span>
+          <span class="mini-metric-label">Posts</span>
+        </div>
+        <button class="expand-btn" type="button" id="expand-mini-posts" title="Expand">&#9974;</button>
       </div>
-      <canvas id="miniPostsChart" height="60"></canvas>
+      <canvas id="miniPostsChart" height="70"></canvas>
     </div>
     <div class="mini-metric-card">
-      <div class="mini-metric-head">
-        <span class="mini-metric-value" id="mini-impressions-value">&mdash;</span>
-        <span class="mini-metric-label">Impressions</span>
+      <div class="card-header" style="margin-bottom:8px;">
+        <div class="mini-metric-head" style="flex:1;">
+          <span class="mini-metric-value" id="mini-impressions-value">&mdash;</span>
+          <span class="mini-metric-label">Impressions</span>
+        </div>
+        <button class="expand-btn" type="button" id="expand-mini-impressions" title="Expand">&#9974;</button>
       </div>
-      <canvas id="miniImpressionsChart" height="60"></canvas>
+      <canvas id="miniImpressionsChart" height="70"></canvas>
     </div>
     <div class="mini-metric-card">
-      <div class="mini-metric-head">
-        <span class="mini-metric-value" id="mini-engagement-value">&mdash;</span>
-        <span class="mini-metric-label">Engagement</span>
+      <div class="card-header" style="margin-bottom:8px;">
+        <div class="mini-metric-head" style="flex:1;">
+          <span class="mini-metric-value" id="mini-engagement-value">&mdash;</span>
+          <span class="mini-metric-label">Engagement</span>
+        </div>
+        <button class="expand-btn" type="button" id="expand-mini-engagement" title="Expand">&#9974;</button>
       </div>
-      <canvas id="miniEngagementChart" height="60"></canvas>
+      <canvas id="miniEngagementChart" height="70"></canvas>
     </div>
   </div>
 </div>
@@ -137,36 +155,17 @@ title: "Dashboard"
   var posts = {{ posts | json | safe }};
   var daily = {{ dailyTotals | json | safe }};
 
-  var pillarMap = {};
-  posts.forEach(function(p){
-    if (!pillarMap[p.pillar]) pillarMap[p.pillar] = { total: 0, count: 0 };
-    pillarMap[p.pillar].total += p.engagementRate;
-    pillarMap[p.pillar].count += 1;
-  });
-  var pillarLabels = Object.keys(pillarMap);
-  var pillarData = pillarLabels.map(function(k){ return (pillarMap[k].total / pillarMap[k].count * 100).toFixed(2); });
-
   var styles = getComputedStyle(document.documentElement);
   var accent = styles.getPropertyValue('--accent').trim();
   var accentSoft = styles.getPropertyValue('--accent-soft').trim();
   var inkSoft = styles.getPropertyValue('--ink-soft').trim();
   var line = styles.getPropertyValue('--line').trim();
 
-  var pillarPalette = ['#3E5C55', '#2A5C7A', '#A5680A', '#7A3B5C', '#5F7A3E', '#8A5C3E', '#3E5C7A', '#7A5C3E'];
-  var pillarColors = pillarLabels.map(function(_, i){ return pillarPalette[i % pillarPalette.length]; });
-
-  new Chart(document.getElementById('pillarChart'), {
-    type: 'bar',
-    data: { labels: pillarLabels, datasets: [{ label: 'Avg Engagement Rate %', data: pillarData, backgroundColor: pillarColors, borderRadius: 6 }] },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft } },
-        x: { grid: { display: false }, ticks: { color: inkSoft } }
-      }
-    }
-  });
+  function shortDate(dateStr){
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
 
   // ---------- Shared date-range filter ----------
   var currentRange = { value: 'all', start: null, end: null };
@@ -176,18 +175,19 @@ title: "Dashboard"
   function getStoredRange(){ try { return localStorage.getItem('contentiq-date-range'); } catch(e){ return null; } }
   function setStoredRange(v){ try { localStorage.setItem('contentiq-date-range', v); } catch(e){} }
 
-  function inRange(dateStr){
-    if (currentRange.value === 'all') return true;
+  function inRangeFor(dateStr, rangeValue, customStart, customEnd){
+    if (rangeValue === 'all') return true;
     var d = new Date(dateStr);
-    if (currentRange.value === 'custom') {
-      if (!currentRange.start || !currentRange.end) return true;
-      return d >= new Date(currentRange.start) && d <= new Date(currentRange.end);
+    if (rangeValue === 'custom') {
+      if (!customStart || !customEnd) return true;
+      return d >= new Date(customStart) && d <= new Date(customEnd);
     }
-    var days = parseInt(currentRange.value, 10);
+    var days = parseInt(rangeValue, 10);
     var cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
     return d >= cutoff;
   }
+  function inRange(dateStr){ return inRangeFor(dateStr, currentRange.value, currentRange.start, currentRange.end); }
 
   function filteredDaily(){ return daily.filter(function(d){ return inRange(d.date); }); }
   function filteredPosts(){ return posts.filter(function(p){ return inRange(p.date); }); }
@@ -197,7 +197,40 @@ title: "Dashboard"
     return dailyArr.map(function(d){ running += d[key]; return { date: d.date, value: running }; });
   }
 
-  // ---------- 5-metric KPI row ----------
+  // ---------- Pillar chart: now respects the date range (previously always all-time) ----------
+  var pillarChart = null;
+  function buildPillarChart(rangeValue, customStart, customEnd){
+    var fp = posts.filter(function(p){ return inRangeFor(p.date, rangeValue, customStart, customEnd); });
+    var pillarMap = {};
+    fp.forEach(function(p){
+      if (!pillarMap[p.pillar]) pillarMap[p.pillar] = { total: 0, count: 0 };
+      pillarMap[p.pillar].total += p.engagementRate;
+      pillarMap[p.pillar].count += 1;
+    });
+    var pillarLabels = Object.keys(pillarMap);
+    var pillarData = pillarLabels.map(function(k){ return (pillarMap[k].total / pillarMap[k].count * 100).toFixed(2); });
+    var pillarPalette = ['#3E5C55', '#2A5C7A', '#A5680A', '#7A3B5C', '#5F7A3E', '#8A5C3E', '#3E5C7A', '#7A5C3E'];
+    var pillarColors = pillarLabels.map(function(_, i){ return pillarPalette[i % pillarPalette.length]; });
+    return { labels: pillarLabels, data: pillarData, colors: pillarColors };
+  }
+  function renderPillarChart(){
+    var d = buildPillarChart(currentRange.value, currentRange.start, currentRange.end);
+    if (pillarChart) pillarChart.destroy();
+    pillarChart = new Chart(document.getElementById('pillarChart'), {
+      type: 'bar',
+      data: { labels: d.labels, datasets: [{ label: 'Avg Engagement Rate %', data: d.data, backgroundColor: d.colors, borderRadius: 6 }] },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft }, title: { display: true, text: 'Avg Engagement Rate %', color: inkSoft, font: { size: 11 } } },
+          x: { grid: { display: false }, ticks: { color: inkSoft }, title: { display: true, text: 'Pillar', color: inkSoft, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  // ---------- KPI row ----------
   function updateKpis(){
     var fp = filteredPosts();
     var totalImpressions = fp.reduce(function(a, p){ return a + p.impressions; }, 0);
@@ -221,93 +254,109 @@ title: "Dashboard"
   }
 
   // ---------- Main timeline chart ----------
+  function buildTimelineDataset(rangeValue, mode, customStart, customEnd){
+    var fd = daily.filter(function(d){ return inRangeFor(d.date, rangeValue, customStart, customEnd); });
+    var source = mode === 'cumulative'
+      ? cumulativeSeries(fd, 'impressions').map(function(d){ return { date: d.date, impressions: d.value }; })
+      : fd;
+    return { labels: source.map(function(d){ return shortDate(d.date); }), values: source.map(function(d){ return d.impressions; }) };
+  }
   var timelineChart = null;
   function buildTimelineChart(){
-    var source = currentMode === 'cumulative'
-      ? cumulativeSeries(filteredDaily(), 'impressions').map(function(d){ return { date: d.date, impressions: d.value }; })
-      : filteredDaily();
-    var labels = source.map(function(d){ return d.date; });
-    var values = source.map(function(d){ return d.impressions; });
-
+    var ds = buildTimelineDataset(currentRange.value, currentMode, currentRange.start, currentRange.end);
     if (timelineChart) timelineChart.destroy();
     timelineChart = new Chart(document.getElementById('timelineChart'), {
+      type: currentType,
+      data: { labels: ds.labels, datasets: [{ label: currentMode === 'cumulative' ? 'Cumulative Impressions' : 'Impressions', data: ds.values, borderColor: accent, backgroundColor: accent, tension: 0.3, fill: false, borderRadius: currentType === 'bar' ? 4 : 0 }] },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft }, title: { display: true, text: currentMode === 'cumulative' ? 'Cumulative Impressions' : 'Impressions', color: inkSoft, font: { size: 11 } } },
+          x: { grid: { display: false }, ticks: { color: inkSoft, maxRotation: 0, autoSkip: true }, title: { display: true, text: 'Date', color: inkSoft, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  // ---------- Growth Overview mini charts: now share the same range/mode/type controls ----------
+  var MINI_METRICS = {
+    followers: { key: 'newFollowers', label: 'New Followers', canvasId: 'miniFollowersChart', valueId: 'mini-followers-value' },
+    impressions: { key: 'impressions', label: 'Impressions', canvasId: 'miniImpressionsChart', valueId: 'mini-impressions-value' },
+    engagement: { key: 'engagements', label: 'Engagements', canvasId: 'miniEngagementChart', valueId: 'mini-engagement-value' }
+  };
+
+  function buildMiniDataset(metricKey, rangeValue, mode, customStart, customEnd){
+    var fd = daily.filter(function(d){ return inRangeFor(d.date, rangeValue, customStart, customEnd); });
+    var source = mode === 'cumulative' ? cumulativeSeries(fd, metricKey) : fd.map(function(d){ return { date: d.date, value: d[metricKey] }; });
+    return {
+      labels: source.map(function(d){ return shortDate(d.date); }),
+      values: source.map(function(d){ return d.value; }),
+      total: fd.reduce(function(a, d){ return a + d[metricKey]; }, 0)
+    };
+  }
+
+  function buildPostsDataset(rangeValue, mode, customStart, customEnd){
+    var fd = daily.filter(function(d){ return inRangeFor(d.date, rangeValue, customStart, customEnd); });
+    var fp = posts.filter(function(p){ return inRangeFor(p.date, rangeValue, customStart, customEnd); });
+    var postsByDate = {};
+    fp.forEach(function(p){ postsByDate[p.date] = (postsByDate[p.date] || 0) + 1; });
+    var running = 0;
+    var source = fd.map(function(d){
+      var count = postsByDate[d.date] || 0;
+      if (mode === 'cumulative') { running += count; return { date: d.date, value: running }; }
+      return { date: d.date, value: count };
+    });
+    return { labels: source.map(function(d){ return shortDate(d.date); }), values: source.map(function(d){ return d.value; }), total: fp.length };
+  }
+
+  var miniCharts = {};
+  function buildMiniChart(canvasId, labels, values, valueEl, yLabel){
+    if (miniCharts[canvasId]) miniCharts[canvasId].destroy();
+    miniCharts[canvasId] = new Chart(document.getElementById(canvasId), {
       type: currentType,
       data: {
         labels: labels,
         datasets: [{
-          label: currentMode === 'cumulative' ? 'Cumulative Impressions' : 'Impressions',
           data: values,
           borderColor: accent,
-          backgroundColor: accent,
-          tension: 0.3,
-          fill: false,
-          borderRadius: currentType === 'bar' ? 4 : 0
+          backgroundColor: currentType === 'bar' ? accent : accentSoft,
+          fill: currentType === 'line',
+          tension: 0.25,
+          pointRadius: 0,
+          borderWidth: 2,
+          borderRadius: currentType === 'bar' ? 3 : 0
         }]
       },
       options: {
         responsive: true,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft } },
-          x: { grid: { display: false }, ticks: { color: inkSoft } }
-        }
-      }
-    });
-  }
-
-  // ---------- Taplio-style mini metric cards (always cumulative, tiny sparkline area charts) ----------
-  var miniCharts = {};
-  function buildMiniChart(canvasId, labels, values, valueEl, formatFn){
-    if (miniCharts[canvasId]) miniCharts[canvasId].destroy();
-    miniCharts[canvasId] = new Chart(document.getElementById(canvasId), {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: values,
-          borderColor: accent,
-          backgroundColor: accentSoft,
-          fill: true,
-          tension: 0.25,
-          pointRadius: 0,
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false }, tooltip: { enabled: true } },
-        scales: {
-          y: { display: false, beginAtZero: true },
-          x: { display: false }
+          y: { beginAtZero: true, ticks: { color: inkSoft, font: { size: 9 } }, grid: { color: line }, title: { display: true, text: yLabel, color: inkSoft, font: { size: 9 } } },
+          x: { ticks: { color: inkSoft, font: { size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 }, grid: { display: false } }
         }
       }
     });
     var last = values.length ? values[values.length - 1] : 0;
-    document.getElementById(valueEl).textContent = formatFn ? formatFn(last) : last.toLocaleString();
+    document.getElementById(valueEl).textContent = (currentMode === 'cumulative' ? last : values.reduce(function(a,b){return a+b;},0)).toLocaleString();
   }
 
   function buildMiniCharts(){
-    var fd = filteredDaily();
-    var fp = filteredPosts();
+    var followers = buildMiniDataset('newFollowers', currentRange.value, currentMode, currentRange.start, currentRange.end);
+    buildMiniChart('miniFollowersChart', followers.labels, followers.values, 'mini-followers-value', 'New Followers');
 
-    var followerSeries = cumulativeSeries(fd, 'newFollowers');
-    buildMiniChart('miniFollowersChart', followerSeries.map(function(d){ return d.date; }), followerSeries.map(function(d){ return d.value; }), 'mini-followers-value');
+    var postsDs = buildPostsDataset(currentRange.value, currentMode, currentRange.start, currentRange.end);
+    buildMiniChart('miniPostsChart', postsDs.labels, postsDs.values, 'mini-posts-value', 'Posts');
+    document.getElementById('mini-posts-value').textContent = currentMode === 'cumulative' ? (postsDs.values.length ? postsDs.values[postsDs.values.length-1] : 0) : postsDs.total;
 
-    // Posts: cumulative count of tagged posts published within the range, by day
-    var postsByDate = {};
-    fp.forEach(function(p){ postsByDate[p.date] = (postsByDate[p.date] || 0) + 1; });
-    var runningPosts = 0;
-    var postsSeries = fd.map(function(d){ runningPosts += (postsByDate[d.date] || 0); return { date: d.date, value: runningPosts }; });
-    buildMiniChart('miniPostsChart', postsSeries.map(function(d){ return d.date; }), postsSeries.map(function(d){ return d.value; }), 'mini-posts-value');
+    var impressions = buildMiniDataset('impressions', currentRange.value, currentMode, currentRange.start, currentRange.end);
+    buildMiniChart('miniImpressionsChart', impressions.labels, impressions.values, 'mini-impressions-value', 'Impressions');
 
-    var impressionsSeries = cumulativeSeries(fd, 'impressions');
-    buildMiniChart('miniImpressionsChart', impressionsSeries.map(function(d){ return d.date; }), impressionsSeries.map(function(d){ return d.value; }), 'mini-impressions-value');
-
-    var engagementSeries = cumulativeSeries(fd, 'engagements');
-    buildMiniChart('miniEngagementChart', engagementSeries.map(function(d){ return d.date; }), engagementSeries.map(function(d){ return d.value; }), 'mini-engagement-value');
+    var engagement = buildMiniDataset('engagements', currentRange.value, currentMode, currentRange.start, currentRange.end);
+    buildMiniChart('miniEngagementChart', engagement.labels, engagement.values, 'mini-engagement-value', 'Engagements');
   }
 
-  // ---------- Wire up controls ----------
+  // ---------- Wire up shared controls ----------
   (function(){
     var rangeButtons = document.querySelectorAll('#range-toggle-group .range-btn');
     var modeButtons = document.querySelectorAll('#mode-toggle-group .range-btn');
@@ -321,6 +370,7 @@ title: "Dashboard"
       buildTimelineChart();
       updateKpis();
       buildMiniCharts();
+      renderPillarChart();
     }
 
     function setRange(rangeValue, customStart, customEnd){
@@ -333,18 +383,15 @@ title: "Dashboard"
       refresh();
     }
 
-    rangeButtons.forEach(function(btn){
-      btn.addEventListener('click', function(){ setRange(btn.dataset.range); });
-    });
-    applyCustomBtn.addEventListener('click', function(){
-      setRange('custom', startInput.value, endInput.value);
-    });
+    rangeButtons.forEach(function(btn){ btn.addEventListener('click', function(){ setRange(btn.dataset.range); }); });
+    applyCustomBtn.addEventListener('click', function(){ setRange('custom', startInput.value, endInput.value); });
 
     modeButtons.forEach(function(btn){
       btn.addEventListener('click', function(){
         currentMode = btn.dataset.mode;
         modeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
         buildTimelineChart();
+        buildMiniCharts();
       });
     });
 
@@ -353,9 +400,74 @@ title: "Dashboard"
         currentType = btn.dataset.type;
         typeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
         buildTimelineChart();
+        buildMiniCharts();
       });
     });
 
     setRange(getStoredRange() || 'all');
   })();
+
+  // ---------- Expand-to-fullscreen wiring ----------
+  document.getElementById('expand-timeline').addEventListener('click', function(){
+    ContentIQModal.open({
+      title: 'Account Impressions Over Time', hasControls: true, hasModeToggle: true, hasTypeToggle: true,
+      defaultRange: currentRange.value === 'custom' ? 'all' : currentRange.value, defaultMode: currentMode, defaultType: currentType,
+      onRender: function(canvas, range, mode, type){
+        var ds = buildTimelineDataset(range, mode);
+        return new Chart(canvas, {
+          type: type,
+          data: { labels: ds.labels, datasets: [{ label: mode === 'cumulative' ? 'Cumulative Impressions' : 'Impressions', data: ds.values, borderColor: accent, backgroundColor: accent, tension: 0.3, fill: false, borderRadius: type === 'bar' ? 4 : 0 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft }, title: { display: true, text: mode === 'cumulative' ? 'Cumulative Impressions' : 'Impressions', color: inkSoft } },
+              x: { grid: { display: false }, ticks: { color: inkSoft, maxRotation: 0 }, title: { display: true, text: 'Date', color: inkSoft } }
+            } }
+        });
+      }
+    });
+  });
+
+  document.getElementById('expand-pillar').addEventListener('click', function(){
+    ContentIQModal.open({
+      title: 'Engagement Rate by Pillar', hasControls: true, hasModeToggle: false, hasTypeToggle: false,
+      defaultRange: currentRange.value === 'custom' ? 'all' : currentRange.value,
+      onRender: function(canvas, range){
+        var d = buildPillarChart(range);
+        return new Chart(canvas, {
+          type: 'bar',
+          data: { labels: d.labels, datasets: [{ label: 'Avg Engagement Rate %', data: d.data, backgroundColor: d.colors, borderRadius: 6 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft }, title: { display: true, text: 'Avg Engagement Rate %', color: inkSoft } },
+              x: { grid: { display: false }, ticks: { color: inkSoft }, title: { display: true, text: 'Pillar', color: inkSoft } }
+            } }
+        });
+      }
+    });
+  });
+
+  function wireMiniExpand(buttonId, builder, label, yLabel){
+    document.getElementById(buttonId).addEventListener('click', function(){
+      ContentIQModal.open({
+        title: label, hasControls: true, hasModeToggle: true, hasTypeToggle: true,
+        defaultRange: currentRange.value === 'custom' ? 'all' : currentRange.value, defaultMode: currentMode, defaultType: currentType,
+        onRender: function(canvas, range, mode, type){
+          var ds = builder(range, mode);
+          return new Chart(canvas, {
+            type: type,
+            data: { labels: ds.labels, datasets: [{ label: label, data: ds.values, borderColor: accent, backgroundColor: type === 'bar' ? accent : accentSoft, fill: type === 'line', tension: 0.25, borderWidth: 2, borderRadius: type === 'bar' ? 4 : 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+              scales: {
+                y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft }, title: { display: true, text: yLabel, color: inkSoft } },
+                x: { grid: { display: false }, ticks: { color: inkSoft, maxRotation: 0 }, title: { display: true, text: 'Date', color: inkSoft } }
+              } }
+          });
+        }
+      });
+    });
+  }
+  wireMiniExpand('expand-mini-followers', function(range, mode){ return buildMiniDataset('newFollowers', range, mode); }, 'Follower Growth', 'New Followers');
+  wireMiniExpand('expand-mini-posts', function(range, mode){ return buildPostsDataset(range, mode); }, 'Posts', 'Posts');
+  wireMiniExpand('expand-mini-impressions', function(range, mode){ return buildMiniDataset('impressions', range, mode); }, 'Impressions', 'Impressions');
+  wireMiniExpand('expand-mini-engagement', function(range, mode){ return buildMiniDataset('engagements', range, mode); }, 'Engagement', 'Engagements');
 </script>
