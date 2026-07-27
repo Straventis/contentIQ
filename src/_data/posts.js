@@ -101,6 +101,13 @@ module.exports = function () {
       impressions: Number(r.impressions) || 0,
       engagements: Number(r.total_engagements) || 0,
       engagementRate: Number(r.engagement_rate) || 0,
+      // Not populated by the manual LinkedIn export (LinkedIn only reports a
+      // combined Engagements total there) -- defaults to 0 until the Taplio
+      // per-post analytics merge is built. Wired up now so nothing else
+      // needs to change when that data starts landing.
+      reactions: Number(r.reactions) || 0,
+      comments: Number(r.comments) || 0,
+      shares: Number(r.shares) || 0,
       history,
     };
   });
