@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- skill:chrome -->
+<style>
+/* Credit line — bottom-right */
+.design-ui-credit {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  font: 11px/1 system-ui, sans-serif;
+  color: rgba(128,128,128,0.5);
+  pointer-events: none;
+  z-index: 2147483647;
+  transition: opacity 0.4s ease;
+  user-select: none;
+  letter-spacing: 0.02em;
+}
+
+/* Hide chrome on touch devices */
+@media (hover: none) {
+  .design-ui-credit { display: none; }
+}
+
+/* Print fixes */
+@media print {
+  * {
+    transition: none !important;
+    animation: none !important;
+    box-shadow: none !important;
+  }
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .design-ui-credit { display: none !important; }
+}
+
+</style>
+<script>
+(function () {
+    // Design-ui pages are single compositions, so the whole body is editable.
+    function markEditable() {
+        document.body.classList.add('artifact-editable');
+    }
+
+    // Credit badge with idle-fade. Hover devices only.
+    function initChromeUI() {
+        if (!matchMedia('(hover: hover)').matches) return;
+
+        var credit = document.createElement('div');
+        credit.className = 'design-ui-credit';
+        credit.setAttribute('aria-hidden', 'true');
+        credit.innerHTML = '\u{1F49C} by ClickUp Brain';
+        document.body.appendChild(credit);
+
+        var timer = null;
+        var fade = function (out) { credit.style.opacity = out ? '0' : ''; };
+        fade(true);
+        var show = function () {
+            fade(false);
+            clearTimeout(timer);
+            timer = setTimeout(function () { fade(true); }, 3000);
+        };
+        document.addEventListener('mousemove', show);
+        show();
+    }
+
+    function init() {
+        markEditable();
+        initChromeUI();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
+</script>
+<!-- /skill:chrome -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ContentIQ Project Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: oklch(97% 0.005 145);
+  --surface: oklch(99% 0.003 145);
+  --surface-alt: oklch(95% 0.008 145);
+  --text: oklch(20% 0.01 145);
+  --text-secondary: oklch(45% 0.01 145);
+  --text-muted: oklch(60% 0.008 145);
+  --border: oklch(88% 0.01 145);
+  --accent: oklch(45% 0.12 160);
+  --accent-light: oklch(92% 0.04 160);
+  --completed: oklch(55% 0.14 145);
+  --completed-bg: oklch(93% 0.04 145);
+  --active: oklch(55% 0.14 250);
+  --active-bg: oklch(93% 0.04 250);
+  --blocked: oklch(55% 0.14 25);
+  --blocked-bg: oklch(93% 0.04 25);
+  --new: oklch(55% 0.1 60);
+  --new-bg: oklch(94% 0.03 60);
+  --deferred: oklch(55% 0.08 300);
+  --deferred-bg: oklch(94% 0.03 300);
+  --connector: oklch(78% 0.03 145);
+  --node-shadow: 0 2px 8px oklch(20% 0.01 145 / 0.06);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  padding: 32px 24px;
+}
+
+.header {
+  max-width: 1400px;
+  margin: 0 auto 40px;
+}
+
+.header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.header p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  max-width: 65ch;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 24px;
+  background: var(--surface-alt);
+  padding: 4px;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.tab {
+  padding: 8px 18px;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  color: var(--text-secondary);
+  border: none;
+  background: transparent;
+  font-family: inherit;
+}
+
+.tab.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--node-shadow);
+}
+
+.tab:hover:not(.active) {
+  color: var(--text);
+}
+
+.view {
+  display: none;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.view.active { display: block; }
+
+/* Current State View */
+.current-state {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+.section-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.tree {
+  position: relative;
+}
+
+.tree-root {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: var(--node-shadow);
+  margin-bottom: 4px;
+}
+
+.tree-root h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.tree-root .meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.branch-group {
+  margin-left: 32px;
+  padding-left: 20px;
+  border-left: 2px solid var(--connector);
+  margin-top: 8px;
+}
+
+.branch-header {
+  position: relative;
+  margin-bottom: 8px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.branch-header::before {
+  content: '';
+  position: absolute;
+  left: -21px;
+  top: 50%;
+  width: 20px;
+  height: 2px;
+  background: var(--connector);
+}
+
+.branch-header:hover {
+  border-color: var(--accent);
+}
+
+.branch-header h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.branch-header .count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface-alt);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.branch-items {
+  margin-left: 16px;
+  padding-left: 16px;
+  border-left: 1px dashed var(--connector);
+}
+
+.item {
+  position: relative;
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.15s;
+}
+
+.item::before {
+  content: '';
+  position: absolute;
+  left: -17px;
+  top: 50%;
+  width: 16px;
+  height: 1px;
+  background: var(--connector);
+}
+
+.item:hover { background: var(--surface-alt); }
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.completed { background: var(--completed); }
+.status-dot.active { background: var(--active); }
+.status-dot.new { background: var(--new); }
+.status-dot.blocked { background: var(--blocked); }
+.status-dot.deferred { background: var(--deferred); }
+
+.item-name { flex: 1; color: var(--text-secondary); }
+.item-name.completed { text-decoration: line-through; color: var(--text-muted); }
+
+.status-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.status-badge.completed { background: var(--completed-bg); color: var(--completed); }
+.status-badge.active { background: var(--active-bg); color: var(--active); }
+.status-badge.new { background: var(--new-bg); color: var(--new); }
+.status-badge.blocked { background: var(--blocked-bg); color: var(--blocked); }
+.status-badge.deferred { background: var(--deferred-bg); color: var(--deferred); }
+
+/* Docs section */
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.doc-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  transition: border-color 0.15s;
+}
+
+.doc-card:hover { border-color: var(--accent); }
+
+.doc-card h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.doc-card p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.doc-type {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+/* Problems section */
+.problems {
+  background: oklch(95% 0.03 25 / 0.4);
+  border: 1px solid oklch(85% 0.05 25);
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 32px;
+}
+
+.problems h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--blocked);
+  margin-bottom: 12px;
+}
+
+.problems ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.problems li {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding-left: 16px;
+  position: relative;
+}
+
+.problems li::before {
+  content: '×';
+  position: absolute;
+  left: 0;
+  color: var(--blocked);
+  font-weight: 700;
+}
+
+/* Proposed View */
+.proposed {
+  display: grid;
+  gap: 32px;
+}
+
+.proposed-intro {
+  background: var(--accent-light);
+  border: 1px solid oklch(85% 0.05 160);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.proposed-intro h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.proposed-intro p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  max-width: 70ch;
+}
+
+.proposed-tree {
+  display: grid;
+  gap: 24px;
+}
+
+.proposed-node {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: var(--node-shadow);
+}
+
+.proposed-node h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.proposed-node .desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.proposed-node .contains {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.contains-tag {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: var(--surface-alt);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.level-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.indent-1 { margin-left: 32px; border-left: 2px solid var(--connector); }
+.indent-2 { margin-left: 64px; border-left: 2px solid var(--connector); }
+
+/* Summary stats */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  font-size: 0.78rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  body { padding: 20px 16px; }
+  .branch-group { margin-left: 16px; padding-left: 12px; }
+  .indent-1 { margin-left: 16px; }
+  .indent-2 { margin-left: 32px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>ContentIQ: Full Project Map</h1>
+  <p>Everything in your ClickUp workspace related to ContentIQ, organized so you can see the full picture and decide how to restructure it.</p>
+  
+  <div class="tabs">
+    <button class="tab active" data-view="current">Current State</button>
+    <button class="tab" data-view="proposed">Proposed Structure</button>
+  </div>
+</div>
+
+<!-- CURRENT STATE VIEW -->
+<div class="view active" id="view-current">
+  
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-num">22</div>
+      <div class="stat-label">Total Tasks</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">12</div>
+      <div class="stat-label">Completed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">8</div>
+      <div class="stat-label">Open / New</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Blocked</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Docs</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Lists (scattered)</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="status-dot completed"></span> Completed</div>
+    <div class="legend-item"><span class="status-dot active"></span> In Progress</div>
+    <div class="legend-item"><span class="status-dot new"></span> New / Open</div>
+    <div class="legend-item"><span class="status-dot blocked"></span> Blocked</div>
+    <div class="legend-item"><span class="status-dot deferred"></span> Deferred</div>
+  </div>
+
+  <div class="current-state">
+    <div class="tree">
+      <div class="tree-root">
+        <h3>Content IQ LinkedIn Analytics Tools</h3>
+        <div class="meta">Project task · List: 2.3 Automation & Scripting · Status: Deferred · Priority: High</div>
+      </div>
+
+      <div class="branch-group">
+        <div class="branch-header" onclick="toggleBranch(this)">
+          <h4>V1.0: Foundation & Dashboard <span class="count">10 tasks, all done ✓</span></h4>
+        </div>
+        <div class="branch-items" style="display:none">
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Create GitHub repo + local project structure</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Define master dataset schema (CSV columns)</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Write parsing script for LinkedIn xlsx export</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Append parsed data into master dataset with de-duplication</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Manually tag posts with content pillar + type</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Build static dashboard shell (HTML + Chart.js)</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Add histogram chart (engagement by pillar)</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Add timeline view of post performance</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Add per-post detail table + KPI summary cards</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Publish dashboard to GitHub Pages</span><span class="status-badge completed">done</span></div>
+        </div>
+
+        <div class="branch-header" onclick="toggleBranch(this)">
+          <h4>V1.x: Deviations & Enhancements <span class="count">5 done, 1 open</span></h4>
+        </div>
+        <div class="branch-items" style="display:none">
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Build + deploy ContentIQ coming-soon page</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Landing page rebuild: Beta status, About, roadmap</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Sign-up form: Google Forms integration</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Combine landing page + dashboard (/mydashboard path)</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot completed"></span><span class="item-name completed">Dashboard display settings (theme, color, a11y, text, width)</span><span class="status-badge completed">done</span></div>
+          <div class="item"><span class="status-dot new"></span><span class="item-name">Real login / account system for /mydashboard</span><span class="status-badge new">next</span></div>
+        </div>
+
+        <div class="branch-header" onclick="toggleBranch(this)">
+          <h4>Bugs & Fixes <span class="count">2 open</span></h4>
+        </div>
+        <div class="branch-items" style="display:none">
+          <div class="item"><span class="status-dot new"></span><span class="item-name">Table text overflows panel at narrow margin / XL font</span><span class="status-badge new">new</span></div>
+          <div class="item"><span class="status-dot new"></span><span class="item-name">Some topics may not be pulling in</span><span class="status-badge new">new</span></div>
+        </div>
+
+        <div class="branch-header" onclick="toggleBranch(this)">
+          <h4>Content & Taxonomy <span class="count">2 open</span></h4>
+        </div>
+        <div class="branch-items" style="display:none">
+          <div class="item"><span class="status-dot new"></span><span class="item-name">Update pillar taxonomy to 10 consolidated pillars</span><span class="status-badge new">new</span></div>
+          <div class="item"><span class="status-dot new"></span><span class="item-name">Topic labels and Article/teaser duplicate merging</span><span class="status-badge new">new</span></div>
+        </div>
+
+        <div class="branch-header" onclick="toggleBranch(this)">
+          <h4>V1.0 Maintenance <span class="count">1 recurring</span></h4>
+        </div>
+        <div class="branch-items" style="display:none">
+          <div class="item"><span class="status-dot new"></span><span class="item-name">Weekly habit: drop in new export + re-run script</span><span class="status-badge new">ongoing</span></div>
+        </div>
+
+        <div class="branch-header" onclick="toggleBranch(this)">
+          <h4>V2.0: LinkedIn API Integration <span class="count">blocked</span></h4>
+        </div>
+        <div class="branch-items" style="display:none">
+          <div class="item"><span class="status-dot blocked"></span><span class="item-name">Swap manual export for LinkedIn API</span><span class="status-badge blocked">blocked</span></div>
+          <div class="item"><span class="status-dot deferred"></span><span class="item-name">Set up GCP service account for Sheets API access</span><span class="status-badge deferred">deferred</span></div>
+        </div>
+
+        <div class="branch-header" onclick="toggleBranch(this)">
+          <h4>V3.0: AI Layer <span class="count">1 task scoped</span></h4>
+        </div>
+        <div class="branch-items" style="display:none">
+          <div class="item"><span class="status-dot new"></span><span class="item-name">Predictive trend forecasting + predicted-vs-actual tracking</span><span class="status-badge new">new</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Docs -->
+    <div>
+      <div class="section-label">Documentation</div>
+      <div class="docs-grid">
+        <div class="doc-card">
+          <div class="doc-type">Project Doc</div>
+          <h4>ContentIQ LinkedIn Analytics Tool: Project Documentation</h4>
+          <p>Full scope, architecture, design decisions, metrics, and working approach. The source of truth.</p>
+        </div>
+        <div class="doc-card">
+          <div class="doc-type">Roadmap</div>
+          <h4>ContentIQ for LinkedIn: Roadmap & Status</h4>
+          <p>V1-V5 roadmap, current status, pending items, content strategy decisions. Living status doc.</p>
+        </div>
+        <div class="doc-card">
+          <div class="doc-type">LinkedIn Article</div>
+          <h4>"I Built My Own Analytics Dashboard..."</h4>
+          <p>Published article about building ContentIQ. Lives in LinkedIn Article Research doc.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Problems -->
+    <div class="problems">
+      <h3>Why it feels confusing right now</h3>
+      <ul>
+        <li>Main project task is in "2.3 Automation & Scripting" (a generic list), not its own dedicated space</li>
+        <li>Pillar taxonomy task landed in "1.2 Job Search" instead of under ContentIQ</li>
+        <li>Blog platform (Straventis v1.1) has ContentIQ's comments backend as a subtask, creating cross-project confusion</li>
+        <li>Project task is marked "Deferred" but has active subtasks and recent work (today!)</li>
+        <li>Two separate docs cover overlapping content (Project Doc vs. Roadmap & Status)</li>
+        <li>No clear separation between "V1.0 shipped work" vs "V1.x polish" vs "V2+ future"</li>
+        <li>Deviations tracked but not grouped, making it hard to see true scope creep</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- PROPOSED STRUCTURE VIEW -->
+<div class="view" id="view-proposed">
+  
+  <div class="proposed">
+    <div class="proposed-intro">
+      <h3>Recommended: Give ContentIQ its own List</h3>
+      <p>Move ContentIQ out of the generic "2.3 Automation & Scripting" list and into its own dedicated List (or even a Folder if you want to group it with the blog). Group tasks by version milestone, consolidate docs into one, and use statuses that actually match how you work on this project.</p>
+    </div>
+
+    <div class="proposed-tree">
+      <div class="proposed-node">
+        <h4><span class="level-badge">Space</span> Personal</h4>
+        <div class="desc">Your existing space, no change needed</div>
+      </div>
+
+      <div class="proposed-node indent-1">
+        <h4><span class="level-badge">Folder</span> ContentIQ & Straventis Platform</h4>
+        <div class="desc">Groups the product (ContentIQ) with its sibling (blog platform) under one roof</div>
+        <div class="contains">
+          <span class="contains-tag">ContentIQ List</span>
+          <span class="contains-tag">Blog Platform List</span>
+          <span class="contains-tag">Shared Docs</span>
+        </div>
+      </div>
+
+      <div class="proposed-node indent-2">
+        <h4><span class="level-badge">List</span> ContentIQ</h4>
+        <div class="desc">All ContentIQ tasks live here. Use task groups or custom field "Version" to filter by milestone.</div>
+        <div class="contains">
+          <span class="contains-tag">Custom Field: Version (V1.0 / V1.x / V2.0 / V3.0 / V4.0)</span>
+          <span class="contains-tag">Custom Field: Type (Feature / Bug / Deviation / Ops)</span>
+        </div>
+      </div>
+
+      <div class="proposed-node indent-2" style="margin-top: 16px">
+        <h4><span class="level-badge">List</span> Blog Platform</h4>
+        <div class="desc">Straventis blog v1.0/v1.1 tasks stay here. Comments backend moved to ContentIQ if it's ContentIQ-specific.</div>
+      </div>
+    </div>
+
+    <!-- Proposed task grouping -->
+    <div style="margin-top: 24px">
+      <div class="section-label">Proposed task organization inside ContentIQ list</div>
+      
+      <div style="display: grid; gap: 12px; margin-top: 12px;">
+        <div class="proposed-node">
+          <h4 style="color: var(--completed)">V1.0: Core Analytics (shipped)</h4>
+          <div class="desc">10 completed tasks. Archive or collapse these. They're done.</div>
+        </div>
+        <div class="proposed-node">
+          <h4 style="color: var(--active)">V1.x: Polish & Hardening (active sprint)</h4>
+          <div class="desc">Login system, bug fixes, pillar taxonomy update, topic label merging. This is where you actually are right now.</div>
+          <div class="contains">
+            <span class="contains-tag">Login / account system</span>
+            <span class="contains-tag">Table overflow bug</span>
+            <span class="contains-tag">Topics not pulling bug</span>
+            <span class="contains-tag">Pillar taxonomy consolidation</span>
+            <span class="contains-tag">Topic label merging plan</span>
+          </div>
+        </div>
+        <div class="proposed-node">
+          <h4 style="color: var(--blocked)">V2.0: API Integration (blocked)</h4>
+          <div class="desc">Waiting on LinkedIn API approval. Nothing to do here until that clears. Keep 1-2 placeholder tasks.</div>
+          <div class="contains">
+            <span class="contains-tag">LinkedIn API swap</span>
+            <span class="contains-tag">GCP service account (pre-req)</span>
+          </div>
+        </div>
+        <div class="proposed-node">
+          <h4 style="color: var(--new)">V3.0: AI Layer (future)</h4>
+          <div class="desc">Predictive forecasting, content recommendations. Don't over-plan this until V2.0 unblocks.</div>
+          <div class="contains">
+            <span class="contains-tag">Predictive trend forecasting</span>
+            <span class="contains-tag">Content recommendations (TBD)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Docs consolidation -->
+    <div style="margin-top: 32px">
+      <div class="section-label">Documentation: consolidate into one Doc</div>
+      <div class="proposed-node">
+        <h4><span class="level-badge">Doc</span> ContentIQ: Project Hub</h4>
+        <div class="desc">One Doc attached to the ContentIQ List, with pages for each concern:</div>
+        <div class="contains">
+          <span class="contains-tag">Page: Scope & Architecture</span>
+          <span class="contains-tag">Page: Roadmap & Current Status</span>
+          <span class="contains-tag">Page: Design Decisions</span>
+          <span class="contains-tag">Page: Content Strategy</span>
+          <span class="contains-tag">Page: Published Articles (links)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action items -->
+    <div style="margin-top: 32px; background: var(--accent-light); border: 1px solid oklch(85% 0.05 160); border-radius: 12px; padding: 24px;">
+      <div class="section-label" style="color: var(--accent)">To make this happen (5 moves)</div>
+      <div style="display: grid; gap: 8px; margin-top: 8px; font-size: 0.88rem; color: var(--text-secondary);">
+        <div><strong>1.</strong> Create a new Folder "ContentIQ & Platform" under Personal space</div>
+        <div><strong>2.</strong> Create a new List "ContentIQ" inside it, with statuses: Backlog / In Progress / Done / Blocked / Deferred</div>
+        <div><strong>3.</strong> Move all ContentIQ subtasks from "2.3 Automation & Scripting" into the new list</div>
+        <div><strong>4.</strong> Add a "Version" dropdown custom field (V1.0, V1.x, V2.0, V3.0, V4.0, V5.0)</div>
+        <div><strong>5.</strong> Consolidate the two docs into one Doc with subpages, attach it to the new list</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('view-' + tab.dataset.view).classList.add('active');
+  });
+});
+
+// Branch toggle
+function toggleBranch(header) {
+  const items = header.nextElementSibling;
+  if (items && items.classList.contains('branch-items')) {
+    items.style.display = items.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+// Auto-expand first two branches
+document.querySelectorAll('.branch-items')[4]?.style && (document.querySelectorAll('.branch-items')[4].style.display = 'block');
+document.querySelectorAll('.branch-items')[5]?.style && (document.querySelectorAll('.branch-items')[5].style.display = 'block');
+</script>
+
+</body>
+</html>
