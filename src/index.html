@@ -146,14 +146,15 @@
   .why-card .n{ font-family:var(--mono); font-size:12px; color:var(--accent); margin-bottom:10px; }
   .why-card p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); margin:0; }
 
-  .feature-list{ grid-column:2; list-style:none; margin:0; padding:0; display:grid; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
-  .feature-list li{ background:var(--surface); padding:18px 20px; display:grid; grid-template-columns:22px 1fr; gap:14px; align-items:start; }
-  .feature-list .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); margin-top:7px; }
-  .feature-list .ft-title{ font-weight:600; font-size:15px; margin:0 0 4px; }
-  .feature-list .ft-desc{ font-size:14px; color:var(--ink-soft); line-height:1.55; margin:0; }
-
-  /* ---------- Access section: signup + roadmap side by side ---------- */
-  .access-grid{ grid-column:2; display:grid; grid-template-columns:1.3fr 1fr; gap:40px; align-items:start; }
+  .feat-accordion{ grid-column:2; display:flex; flex-direction:column; gap:8px; }
+  .feat-item{ border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface); }
+  .feat-head{ width:100%; display:flex; align-items:center; gap:12px; padding:16px 20px; background:var(--surface); border:none; cursor:pointer; text-align:left; font-family:var(--sans); }
+  .feat-head .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+  .feat-head .ft-title{ font-weight:600; font-size:15px; flex:1; color:var(--ink); }
+  .feat-chevron{ transition:transform .15s ease; color:var(--ink-soft); flex-shrink:0; }
+  .feat-item.open .feat-chevron{ transform:rotate(180deg); }
+  .feat-body{ max-height:0; overflow:hidden; transition:max-height .2s ease; }
+  .feat-body .ft-desc{ font-size:14px; color:var(--ink-soft); line-height:1.55; margin:0; padding:0 20px 16px 40px; }
 
   .signup-form{ display:flex; flex-direction:column; gap:12px; }
   .signup-form input, .signup-form textarea{
@@ -170,24 +171,43 @@
   .form-note{ font-size:13px; color:var(--ink-soft); margin-top:10px; }
   .form-success{ display:none; font-size:14px; color:var(--accent); margin-top:10px; }
 
-  .roadmap-compact{ display:flex; flex-direction:column; gap:0; }
-  .rm-row{ display:flex; align-items:flex-start; gap:12px; padding:14px 0; border-top:1px solid var(--line); }
-  .rm-row:first-child{ border-top:none; padding-top:0; }
-  .rm-status{ width:8px; height:8px; border-radius:50%; margin-top:6px; flex-shrink:0; }
-  .rm-status.done{ background:var(--accent); }
-  .rm-status.beta{ background:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
-  .rm-status.planned{ background:var(--line); }
-  .rm-row-body .rm-ver{ font-family:var(--mono); font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:.05em; }
-  .rm-row-body .rm-title{ font-weight:600; font-size:14.5px; margin:2px 0 3px; }
-  .rm-row-body .rm-desc{ font-size:13px; color:var(--ink-soft); line-height:1.5; margin:0; }
+  /* ---------- What/Why layout: main column + sticky interactive roadmap aside ---------- */
+  .what-why-layout{ display:grid; grid-template-columns:1fr 340px; gap:48px; align-items:start; }
+  .what-why-main > div{ margin-bottom:48px; }
+  .what-why-main > div:last-child{ margin-bottom:0; }
+  .what-why-aside{ position:sticky; top:28px; }
+  .aside-label{ font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin:0 0 14px; }
+
+  .rm2-track{ height:4px; background:var(--line); border-radius:2px; margin-bottom:16px; overflow:hidden; }
+  .rm2-track-fill{ height:100%; background:var(--accent); width:28%; }
+  .rm2-stage{ border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:8px; }
+  .rm2-stage:last-child{ margin-bottom:0; }
+  .rm2-head{ width:100%; display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--surface); border:none; cursor:pointer; text-align:left; font-family:var(--sans); color:var(--ink); }
+  .rm2-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .rm2-dot.done, .rm2-dot.progress{ background:var(--accent); }
+  .rm2-dot.progress{ box-shadow:0 0 0 3px var(--accent-soft); }
+  .rm2-dot.blocked{ background:var(--line); border:1.5px dashed var(--ink-soft); }
+  .rm2-dot.planned{ background:var(--line); }
+  .rm2-ver{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); min-width:32px; }
+  .rm2-title{ font-size:13.5px; font-weight:600; flex:1; }
+  .rm2-badge{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.04em; padding:3px 9px; border-radius:10px; white-space:nowrap; }
+  .rm2-badge.on{ background:var(--accent-soft); color:var(--accent); }
+  .rm2-badge.off{ background:var(--bg); color:var(--ink-soft); border:1px solid var(--line); }
+  .rm2-chevron{ transition:transform .15s ease; color:var(--ink-soft); flex-shrink:0; }
+  .rm2-body{ max-height:0; overflow:hidden; transition:max-height .2s ease; }
+  .rm2-body ul{ margin:0; padding:10px 14px 14px 50px; font-size:12.5px; color:var(--ink-soft); line-height:1.6; }
+
+  @media (max-width:900px){
+    .what-why-layout{ grid-template-columns:1fr; }
+    .what-why-aside{ position:static; margin-top:8px; }
+  }
 
   footer{ padding:36px 0 56px; text-align:center; font-family:var(--mono); font-size:12px; color:var(--ink-soft); }
 
   @media (max-width:760px){
     .section-head{ grid-template-columns:1fr; gap:10px; }
-    .prose, .why-grid, .feature-list, .access-grid{ grid-column:1; }
+    .prose, .why-grid, .feat-accordion{ grid-column:1; }
     .why-grid{ grid-template-columns:1fr; }
-    .access-grid{ grid-template-columns:1fr; gap:32px; }
     .top-actions .btn{ padding:8px 12px; font-size:11px; }
   }
   @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
@@ -268,29 +288,41 @@
   <a class="btn btn-primary" href="#access" style="padding:12px 26px; font-size:13px;">Request Beta Access</a>
 </section>
 
-<section id="what">
+<div style="border-top:1px solid var(--line); padding:56px 0;">
   <div class="wrap">
-    <div class="section-head">
-      <div class="section-tag">01 — What it is</div>
-      <h2>What is ContentIQ</h2>
-    </div>
-    <p class="prose">ContentIQ is a content intelligence tool, built to track how your content actually performs over time, not a single snapshot, but the full trend. It pulls post level metrics into one place, keeps history that the native dashboard doesn't, and turns raw numbers into a clear read on what's working.</p>
-  </div>
-</section>
+    <div class="what-why-layout">
+    <div class="what-why-main">
 
-<section id="why">
-  <div class="wrap">
-    <div class="section-head">
-      <div class="section-tag">02 — Why this exists</div>
-      <h2>Insight, not a subscription tier</h2>
+      <div id="what">
+        <div class="section-head">
+          <div class="section-tag">01 — What it is</div>
+          <h2>What is ContentIQ</h2>
+        </div>
+        <p class="prose">ContentIQ is a content intelligence tool, built to track how your content actually performs over time, not a single snapshot, but the full trend. It pulls post level metrics into one place, keeps history that the native dashboard doesn't, and turns raw numbers into a clear read on what's working.</p>
+      </div>
+
+      <div id="why">
+        <div class="section-head">
+          <div class="section-tag">02 — Why this exists</div>
+          <h2>Insight, not a subscription tier</h2>
+        </div>
+        <div class="prose">
+          <p>Your LinkedIn metrics are a form of professional wealth, quietly compounding or quietly slipping away, and understanding them is part of how anyone navigates an increasingly competitive professional world. Most tools that offer this kind of insight put it behind a paywall or a usage tier.</p>
+          <p>It's the same pattern I wrote about in <a href="https://blog.straventis.com/posts/agentic-platforms/" target="_blank" rel="noopener">The Rise of Agentic Software Development Platforms</a>, free tiers quietly shrinking as compute costs rise, real capability locked a subscription level higher, the tools with the most useful insight reserved for whoever pays the most.</p>
+          <p>ContentIQ is built the opposite way. No paywall, no subscription tier gating the real feature. The insight belongs to the person who made the content, not a vendor renting it back to them.</p>
+        </div>
+      </div>
+
     </div>
-    <div class="prose">
-      <p>Your LinkedIn metrics are a form of professional wealth, quietly compounding or quietly slipping away, and understanding them is part of how anyone navigates an increasingly competitive professional world. Most tools that offer this kind of insight put it behind a paywall or a usage tier.</p>
-      <p>It's the same pattern I wrote about in <a href="https://blog.straventis.com/posts/agentic-platforms/" target="_blank" rel="noopener">The Rise of Agentic Software Development Platforms</a>, free tiers quietly shrinking as compute costs rise, real capability locked a subscription level higher, the tools with the most useful insight reserved for whoever pays the most.</p>
-      <p>ContentIQ is built the opposite way. No paywall, no subscription tier gating the real feature. The insight belongs to the person who made the content, not a vendor renting it back to them.</p>
+
+    <aside class="what-why-aside">
+      <p class="aside-label">Where things stand</p>
+      <div class="rm2-track"><div class="rm2-track-fill"></div></div>
+      <div id="rm2-stages"></div>
+    </aside>
     </div>
   </div>
-</section>
+</div>
 
 <section id="does">
   <div class="wrap">
@@ -298,97 +330,68 @@
       <div class="section-tag">03 — What it does</div>
       <h2>Core capabilities</h2>
     </div>
-    <ul class="feature-list">
-      <li><span class="dot"></span><div><p class="ft-title">Post level tracking</p><p class="ft-desc">Impressions, engagements, and reach, held over time instead of overwritten week to week.</p></div></li>
-      <li><span class="dot"></span><div><p class="ft-title">Pillar and format breakdown</p><p class="ft-desc">See which content pillar and format, original, repost, repost with commentary, actually earns engagement.</p></div></li>
-      <li><span class="dot"></span><div><p class="ft-title">Per-post growth tracking</p><p class="ft-desc">Every post gets its own page showing exactly how it grew from the day it was published.</p></div></li>
-      <li><span class="dot"></span><div><p class="ft-title">Weekly trend rollups</p><p class="ft-desc">Account-wide impressions and engagement, always current, no manual recalculating.</p></div></li>
-    </ul>
-  </div>
-</section>
-
-<section id="access">
-  <div class="wrap">
-    <div class="section-head">
-      <div class="section-tag">04 — Get Access</div>
-      <h2>Request a demo</h2>
+    <div class="feat-accordion" id="feat-accordion">
+      <div class="feat-item">
+        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Post level tracking</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div class="feat-body"><p class="ft-desc">Impressions, engagements, and reach, held over time instead of overwritten week to week.</p></div>
+      </div>
+      <div class="feat-item">
+        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Pillar and format breakdown</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div class="feat-body"><p class="ft-desc">See which content pillar and format, original, repost, repost with commentary, actually earns engagement.</p></div>
+      </div>
+      <div class="feat-item">
+        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Per-post growth tracking</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div class="feat-body"><p class="ft-desc">Every post gets its own page showing exactly how it grew from the day it was published.</p></div>
+      </div>
+      <div class="feat-item">
+        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Ranked post performance</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div class="feat-body"><p class="ft-desc">Switch between impressions, engagement rate, reactions, or total engagements to see what's actually working, ranked live.</p></div>
+      </div>
+      <div class="feat-item">
+        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Full sortable post table</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div class="feat-body"><p class="ft-desc">Every post, every metric, sortable by any column, with a one-click CSV export.</p></div>
+      </div>
+      <div class="feat-item">
+        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Audience demographics</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div class="feat-body"><p class="ft-desc">Real company, location, seniority, and industry breakdown of who's actually seeing your content.</p></div>
+      </div>
+      <div class="feat-item">
+        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Follower growth tracking</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div class="feat-body"><p class="ft-desc">New followers gained over any time window you pick, not just a single lifetime total.</p></div>
+      </div>
+      <div class="feat-item">
+        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Expand any chart</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div class="feat-body"><p class="ft-desc">Every chart opens full-screen with its own independent range and view controls.</p></div>
+      </div>
     </div>
-    <div class="access-grid">
 
-      <div>
-        <p class="prose" style="margin-bottom:20px;">If you're interested in seeing ContentIQ on your own content, fill out the form below and I'll follow up personally to set up a demo and get you access.</p>
+    <div style="margin-top:48px; padding-top:48px; border-top:1px solid var(--line);">
+      <p class="prose" style="margin-bottom:20px;">If you're interested in seeing ContentIQ on your own content, fill out the form below and I'll follow up personally to set up a demo and get you access.</p>
 
-        <form class="signup-form" id="signup-form" action="https://docs.google.com/forms/d/e/1FAIpQLSerq-5OxHf3xlaOSJdmKGKvgPeVb1jk3H8Dw6dKhbjyiafFWQ/formResponse" method="POST" target="hidden_iframe">
-          <label for="name">Name</label>
-          <input type="text" id="name" name="entry.183927542" required>
+      <form class="signup-form" id="signup-form" action="https://docs.google.com/forms/d/e/1FAIpQLSerq-5OxHf3xlaOSJdmKGKvgPeVb1jk3H8Dw6dKhbjyiafFWQ/formResponse" method="POST" target="hidden_iframe" style="max-width:480px;">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="entry.183927542" required>
 
-          <label for="email">Email</label>
-          <input type="email" id="email" name="entry.1844858356" required>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="entry.1844858356" required>
 
-          <label for="company">Company</label>
-          <input type="text" id="company" name="entry.599595963">
+        <label for="company">Company</label>
+        <input type="text" id="company" name="entry.599595963">
 
-          <label for="jobtitle">Job title</label>
-          <input type="text" id="jobtitle" name="entry.365073860">
+        <label for="jobtitle">Job title</label>
+        <input type="text" id="jobtitle" name="entry.365073860">
 
-          <label for="phone">Phone number</label>
-          <input type="tel" id="phone" name="entry.1230407602">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" name="entry.1230407602">
 
-          <label for="purpose">What are you hoping to use ContentIQ for?</label>
-          <textarea id="purpose" name="entry.1919330921" required></textarea>
+        <label for="purpose">What are you hoping to use ContentIQ for?</label>
+        <textarea id="purpose" name="entry.1919330921" required></textarea>
 
-          <button type="submit">Request Access</button>
-        </form>
-        <iframe name="hidden_iframe" style="display:none;"></iframe>
-        <p class="form-note" id="form-note">You'll get a personal email back, usually within a day or two.</p>
-        <p class="form-success" id="form-success">Thanks, that's on its way to me. I'll be in touch shortly.</p>
-      </div>
-
-      <div>
-        <div class="roadmap-compact">
-          <div class="rm-row">
-            <span class="rm-status done"></span>
-            <div class="rm-row-body">
-              <p class="rm-ver">V1.0</p>
-              <p class="rm-title">Core analytics engine</p>
-              <p class="rm-desc">Parsing, per-post history, dashboard. Built and working.</p>
-            </div>
-          </div>
-          <div class="rm-row">
-            <span class="rm-status beta"></span>
-            <div class="rm-row-body">
-              <p class="rm-ver">Now</p>
-              <p class="rm-title">Beta testing</p>
-              <p class="rm-desc">Currently manual, you export from LinkedIn, ContentIQ does the rest.</p>
-            </div>
-          </div>
-          <div class="rm-row">
-            <span class="rm-status planned"></span>
-            <div class="rm-row-body">
-              <p class="rm-ver">V2.0</p>
-              <p class="rm-title">Fully automated</p>
-              <p class="rm-desc">Connects directly via the LinkedIn API, no more manual exports.</p>
-            </div>
-          </div>
-          <div class="rm-row">
-            <span class="rm-status planned"></span>
-            <div class="rm-row-body">
-              <p class="rm-ver">V3.0</p>
-              <p class="rm-title">AI-powered analytics</p>
-              <p class="rm-desc">Recommends what to publish next, based on what's actually worked.</p>
-            </div>
-          </div>
-          <div class="rm-row">
-            <span class="rm-status planned"></span>
-            <div class="rm-row-body">
-              <p class="rm-ver">V4.0+</p>
-              <p class="rm-title">Broader coverage</p>
-              <p class="rm-desc">Extending beyond a single profile, details TBD.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+        <button type="submit">Request Access</button>
+      </form>
+      <iframe name="hidden_iframe" style="display:none;"></iframe>
+      <p class="form-note" id="form-note">You'll get a personal email back, usually within a day or two.</p>
+      <p class="form-success" id="form-success">Thanks, that's on its way to me. I'll be in touch shortly.</p>
     </div>
   </div>
 </section>
@@ -541,6 +544,91 @@
     e.preventDefault();
     alert('Login is coming soon. For now, request access via the Sign Up form.');
   });
+
+  // Interactive roadmap sidebar (sections 01/02)
+  (function(){
+    var stages = [
+      { ver: 'V1.0', title: 'Core analytics engine', status: 'done', badge: 'Live',
+        items: ['Manual CSV ingestion, KPI cards, timeline, per-post pages', 'Built and live on GitHub Pages'] },
+      { ver: 'V2.0', title: 'Dashboard redesign', status: 'progress', badge: 'In progress',
+        items: ['Two-tab layout, ranked cards, sortable table — shipped', 'Profile Views tab with real demographics — shipped', 'Content Pipeline tracking section — not started'] },
+      { ver: 'V3.0', title: 'Predictive analytics + AI', status: 'planned', badge: 'Scoped',
+        items: ['Trend forecasting, predicted-vs-actual tracking — scoped, no build yet', 'AI content recommendations — scoped, no build yet'] },
+      { ver: 'V4.0', title: 'Direct LinkedIn API', status: 'blocked', badge: 'Blocked',
+        items: ['Waiting on LinkedIn partner approval', 'Evaluating official alternatives in parallel'] },
+      { ver: 'V5.0', title: 'Company page analytics', status: 'planned', badge: 'Planned',
+        items: ['Straventis page data alongside personal profile'] },
+      { ver: 'V6.0', title: 'Advanced features', status: 'planned', badge: 'Planned',
+        items: ['Scope TBD'] },
+    ];
+
+    var container = document.getElementById('rm2-stages');
+    if (!container) return;
+
+    stages.forEach(function(s, i){
+      var stage = document.createElement('div');
+      stage.className = 'rm2-stage';
+
+      var badgeClass = (s.status === 'done' || s.status === 'progress') ? 'on' : 'off';
+
+      var head = document.createElement('button');
+      head.type = 'button';
+      head.className = 'rm2-head';
+      head.innerHTML =
+        '<span class="rm2-dot ' + s.status + '"></span>' +
+        '<span class="rm2-ver">' + s.ver + '</span>' +
+        '<span class="rm2-title">' + s.title + '</span>' +
+        '<span class="rm2-badge ' + badgeClass + '">' + s.badge + '</span>' +
+        '<svg class="rm2-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+
+      var body = document.createElement('div');
+      body.className = 'rm2-body';
+      var ul = document.createElement('ul');
+      s.items.forEach(function(item){
+        var li = document.createElement('li');
+        li.textContent = item;
+        ul.appendChild(li);
+      });
+      body.appendChild(ul);
+
+      head.addEventListener('click', function(){
+        var isOpen = body.style.maxHeight && body.style.maxHeight !== '0px';
+        container.querySelectorAll('.rm2-body').forEach(function(b){ b.style.maxHeight = '0px'; });
+        container.querySelectorAll('.rm2-chevron').forEach(function(c){ c.style.transform = 'rotate(0deg)'; });
+        if (!isOpen) {
+          body.style.maxHeight = body.scrollHeight + 'px';
+          head.querySelector('.rm2-chevron').style.transform = 'rotate(180deg)';
+        }
+      });
+
+      stage.appendChild(head);
+      stage.appendChild(body);
+      container.appendChild(stage);
+    });
+
+    // Open V2.0 by default -- current focus
+    var secondHead = container.querySelectorAll('.rm2-head')[1];
+    if (secondHead) secondHead.click();
+  })();
+
+  // Core capabilities accordion (section 03) -- independent toggles, not exclusive
+  (function(){
+    var items = document.querySelectorAll('#feat-accordion .feat-item');
+    items.forEach(function(item){
+      var head = item.querySelector('.feat-head');
+      var body = item.querySelector('.feat-body');
+      head.addEventListener('click', function(){
+        var isOpen = item.classList.contains('open');
+        if (isOpen) {
+          item.classList.remove('open');
+          body.style.maxHeight = '0px';
+        } else {
+          item.classList.add('open');
+          body.style.maxHeight = body.scrollHeight + 'px';
+        }
+      });
+    });
+  })();
 </script>
 
 </body>
