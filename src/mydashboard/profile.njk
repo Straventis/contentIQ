@@ -31,6 +31,25 @@ title: "Profile Views"
       <button class="range-btn" data-type="bar" type="button">Bar</button>
     </div>
   </div>
+  <div>
+    <span class="control-label">Update<span class="coming-soon-badge">Coming soon</span></span>
+    <div class="range-toggle" id="update-mode-group">
+      <button class="range-btn" data-update-mode="manual" type="button">Manual</button>
+      <button class="range-btn active" data-update-mode="auto" type="button">Auto</button>
+    </div>
+    <div id="update-interval-group">
+      <div class="range-toggle" id="update-interval-toggle">
+        <button class="range-btn" data-interval="1" type="button">1h</button>
+        <button class="range-btn active" data-interval="4" type="button">4h</button>
+        <button class="range-btn" data-interval="6" type="button">6h</button>
+        <button class="range-btn" data-interval="12" type="button">12h</button>
+        <button class="range-btn" data-interval="24" type="button">24h</button>
+      </div>
+    </div>
+    <div id="update-manual-group" class="hidden">
+      <button class="range-btn" id="update-manual-btn" type="button">Refresh now</button>
+    </div>
+  </div>
 </div>
 <div class="custom-range-inputs" id="custom-range-inputs" style="display:none;">
   <input type="date" id="range-start">
@@ -245,4 +264,51 @@ title: "Profile Views"
       }
     });
   });
+
+  // ---------- Update control (Manual / Auto) -- UI shell only, coming soon ----------
+  (function(){
+    function getStored(key, fallback){ try { return localStorage.getItem(key) || fallback; } catch(e){ return fallback; } }
+    function setStored(key, val){ try { localStorage.setItem(key, val); } catch(e){} }
+
+    var modeButtons = document.querySelectorAll('#update-mode-group .range-btn');
+    var intervalButtons = document.querySelectorAll('#update-interval-toggle .range-btn');
+    var intervalGroup = document.getElementById('update-interval-group');
+    var manualGroup = document.getElementById('update-manual-group');
+    var manualBtn = document.getElementById('update-manual-btn');
+
+    function applyMode(mode){
+      modeButtons.forEach(function(b){ b.classList.toggle('active', b.dataset.updateMode === mode); });
+      intervalGroup.classList.toggle('hidden', mode !== 'auto');
+      manualGroup.classList.toggle('hidden', mode !== 'manual');
+    }
+
+    var savedMode = getStored('contentiq-update-mode', 'auto');
+    var savedInterval = getStored('contentiq-update-interval', '4');
+    applyMode(savedMode);
+    intervalButtons.forEach(function(b){ b.classList.toggle('active', b.dataset.interval === savedInterval); });
+
+    modeButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var mode = btn.dataset.updateMode;
+        setStored('contentiq-update-mode', mode);
+        applyMode(mode);
+        showUpdateToast(mode === 'auto' ? 'Auto-update saved — live refresh coming soon' : 'Manual mode saved — live refresh coming soon');
+      });
+    });
+
+    intervalButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        intervalButtons.forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        setStored('contentiq-update-interval', btn.dataset.interval);
+        showUpdateToast('Refresh every ' + btn.dataset.interval + 'h saved — coming soon');
+      });
+    });
+
+    if (manualBtn) {
+      manualBtn.addEventListener('click', function(){
+        showUpdateToast('Manual refresh coming soon — check back once account login is set up');
+      });
+    }
+  })();
 </script>

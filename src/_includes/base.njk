@@ -202,6 +202,20 @@
   .chart-controls .range-toggle{ margin-bottom:0; }
   .control-label{ font-family:var(--mono); font-size:calc(var(--content-font-size, 16px) * 0.95); font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--ink); margin:0; align-self:flex-start; }
 
+  .coming-soon-badge{
+    font-family:var(--mono); font-size:9px; text-transform:uppercase; letter-spacing:.04em;
+    background:var(--line); color:var(--ink-soft); padding:2px 7px; border-radius:8px; margin-left:8px; vertical-align:middle;
+  }
+  #update-interval-group{ margin-top:8px; }
+  .hidden{ display:none !important; }
+  .update-toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--bg); font-family:var(--sans); font-size:13px;
+    padding:10px 18px; border-radius:8px; opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+    z-index:2000; white-space:nowrap;
+  }
+  .update-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
   /* ---------- V2.0: 5-metric KPI row ---------- */
   .kpi-row{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:32px; }
   .kpi-row .kpi-card{ padding:14px; }
@@ -509,6 +523,18 @@
 </script>
 
 <!-- ---------- Shared chart expand/fullscreen modal, used by any page ---------- -->
+<div class="update-toast" id="update-toast"></div>
+<script>
+  function showUpdateToast(message){
+    var toast = document.getElementById('update-toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(window._updateToastTimer);
+    window._updateToastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 2600);
+  }
+</script>
+
 <div class="chart-modal-overlay" id="chart-modal-overlay" style="display:none;">
   <div class="chart-modal">
     <div class="chart-modal-header">
