@@ -32,7 +32,7 @@ title: "Dashboard"
     </div>
   </div>
   <div>
-    <span class="control-label">Update<span class="coming-soon-badge">Coming soon</span></span>
+    <span class="control-label">Update<span class="coming-soon-badge">Personal intervals coming soon</span></span>
     <div class="range-toggle" id="update-mode-group">
       <button class="range-btn" data-update-mode="manual" type="button">Manual</button>
       <button class="range-btn active" data-update-mode="auto" type="button">Auto</button>
@@ -45,9 +45,11 @@ title: "Dashboard"
         <button class="range-btn" data-interval="12" type="button">12h</button>
         <button class="range-btn" data-interval="24" type="button">24h</button>
       </div>
+      <p class="update-note">Data actually refreshes every 4h for everyone right now. Your pick here is saved as a personal preference for once account login launches.</p>
     </div>
     <div id="update-manual-group" class="hidden">
       <button class="range-btn" id="update-manual-btn" type="button">Refresh now</button>
+      <p class="update-note">Not wired to this button yet — trigger a real refresh via the repo's Actions tab → Buffer Data Refresh → Run workflow.</p>
     </div>
   </div>
 </div>
@@ -502,7 +504,7 @@ title: "Dashboard"
         var mode = btn.dataset.updateMode;
         setStored('contentiq-update-mode', mode);
         applyMode(mode);
-        showUpdateToast(mode === 'auto' ? 'Auto-update saved — live refresh coming soon' : 'Manual mode saved — live refresh coming soon');
+        showUpdateToast(mode === 'auto' ? 'Auto mode saved — data refreshes every 4h for everyone' : 'Manual mode saved — see note below for how to trigger a real refresh');
       });
     });
 
@@ -511,13 +513,13 @@ title: "Dashboard"
         intervalButtons.forEach(function(b){ b.classList.remove('active'); });
         btn.classList.add('active');
         setStored('contentiq-update-interval', btn.dataset.interval);
-        showUpdateToast('Refresh every ' + btn.dataset.interval + 'h saved — coming soon');
+        showUpdateToast('Saved as your preference (' + btn.dataset.interval + 'h) — real interval is still fixed at 4h for now');
       });
     });
 
     if (manualBtn) {
       manualBtn.addEventListener('click', function(){
-        showUpdateToast('Manual refresh coming soon — check back once account login is set up');
+        showUpdateToast('Trigger a real refresh from the repo Actions tab — see note below');
       });
     }
   })();
