@@ -31,6 +31,27 @@ title: "Dashboard"
       <button class="range-btn" data-type="bar" type="button">Bar</button>
     </div>
   </div>
+  <div>
+    <span class="control-label">Update<span class="coming-soon-badge">Personal intervals coming soon</span></span>
+    <div class="range-toggle" id="update-mode-group">
+      <button class="range-btn" data-update-mode="manual" type="button">Manual</button>
+      <button class="range-btn active" data-update-mode="auto" type="button">Auto</button>
+    </div>
+    <div id="update-interval-group">
+      <div class="range-toggle" id="update-interval-toggle">
+        <button class="range-btn" data-interval="1" type="button">1h</button>
+        <button class="range-btn active" data-interval="4" type="button">4h</button>
+        <button class="range-btn" data-interval="6" type="button">6h</button>
+        <button class="range-btn" data-interval="12" type="button">12h</button>
+        <button class="range-btn" data-interval="24" type="button">24h</button>
+      </div>
+      <p class="update-note">Data actually refreshes every 4h for everyone right now. Your pick here is saved as a personal preference for once account login launches.</p>
+    </div>
+    <div id="update-manual-group" class="hidden">
+      <button class="range-btn" id="update-manual-btn" type="button">Refresh now</button>
+      <p class="update-note">Not wired to this button yet — trigger a real refresh via the repo's Actions tab → Buffer Data Refresh → Run workflow.</p>
+    </div>
+  </div>
 </div>
 <div class="custom-range-inputs" id="custom-range-inputs" style="display:none;">
   <input type="date" id="range-start">
@@ -451,4 +472,55 @@ title: "Dashboard"
   wireMiniExpand('expand-mini-posts', function(range, mode){ return buildPostsDataset(range, mode); }, 'Posts', 'Posts');
   wireMiniExpand('expand-mini-impressions', function(range, mode){ return buildMiniDataset('impressions', range, mode); }, 'Impressions', 'Impressions');
   wireMiniExpand('expand-mini-engagement', function(range, mode){ return buildMiniDataset('engagements', range, mode); }, 'Engagement', 'Engagements');
+
+  // ---------- Update control (Manual / Auto) -- UI shell only, coming soon ----------
+  // Preference genuinely persists to localStorage today. The actual refresh
+  // action does not run yet -- it requires a server-side trigger (GitHub
+  // Actions workflow or a Worker proxy) since Buffer's API key can never
+  // safely live in this page's client-side JS. See STRV-62.
+  (function(){
+    function getStored(key, fallback){ try { return localStorage.getItem(key) || fallback; } catch(e){ return fallback; } }
+    function setStored(key, val){ try { localStorage.setItem(key, val); } catch(e){} }
+
+    var modeButtons = document.querySelectorAll('#update-mode-group .range-btn');
+    var intervalButtons = document.querySelectorAll('#update-interval-toggle .range-btn');
+    var intervalGroup = document.getElementById('update-interval-group');
+    var manualGroup = document.getElementById('update-manual-group');
+    var manualBtn = document.getElementById('update-manual-btn');
+
+    function applyMode(mode){
+      modeButtons.forEach(function(b){ b.classList.toggle('active', b.dataset.updateMode === mode); });
+      intervalGroup.classList.toggle('hidden', mode !== 'auto');
+      manualGroup.classList.toggle('hidden', mode !== 'manual');
+    }
+
+    var savedMode = getStored('contentiq-update-mode', 'auto');
+    var savedInterval = getStored('contentiq-update-interval', '4');
+    applyMode(savedMode);
+    intervalButtons.forEach(function(b){ b.classList.toggle('active', b.dataset.interval === savedInterval); });
+
+    modeButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var mode = btn.dataset.updateMode;
+        setStored('contentiq-update-mode', mode);
+        applyMode(mode);
+        showUpdateToast(mode === 'auto' ? 'Auto mode saved — data refreshes every 4h for everyone' : 'Manual mode saved — see note below for how to trigger a real refresh');
+      });
+    });
+
+    intervalButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        intervalButtons.forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        setStored('contentiq-update-interval', btn.dataset.interval);
+        showUpdateToast('Saved as your preference (' + btn.dataset.interval + 'h) — real interval is still fixed at 4h for now');
+      });
+    });
+
+    if (manualBtn) {
+      manualBtn.addEventListener('click', function(){
+        showUpdateToast('Trigger a real refresh from the repo Actions tab — see note below');
+      });
+    }
+  })();
 </script>
