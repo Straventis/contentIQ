@@ -1,0 +1,54 @@
+name: Data Refresh
+
+on:
+  schedule:
+    # Matches contentiq.config.json's update_frequency_hours (currently 4h).
+    # This is a fixed, repo-wide schedule -- changing the config's number
+    # does NOT automatically change this line. Run
+    # `python3 scripts/refresh_data.py --show-cron` after editing the
+    # config to get the correct cron expression to paste in here.
+    - cron: "0 */4 * * *"
+  workflow_dispatch:
+    # Real "Manual refresh" trigger -- click "Run workflow" on this
+    # workflow's Actions tab page. Gated behind your GitHub login.
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run data refresh (source selected by contentiq.config.json)
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          TAPLIO_API_KEY: ${{ secrets.TAPLIO_API_KEY }}
+          ZERNIO_API_KEY: ${{ secrets.ZERNIO_API_KEY }}
+        run: python3 scripts/refresh_data.py
+
+      - name: Commit and push if data changed
+        run: |
+          git config user.name "data-refresh-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/_data/master.csv
+          for f in src/_data/buffer_analytics_raw.csv src/_data/taplio_analytics_raw.csv src/_data/zernio_analytics_raw.csv; do
+            if [ -f "$f" ]; then
+              git add "$f"
+            fi
+          done
+          if git diff --cached --quiet; then
+            echo "No data changes, skipping commit."
+          else
+            git commit -m "Automated data refresh ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git push
+          fi
+          # This push (if it happens) triggers the existing
+          # "Build and Deploy ContentIQ" workflow automatically.
