@@ -190,6 +190,28 @@ query IntrospectType($typeName: String!) {
 """
 
 
+INTROSPECT_QUERY_FIELD = """
+query IntrospectQueryField {
+  __schema {
+    queryType {
+      fields {
+        name
+        args {
+          name
+          type { name kind ofType { name kind ofType { name kind } } }
+        }
+        type {
+          name
+          kind
+          ofType { name kind }
+        }
+      }
+    }
+  }
+}
+"""
+
+
 def connect_status(api_key: str):
     budget = CallBudget(int(os.environ.get("BUFFER_DAILY_CALL_BUDGET", DEFAULT_DAILY_CALL_BUDGET)))
     dump = {"run_at": datetime.datetime.now().isoformat()}
@@ -265,6 +287,48 @@ def connect_status(api_key: str):
         print(f"  Sample posts pulled: {len(sample_posts)}")
     else:
         print("\nStep 4/4: skipped -- no LinkedIn channel connected to this Buffer account yet.")
+
+    # ---------------------------------------------------------------
+    # Step 5: real introspection of aggregatedPostMetrics. Buffer's own
+    # docs describe this as rolling up metrics by org/date range/channel,
+    # but never show its actual field shape -- specifically whether it
+    # buckets by day or returns one total for the whole range. The
+    # former is useful for rebuilding daily_totals.csv automatically;
+    # the latter isn't, no matter how the query is called.
+    # ---------------------------------------------------------------
+    print("\nStep 5/5: introspecting aggregatedPostMetrics's real arguments and return shape...")
+    data = graphql_request(INTROSPECT_QUERY_FIELD, {}, api_key, budget)
+    query_fields = data.get("__schema", {}).get("queryType", {}).get("fields", [])
+    agg_field = next((f for f in query_fields if f["name"] == "aggregatedPostMetrics"), None)
+    dump["aggregated_post_metrics_field"] = agg_field
+
+    if not agg_field:
+        print("  aggregatedPostMetrics does not exist in this account's schema at all.")
+        print("  (Buffer's docs describe it as available, but schema access can vary by plan/account.)")
+    else:
+        arg_names = [a["name"] for a in agg_field.get("args", [])]
+        print(f"  Arguments: {', '.join(arg_names) if arg_names else '(none)'}")
+        return_type = agg_field.get("type", {})
+        return_type_name = return_type.get("name") or (return_type.get("ofType") or {}).get("name")
+        print(f"  Return type: {return_type_name}")
+
+        if return_type_name:
+            print(f"\n  Introspecting the return type '{return_type_name}' for its actual fields...")
+            data = graphql_request(INTROSPECT_TYPE_QUERY, {"typeName": return_type_name}, api_key, budget)
+            return_type_schema = data.get("__type")
+            dump["aggregated_post_metrics_return_type"] = return_type_schema
+            return_fields = [f["name"] for f in (return_type_schema or {}).get("fields", [])]
+            print(f"  Return type fields: {', '.join(return_fields)}")
+            has_date_bucket = any(kw in " ".join(return_fields).lower() for kw in ["date", "day", "bucket", "interval", "period"])
+            print(f"  Date/day-bucket-shaped field present: {has_date_bucket}")
+            if not has_date_bucket:
+                print("  -> No obvious per-day field. This may return one aggregate total per")
+                print("     call, not a daily breakdown -- would need one call per day to")
+                print("     reconstruct daily_totals.csv, likely impractical within the rate budget.")
+            else:
+                print("  -> Looks genuinely bucketed. Worth a real test call with a multi-day")
+                print("     range next to confirm it actually returns multiple rows, not just")
+                print("     a field name that happens to contain 'date'.")
 
     dump["calls_used"] = budget.used
     write_schema_dump(dump)

@@ -36,206 +36,106 @@
     --bg:#F1EFEA; --surface:#FAF9F6; --ink:#211F1C; --ink-soft:#6E6A62;
     --line:#DCD8CF; --accent:#3E5C55; --accent-soft:#DEE6E2; --logo-mark:#F1EFEA;
     --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif; --display: 'Space Grotesk', sans-serif;
-    --content-font-size:16px; --page-width:960px;
+    --content-font-size:16px; --page-width:1180px;
   }
   html[data-theme="dark"]{
     --bg:#18191B; --surface:#212225; --ink:#EDEBE5; --ink-soft:#8F8B82;
     --line:#2E2F2F; --accent:#75A594; --accent-soft:#22322C; --logo-mark:#18191B;
   }
 
-  /* ---------- Color palettes, light mode ---------- */
+  /* Color palettes */
   html[data-color="ocean"]{ --accent:#2A5C7A; --accent-soft:#DCE8EF; }
   html[data-color="amber"]{ --accent:#A5680A; --accent-soft:#F0E4D0; }
   html[data-color="berry"]{ --accent:#7A3B5C; --accent-soft:#EDDCE6; }
-  /* ---------- Color palettes, dark mode ---------- */
   html[data-theme="dark"][data-color="ocean"]{ --accent:#6FA8C9; --accent-soft:#1E3644; }
   html[data-theme="dark"][data-color="amber"]{ --accent:#E0A94D; --accent-soft:#3A2E18; }
   html[data-theme="dark"][data-color="berry"]{ --accent:#C97FA8; --accent-soft:#3A2430; }
-  /* ---------- Colorblind-safe override, wins regardless of data-color ---------- */
   html[data-colorblind="on"]{ --accent:#1D6FA5; --accent-soft:#DCE9F2; }
   html[data-theme="dark"][data-colorblind="on"]{ --accent:#5FA8DE; --accent-soft:#1B2E3D; }
 
-  /* ---------- Font size ---------- */
+  /* Font & Width */
   html[data-font="small"]{ --content-font-size:14px; }
   html[data-font="default"]{ --content-font-size:16px; }
   html[data-font="large"]{ --content-font-size:18px; }
   html[data-font="xlarge"]{ --content-font-size:21px; }
 
-  /* ---------- Page width / margins ---------- */
   html[data-width="narrow"]{ --page-width:760px; }
   html[data-width="normal"]{ --page-width:960px; }
   html[data-width="wide"]{ --page-width:1180px; }
+
   *{ box-sizing:border-box; }
-  html{ scroll-behavior:smooth; }
-  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:var(--content-font-size, 16px); -webkit-font-smoothing:antialiased; transition:background .25s ease, color .25s ease; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:var(--content-font-size, 16px); -webkit-font-smoothing:antialiased; }
   a{ color:inherit; }
-  :focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
-  .wrap{ max-width:var(--page-width, 960px); margin:0 auto; padding:0 28px; transition:max-width .2s ease; }
+  .wrap{ max-width:var(--page-width, 1180px); margin:0 auto; padding:0 28px; }
 
-  .settings-btn{ display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:var(--surface); cursor:pointer; color:var(--ink-soft); }
-  .settings-btn svg{ width:16px; height:16px; }
-  .settings-btn:hover{ color:var(--ink); border-color:var(--accent); }
-
-  .settings-panel{
-    display:none; position:absolute; top:60px; right:28px; width:300px; z-index:50;
-    background:var(--surface); border:1px solid var(--line); border-radius:10px;
-    padding:18px; box-shadow:0 8px 24px rgba(0,0,0,0.12); text-align:left;
-  }
-  .settings-panel.open{ display:block; }
-  .settings-group{ margin-bottom:16px; }
-  .settings-group:last-child{ margin-bottom:0; }
-  .settings-group-label{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin:0 0 8px; }
-  .settings-row{ display:flex; gap:6px; flex-wrap:wrap; }
-  .settings-btn-opt{
-    font-family:var(--mono); font-size:11px; padding:6px 10px; border-radius:14px;
-    border:1px solid var(--line); background:var(--bg); color:var(--ink-soft); cursor:pointer;
-  }
-  .settings-btn-opt:hover{ border-color:var(--accent); color:var(--ink); }
-  .settings-btn-opt.active{ background:var(--accent); border-color:var(--accent); color:var(--bg); }
-  .color-swatch{ width:26px; height:26px; border-radius:50%; border:2px solid var(--line); cursor:pointer; padding:0; }
-  .color-swatch.active{ border-color:var(--ink); }
-  .swatch-sage{ background:#3E5C55; } .swatch-ocean{ background:#2A5C7A; }
-  .swatch-amber{ background:#A5680A; } .swatch-berry{ background:#7A3B5C; }
-  .colorblind-toggle{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-soft); cursor:pointer; }
-
-  .topbar{ padding:24px 0; }
-  .topbar .wrap{ display:flex; align-items:center; justify-content:space-between; }
+  /* Topbar Navigation Restructure */
+  .topbar{ padding:16px 0; border-bottom:1px solid var(--line); background:var(--surface); }
+  .topbar .wrap{ display:flex; align-items:center; justify-content:space-between; gap:20px; }
+  .nav-left{ display:flex; align-items:center; gap:28px; }
   .brandmark{ display:flex; align-items:center; gap:10px; }
   .brandmark .word{ font-family:var(--mono); font-size:13px; letter-spacing:.08em; color:var(--ink-soft); text-transform:uppercase; }
   .brandmark .word b{ color:var(--ink); font-weight:600; }
 
-  .top-actions{ display:flex; align-items:center; gap:12px; }
-  .btn{
-    font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:.05em;
-    padding:9px 18px; border-radius:20px; border:1px solid var(--line); cursor:pointer;
-    background:var(--surface); color:var(--ink); text-decoration:none; transition:all .15s ease;
+  /* Tab Navigation Styling */
+  .main-tabs{ display:flex; align-items:center; gap:6px; background:var(--bg); padding:4px; border-radius:12px; border:1px solid var(--line); }
+  .tab-btn{
+    font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.05em;
+    padding:6px 14px; border-radius:8px; border:none; background:transparent; color:var(--ink-soft);
+    cursor:pointer; transition:all .15s ease; text-decoration:none;
   }
-  .btn:hover{ border-color:var(--accent); color:var(--accent); }
-  .btn-primary{ background:var(--accent); border-color:var(--accent); color:var(--bg); }
-  .btn-primary:hover{ opacity:.9; color:var(--bg); }
+  .tab-btn:hover{ color:var(--ink); }
+  .tab-btn.active{ background:var(--surface); color:var(--ink); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
 
-  .theme-toggle{
-    display:flex; align-items:center; justify-content:center; width:34px; height:34px;
-    border-radius:50%; border:1px solid var(--line); background:var(--surface); cursor:pointer; color:var(--ink-soft);
+  .settings-btn{ display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:var(--surface); cursor:pointer; color:var(--ink-soft); }
+  .settings-btn:hover{ color:var(--ink); border-color:var(--accent); }
+
+  .settings-panel{
+    display:none; position:absolute; top:60px; right:28px; width:300px; z-index:50;
+    background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:18px; box-shadow:0 8px 24px rgba(0,0,0,0.12);
   }
-  .theme-toggle svg{ width:16px; height:16px; }
-  .theme-toggle .icon-moon{ display:none; }
-  html[data-theme="dark"] .theme-toggle .icon-sun{ display:none; }
-  html[data-theme="dark"] .theme-toggle .icon-moon{ display:block; }
+  .settings-panel.open{ display:block; }
 
-  .hero{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:60px 28px 70px; }
-  .logo-mark{ width:60px; height:60px; margin-bottom:24px; }
-  .status-badge{
-    font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
-    color:var(--accent); background:var(--accent-soft); padding:5px 14px; border-radius:20px; margin:0 0 20px;
-  }
-  h1.title{ font-family:var(--display); font-weight:600; font-size:clamp(38px,6vw,60px); line-height:1.05; letter-spacing:-.02em; margin:0 0 16px; }
-  .subhead{ font-size:17px; line-height:1.6; color:var(--ink-soft); max-width:520px; margin:0 0 32px; }
+  /* Dashboard Header */
+  .dashboard-header{ padding:28px 0 16px; }
+  .section-tag{ font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px; }
+  h1.title{ font-family:var(--display); font-weight:700; font-size:32px; line-height:1.1; margin:0 0 6px; letter-spacing:-.02em; }
+  .subhead{ font-size:14px; color:var(--ink-soft); margin:0 0 12px; }
+  .last-refreshed{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); opacity:.8; }
 
-  section{ padding:56px 0; border-top:1px solid var(--line); }
-  .section-head{ display:grid; grid-template-columns:140px 1fr; gap:32px; margin-bottom:28px; }
-  .section-tag{ font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); padding-top:4px; }
-  h2{ font-family:var(--display); font-weight:600; font-size:26px; margin:0; letter-spacing:-.01em; }
-  .prose{ grid-column:2; font-size:16px; line-height:1.75; color:var(--ink-soft); max-width:62ch; }
-  .prose a{ color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
-  .prose p{ margin:0 0 16px; }
-  .prose p:last-child{ margin-bottom:0; }
+  /* Controls Row */
+  .controls-row{ display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start; margin:20px 0 24px; padding-bottom:16px; border-bottom:1px solid var(--line); }
+  .control-group{ display:flex; flex-direction:column; gap:6px; }
+  .control-label{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); }
+  .pill-group{ display:flex; gap:4px; background:var(--surface); padding:3px; border-radius:16px; border:1px solid var(--line); }
+  .pill{ font-family:var(--mono); font-size:11px; padding:5px 12px; border-radius:12px; border:none; background:transparent; color:var(--ink-soft); cursor:pointer; }
+  .pill.active{ background:var(--accent); color:var(--bg); font-weight:600; }
 
-  .why-grid{ grid-column:2; display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
-  .why-card{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:22px; }
-  .why-card .n{ font-family:var(--mono); font-size:12px; color:var(--accent); margin-bottom:10px; }
-  .why-card p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); margin:0; }
-
-  .feat-accordion{ grid-column:2; display:flex; flex-direction:column; gap:8px; }
-  .feat-item{ border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface); }
-  .feat-head{ width:100%; display:flex; align-items:center; gap:12px; padding:16px 20px; background:var(--surface); border:none; cursor:pointer; text-align:left; font-family:var(--sans); }
-  .feat-head .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; }
-  .feat-head .ft-title{ font-weight:600; font-size:15px; flex:1; color:var(--ink); }
-  .feat-chevron{ transition:transform .15s ease; color:var(--ink-soft); flex-shrink:0; }
-  .feat-item.open .feat-chevron{ transform:rotate(180deg); }
-  .feat-body{ max-height:0; overflow:hidden; transition:max-height .2s ease; }
-  .feat-body-inner{ display:flex; gap:24px; align-items:stretch; padding:0 20px 20px 40px; }
-  .feat-body-text{ flex:1; min-width:0; }
-  .feat-body .ft-desc{ font-size:14px; color:var(--ink-soft); line-height:1.55; margin:0 0 12px; }
-  .feat-body .ft-desc:last-child{ margin-bottom:0; }
-  .feat-body .ft-image{ display:block; width:320px; align-self:stretch; height:auto; min-height:180px; object-fit:contain; background:var(--surface); flex-shrink:0; border-radius:8px; border:1px solid var(--line); }
-  @media (max-width:640px){
-    .feat-body-inner{ flex-direction:column; padding:0 20px 20px 40px; }
-    .feat-body .ft-image{ width:100%; height:auto; min-height:0; aspect-ratio:16/9; }
-  }
-
-  .signup-form{ display:flex; flex-direction:column; gap:12px; }
-  .signup-form input, .signup-form textarea{
-    font-family:var(--sans); font-size:14px; padding:11px 14px; border-radius:8px;
-    border:1px solid var(--line); background:var(--surface); color:var(--ink); width:100%;
-  }
-  .signup-form textarea{ resize:vertical; min-height:80px; }
-  .signup-form label{ font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:-6px; }
-  .signup-form button{
-    font-family:var(--mono); font-size:13px; text-transform:uppercase; letter-spacing:.05em;
-    padding:12px; border-radius:8px; border:none; background:var(--accent); color:var(--bg); cursor:pointer; margin-top:8px;
-  }
-  .signup-form button:hover{ opacity:.9; }
-  .form-note{ font-size:13px; color:var(--ink-soft); margin-top:10px; }
-  .form-success{ display:none; font-size:14px; color:var(--accent); margin-top:10px; }
-
-  /* ---------- What/Why layout: main column + sticky interactive roadmap aside ---------- */
-  .what-why-layout{ display:grid; grid-template-columns:1fr 340px; gap:48px; align-items:start; }
-  .what-why-main > div{ margin-bottom:48px; }
-  .what-why-main > div:last-child{ margin-bottom:0; }
-  .what-why-aside{ position:sticky; top:28px; }
-  .aside-label{ font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin:0 0 14px; }
-
-  .rm2-track{ height:4px; background:var(--line); border-radius:2px; margin-bottom:16px; overflow:hidden; }
-  .rm2-track-fill{ height:100%; background:var(--accent); width:28%; }
-  .rm2-stage{ border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:8px; }
-  .rm2-stage:last-child{ margin-bottom:0; }
-  .rm2-head{ width:100%; display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--surface); border:none; cursor:pointer; text-align:left; font-family:var(--sans); color:var(--ink); }
-  .rm2-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-  .rm2-dot.done, .rm2-dot.progress{ background:var(--accent); }
-  .rm2-dot.progress{ box-shadow:0 0 0 3px var(--accent-soft); }
-  .rm2-dot.blocked{ background:var(--line); border:1.5px dashed var(--ink-soft); }
-  .rm2-dot.planned{ background:var(--line); }
-  .rm2-ver{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); min-width:32px; }
-  .rm2-title{ font-size:13.5px; font-weight:600; flex:1; }
-  .rm2-badge{ font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.04em; padding:3px 9px; border-radius:10px; white-space:nowrap; }
-  .rm2-badge.on{ background:var(--accent-soft); color:var(--accent); }
-  .rm2-badge.off{ background:var(--bg); color:var(--ink-soft); border:1px solid var(--line); }
-  .rm2-chevron{ transition:transform .15s ease; color:var(--ink-soft); flex-shrink:0; }
-  .rm2-body{ max-height:0; overflow:hidden; transition:max-height .2s ease; }
-  .rm2-body ul{ margin:0; padding:10px 14px 14px 50px; font-size:12.5px; color:var(--ink-soft); line-height:1.6; }
-
-  @media (max-width:900px){
-    .what-why-layout{ grid-template-columns:1fr; }
-    .what-why-aside{ position:static; margin-top:8px; }
-  }
-
-  footer{ padding:36px 0 56px; text-align:center; font-family:var(--mono); font-size:12px; color:var(--ink-soft); }
-
-  @media (max-width:760px){
-    .section-head{ grid-template-columns:1fr; gap:10px; }
-    .prose, .why-grid, .feat-accordion{ grid-column:1; }
-    .why-grid{ grid-template-columns:1fr; }
-    .top-actions .btn{ padding:8px 12px; font-size:11px; }
-  }
-  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+  .update-note{ font-family:var(--sans); font-size:12px; color:var(--ink-soft); max-width:280px; margin-top:6px; line-height:1.4; background:var(--surface); border:1px solid var(--line); padding:8px 12px; border-radius:8px; }
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <div class="wrap">
-    <div class="brandmark">
-      <svg width="22" height="22" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="40" height="40" rx="10" fill="var(--accent)"/>
-        <path d="M9 25L15.5 18L20.5 22.5L31 11" stroke="var(--logo-mark)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="31" cy="11" r="2.6" fill="var(--logo-mark)"/>
-      </svg>
-      <span class="word"><b>ContentIQ</b> · by Straventis</span>
+    <div class="nav-left">
+      <div class="brandmark">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="40" height="40" rx="10" fill="var(--accent)"/>
+          <path d="M9 25L15.5 18L20.5 22.5L31 11" stroke="var(--logo-mark)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="31" cy="11" r="2.6" fill="var(--logo-mark)"/>
+        </svg>
+        <span class="word"><b>CONTENTIQ</b> · DASHBOARD</span>
+      </div>
+
+      <!-- Relocated Tabs -->
+      <nav class="main-tabs" aria-label="Dashboard sections">
+        <button class="tab-btn" type="button">Overview</button>
+        <button class="tab-btn active" type="button">Post Performance</button>
+        <button class="tab-btn" type="button">Profile Views</button>
+      </nav>
     </div>
+
     <div class="top-actions" style="position:relative;">
-      <a class="btn" href="#" id="login-link">Login</a>
-      <a class="btn btn-primary" href="#access">Sign Up</a>
       <button class="settings-btn" id="settings-btn" type="button" aria-label="Display settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       </button>
@@ -249,449 +149,88 @@
             <button class="settings-btn-opt" data-theme-choice="auto" type="button">Auto</button>
           </div>
         </div>
-        <div class="settings-group">
-          <p class="settings-group-label">Color</p>
-          <div class="settings-row">
-            <button class="color-swatch swatch-sage" data-color="sage" type="button" aria-label="Sage"></button>
-            <button class="color-swatch swatch-ocean" data-color="ocean" type="button" aria-label="Ocean"></button>
-            <button class="color-swatch swatch-amber" data-color="amber" type="button" aria-label="Amber"></button>
-            <button class="color-swatch swatch-berry" data-color="berry" type="button" aria-label="Berry"></button>
-          </div>
-          <label class="colorblind-toggle" style="margin-top:10px;">
-            <input type="checkbox" id="colorblind-check">
-            Colorblind friendly mode
-          </label>
-        </div>
-        <div class="settings-group">
-          <p class="settings-group-label">Text size</p>
-          <div class="settings-row">
-            <button class="settings-btn-opt" data-font="small" type="button">A</button>
-            <button class="settings-btn-opt" data-font="default" type="button">A</button>
-            <button class="settings-btn-opt" data-font="large" type="button">A</button>
-            <button class="settings-btn-opt" data-font="xlarge" type="button">A</button>
-          </div>
-        </div>
-        <div class="settings-group">
-          <p class="settings-group-label">Page width</p>
-          <div class="settings-row">
-            <button class="settings-btn-opt" data-width="narrow" type="button">Narrow</button>
-            <button class="settings-btn-opt" data-width="normal" type="button">Normal</button>
-            <button class="settings-btn-opt" data-width="wide" type="button">Wide</button>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </div>
 
-<section class="hero" style="border-top:none; padding-top:40px;">
-  <svg class="logo-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="40" height="40" rx="10" fill="var(--accent)"/>
-    <path d="M9 25L15.5 18L20.5 22.5L31 11" stroke="var(--logo-mark)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="31" cy="11" r="2.6" fill="var(--logo-mark)"/>
-  </svg>
-  <p class="status-badge">● Now in Beta</p>
-  <h1 class="title">ContentIQ</h1>
-  <p class="subhead">A content intelligence tool that tracks how your LinkedIn presence actually performs over time, and eventually, what to publish next.</p>
-  <a class="btn btn-primary" href="#access" style="padding:12px 26px; font-size:13px;">Request Beta Access</a>
-</section>
+<main class="wrap">
+  <!-- Prominently Relocated Main Header Section -->
+  <header class="dashboard-header">
+    <div class="section-tag">CONTENT INTELLIGENCE</div>
+    <h1 class="title">Post Performance Dashboard</h1>
+    <p class="subhead">Tracking 26 tagged posts in the selected range</p>
+    <div class="last-refreshed">Data last refreshed July 30, 2026 at 10:45 AM EDT</div>
+  </header>
 
-<div style="border-top:1px solid var(--line); padding:56px 0;">
-  <div class="wrap">
-    <div class="what-why-layout">
-    <div class="what-why-main">
-
-      <div id="what">
-        <div class="section-head">
-          <div class="section-tag">01 — What it is</div>
-          <h2>What is ContentIQ</h2>
-        </div>
-        <p class="prose">ContentIQ is a content intelligence tool, built to track how your content actually performs over time, not a single snapshot, but the full trend. It pulls post level metrics into one place, keeps history that the native dashboard doesn't, and turns raw numbers into a clear read on what's working.</p>
-      </div>
-
-      <div id="why">
-        <div class="section-head">
-          <div class="section-tag">02 — Why this exists</div>
-          <h2>Insight, not a subscription tier</h2>
-        </div>
-        <div class="prose">
-          <p>Your LinkedIn metrics are a form of professional wealth, quietly compounding or quietly slipping away, and understanding them is part of how anyone navigates an increasingly competitive professional world. Most tools that offer this kind of insight put it behind a paywall or a usage tier.</p>
-          <p>It's the same pattern I wrote about in <a href="https://blog.straventis.com/posts/agentic-platforms/" target="_blank" rel="noopener">The Rise of Agentic Software Development Platforms</a>, free tiers quietly shrinking as compute costs rise, real capability locked a subscription level higher, the tools with the most useful insight reserved for whoever pays the most.</p>
-          <p>ContentIQ is built the opposite way. No paywall, no subscription tier gating the real feature. The insight belongs to the person who made the content, not a vendor renting it back to them.</p>
-        </div>
-      </div>
-
-    </div>
-
-    <aside class="what-why-aside">
-      <p class="aside-label">Where things stand</p>
-      <div class="rm2-track"><div class="rm2-track-fill"></div></div>
-      <div id="rm2-stages"></div>
-    </aside>
-    </div>
-  </div>
-</div>
-
-<section id="does">
-  <div class="wrap">
-    <div class="section-head">
-      <div class="section-tag">03 — What it does</div>
-      <h2>Core capabilities</h2>
-    </div>
-    <div class="feat-accordion" id="feat-accordion">
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Post level tracking</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">LinkedIn's own dashboard only shows you a <strong>snapshot</strong>. Check today, and yesterday's exact numbers are already gone, overwritten by whatever the current total happens to be. There's no real way to see how a post actually grew, or to compare last month against this month with any precision.</p>
-          <p class="ft-desc">Every time ContentIQ syncs, it <strong>keeps the full history</strong> instead of writing over it, impressions, engagements, and reach for every post, held over time rather than collapsed into a single current number.</p>
-          <p class="ft-desc">That's the difference between <strong>knowing a post did well and knowing why</strong>. A post that spiked in the first hour and died is a different story than one that built slowly over two weeks, and only one of those is worth trying to repeat.</p>
-          <p class="ft-desc">Every chart also switches between line and bar view, and between daily and cumulative totals, so you can look at the same data the way that actually makes the pattern clearest to you.</p>
-        </div><img class="ft-image" src="/assets/features/impressions-tracking.png" alt="Account impressions chart showing daily trend over a week" loading="lazy"></div></div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Pillar and format breakdown</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">Posting regularly doesn't tell you <strong>what's actually working</strong>. Without a system behind it, you're guessing whether that repost with commentary habit is paying off, or whether AI content genuinely lands better than career reflection posts, or if it's all just noise.</p>
-          <p class="ft-desc">Every post gets tagged with a content pillar, the topic, and a format, original, repost, or repost with commentary, so ContentIQ can <strong>break down engagement rate by category</strong> instead of just post by post.</p>
-          <p class="ft-desc">You get a real answer to what to write more of, grounded in <strong>your own audience's actual behavior</strong>, not a generic best practices article that has nothing to do with who's actually reading you.</p>
-        </div><img class="ft-image" src="/assets/features/pillar-breakdown.png" alt="Bar chart of average engagement rate by content pillar" loading="lazy"></div></div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Per-post growth tracking</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">A single number like 500 impressions doesn't tell you anything about <strong>the shape of that growth</strong>. A post that hit 500 in the first hour and flatlined is a completely different result than one that slowly climbed to 500 over ten days, even though the endpoint looks identical.</p>
-          <p class="ft-desc">Every post gets its own dedicated page, showing exactly how impressions and engagement accumulated from the moment it went live, <strong>day by day</strong>, not just the final total.</p>
-          <p class="ft-desc">Once you can see the shape of a post's growth, you start noticing <strong>real patterns</strong>, which topics get an early spike versus a slow burn, and that changes when you follow up, or whether it's worth resurfacing while it's still climbing.</p>
-        </div><img class="ft-image" src="/assets/features/per-post-growth.png" alt="Illustration of a post growth curve building over two weeks" loading="lazy"></div></div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Ranked post performance</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">What's my best post sounds like a simple question, but the answer changes completely depending on <strong>which metric</strong> you mean, impressions, engagement rate, reactions, or total engagements, and most tools just pick one metric and quietly hide the rest.</p>
-          <p class="ft-desc">A ranked leaderboard of your top 3 posts, with a <strong>live switch across all four metrics</strong>, so you can see who's first by reach and who's first by how much people actually engaged, which are often not the same post at all.</p>
-          <p class="ft-desc">A post with huge reach but a low engagement rate and a post with modest reach that people actually stopped to react to are <strong>two very different kinds of wins</strong>. This makes that difference visible instead of averaging it away into one score.</p>
-        </div><img class="ft-image" src="/assets/features/ranked-post-performance.png" alt="Top three ranked posts by impressions, with metric selector" loading="lazy"></div></div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Full sortable post table</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">Once you have more than a handful of posts, scanning them one at a time to find a pattern <strong>gets slow</strong>, and LinkedIn's own export is a flat, unsorted spreadsheet you have to wrangle by hand every single time.</p>
-          <p class="ft-desc">Every post, every metric, in one table, click any column header to <strong>re-sort instantly</strong>, and <strong>export</strong> exactly what you're looking at to CSV whenever you need it somewhere else.</p>
-          <p class="ft-desc">You can <strong>answer a specific question fast</strong>, show me my worst performing reposts, or sort everything by engagement rate, without opening a spreadsheet and rebuilding formulas from scratch each time.</p>
-        </div><img class="ft-image" src="/assets/features/sortable-post-table.png" alt="Sortable table of all posts with impressions, reactions, comments, and export button" loading="lazy"></div></div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Audience demographics</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">You can write for the audience you imagine you have, or you can write for the audience you <strong>actually have</strong>, and most people never find out which companies, industries, or seniority levels are genuinely seeing their content.</p>
-          <p class="ft-desc">A <strong>real breakdown</strong> of who's engaging, company, location, company size, seniority, job title, and industry, pulled straight from LinkedIn's own data rather than guessed at.</p>
-          <p class="ft-desc">If you're writing for directors and the data says your audience is mostly senior individual contributors, or you assume you're reaching your target industry and it turns out you're not, this is what <strong>tells you before you keep guessing</strong>.</p>
-        </div><img class="ft-image" src="/assets/features/audience-demographics.png" alt="Audience demographics showing top companies and locations with percentage bars" loading="lazy"></div></div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Follower growth tracking</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">LinkedIn shows you a single follower count, but not <strong>the shape</strong> of how you got there. Was last month's growth from one post that took off, or a slow steady trickle week over week. A lifetime total can't answer that.</p>
-          <p class="ft-desc">New followers gained, tracked over <strong>any time window you pick</strong>, daily or cumulative, instead of one running total that only ever goes up.</p>
-          <p class="ft-desc">You can <strong>tie follower growth back to specific posts or specific weeks</strong>, and actually see whether a content push is translating into real audience growth, not just engagement on a single post that never turns into anything lasting.</p>
-        </div><img class="ft-image" src="/assets/features/follower-growth.png" alt="Follower growth mini chart showing new followers over time" loading="lazy"></div></div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Expand any chart</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">Small dashboard charts are fine for a quick glance, but hard to actually <strong>study</strong>. Fine details get lost, and comparing two points precisely means squinting at a card sized for an overview, not analysis.</p>
-          <p class="ft-desc">Every chart on the dashboard opens into a <strong>full screen view</strong> with its own <strong>independent</strong> range, view, and chart type controls, so you can dig into one chart without changing anything else on the page.</p>
-          <p class="ft-desc">You can <strong>properly study a single trend</strong>, grab a clean screenshot, or compare two different date ranges side by side, without being boxed into whatever size the inline card happens to be.</p>
-        </div><img class="ft-image" src="/assets/features/expand-chart.png" alt="Illustration of a small chart expanding into a full-screen view" loading="lazy"></div></div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Flexible data sources</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">Every LinkedIn analytics tool eventually runs into the same wall: LinkedIn's own official API is slow to get approved and built for companies serving many users, <strong>not one person's own dashboard</strong>. Betting on a single provider means betting on their access surviving.</p>
-          <p class="ft-desc">ContentIQ <strong>doesn't lock into one source</strong>. It started on LinkedIn's own manual export, added Buffer's official Analytics API for real per-post reactions, comments, and shares, and Taplio's API as a second working source, with Zernio next in line, each one swappable through a single config setting rather than a rewrite.</p>
-          <p class="ft-desc">If one provider changes its terms, raises prices, or loses API access, <strong>the dashboard doesn't go dark</strong>. Switch the source, keep the history, keep the tool working.</p>
-        </div></div></div>
+  <!-- Controls Row -->
+  <div class="controls-row">
+    <div class="control-group">
+      <span class="control-label">Range</span>
+      <div class="pill-group">
+        <button class="pill" type="button">7 Days</button>
+        <button class="pill" type="button">14 Days</button>
+        <button class="pill active" type="button">30 Days</button>
+        <button class="pill" type="button">All Time</button>
+        <button class="pill" type="button">Custom</button>
       </div>
     </div>
 
-    <div style="margin-top:48px; padding-top:48px; border-top:1px solid var(--line);">
-      <p class="prose" style="margin-bottom:20px;">If you're interested in seeing ContentIQ on your own content, fill out the form below and I'll follow up personally to set up a demo and get you access.</p>
+    <div class="control-group">
+      <span class="control-label">View</span>
+      <div class="pill-group">
+        <button class="pill active" type="button">Daily</button>
+        <button class="pill" type="button">Cumulative</button>
+      </div>
+    </div>
 
-      <form class="signup-form" id="signup-form" action="https://docs.google.com/forms/d/e/1FAIpQLSerq-5OxHf3xlaOSJdmKGKvgPeVb1jk3H8Dw6dKhbjyiafFWQ/formResponse" method="POST" target="hidden_iframe" style="max-width:480px;">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="entry.183927542" required>
+    <div class="control-group">
+      <span class="control-label">Chart</span>
+      <div class="pill-group">
+        <button class="pill active" type="button">Line</button>
+        <button class="pill" type="button">Bar</button>
+      </div>
+    </div>
 
-        <label for="email">Email</label>
-        <input type="email" id="email" name="entry.1844858356" required>
-
-        <label for="company">Company</label>
-        <input type="text" id="company" name="entry.599595963">
-
-        <label for="jobtitle">Job title</label>
-        <input type="text" id="jobtitle" name="entry.365073860">
-
-        <label for="phone">Phone number</label>
-        <input type="tel" id="phone" name="entry.1230407602">
-
-        <label for="purpose">What are you hoping to use ContentIQ for?</label>
-        <textarea id="purpose" name="entry.1919330921" required></textarea>
-
-        <button type="submit">Request Access</button>
-      </form>
-      <iframe name="hidden_iframe" style="display:none;"></iframe>
-      <p class="form-note" id="form-note">You'll get a personal email back, usually within a day or two.</p>
-      <p class="form-success" id="form-success">Thanks, that's on its way to me. I'll be in touch shortly.</p>
+    <div class="control-group">
+      <span class="control-label">Update</span>
+      <div class="pill-group">
+        <button class="pill" type="button">Manual</button>
+        <button class="pill active" type="button">Auto</button>
+      </div>
+      <div class="pill-group" style="margin-top:4px;">
+        <button class="pill" type="button">1H</button>
+        <button class="pill active" type="button">4H</button>
+        <button class="pill" type="button">6H</button>
+        <button class="pill" type="button">12H</button>
+        <button class="pill" type="button">24H</button>
+      </div>
+      
+      <!-- Positioned Refresh Helper Box -->
+      <div class="update-note">
+        Data actually refreshes every 4h for everyone right now. Your pick here is saved as a personal preference once account login launches.
+      </div>
     </div>
   </div>
-</section>
-
-<footer>
-  ContentIQ — an internal tool built by Straventis Advisory Group
-  <br>
-  <span style="opacity:0.7;">Page last updated <span id="last-updated-placeholder">__BUILD_TIME__</span></span>
-</footer>
+</main>
 
 <script>
+  // Preservation of settings modal script
   (function(){
-    var root = document.documentElement;
     var settingsBtn = document.getElementById('settings-btn');
     var settingsPanel = document.getElementById('settings-panel');
-    var colorblindCheck = document.getElementById('colorblind-check');
-
-    function getStored(key){ try { return localStorage.getItem(key); } catch(e){ return null; } }
-    function setStored(key, val){ try { localStorage.setItem(key, val); } catch(e){} }
-
-    settingsBtn.addEventListener('click', function(e){
-      e.stopPropagation();
-      settingsPanel.classList.toggle('open');
-    });
-    document.addEventListener('click', function(e){
-      if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
-        settingsPanel.classList.remove('open');
-      }
-    });
-
-    function timeBased(){ var h=new Date().getHours(); return (h>=19||h<7)?'dark':'light'; }
-    function isDarkFromSunTimes(sunriseISO, sunsetISO){
-      var now = Date.now();
-      var sunrise = new Date(sunriseISO).getTime();
-      var sunset = new Date(sunsetISO).getTime();
-      if (isNaN(sunrise) || isNaN(sunset)) return null;
-      return (now < sunrise || now > sunset) ? 'dark' : 'light';
-    }
-    function getCachedSunTimes(){
-      try {
-        var cached = JSON.parse(localStorage.getItem('contentiq-suntimes') || 'null');
-        if (!cached || cached.forDate !== new Date().toDateString()) return null;
-        return cached;
-      } catch(e){ return null; }
-    }
-    function cacheSunTimes(sunrise, sunset){
-      try { localStorage.setItem('contentiq-suntimes', JSON.stringify({ forDate: new Date().toDateString(), sunrise: sunrise, sunset: sunset })); } catch(e){}
-    }
-    function applyAutoTheme(){
-      var cached = getCachedSunTimes();
-      if (cached) {
-        var result = isDarkFromSunTimes(cached.sunrise, cached.sunset);
-        if (result) root.setAttribute('data-theme', result);
-        return;
-      }
-      root.setAttribute('data-theme', timeBased());
-      if (!navigator.geolocation) return;
-      navigator.geolocation.getCurrentPosition(function(pos){
-        var url = 'https://api.sunrise-sunset.org/json?lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude + '&formatted=0';
-        fetch(url).then(function(r){ return r.json(); }).then(function(data){
-          if (data.status !== 'OK') return;
-          cacheSunTimes(data.results.sunrise, data.results.sunset);
-          if (getStored('contentiq-theme-mode') === 'auto' || !getStored('contentiq-theme-mode')) {
-            var result = isDarkFromSunTimes(data.results.sunrise, data.results.sunset);
-            if (result) root.setAttribute('data-theme', result);
-          }
-        }).catch(function(){});
-      }, function(){}, { timeout: 4000 });
-    }
-    function setThemeMode(mode){
-      setStored('contentiq-theme-mode', mode);
-      if (mode === 'light' || mode === 'dark') { root.setAttribute('data-theme', mode); } else { applyAutoTheme(); }
-      document.querySelectorAll('[data-theme-choice]').forEach(function(b){ b.classList.toggle('active', b.dataset.themeChoice === mode); });
-    }
-    document.querySelectorAll('[data-theme-choice]').forEach(function(btn){
-      btn.addEventListener('click', function(){ setThemeMode(btn.dataset.themeChoice); });
-    });
-    setInterval(function(){
-      if (getStored('contentiq-theme-mode') === 'auto' || !getStored('contentiq-theme-mode')) applyAutoTheme();
-    }, 5 * 60 * 1000);
-
-    function setColor(color){
-      root.setAttribute('data-color', color);
-      setStored('contentiq-color', color);
-      document.querySelectorAll('.color-swatch').forEach(function(b){ b.classList.toggle('active', b.dataset.color === color); });
-    }
-    document.querySelectorAll('.color-swatch').forEach(function(btn){
-      btn.addEventListener('click', function(){ setColor(btn.dataset.color); });
-    });
-
-    function setColorblind(on){
-      root.setAttribute('data-colorblind', on ? 'on' : 'off');
-      setStored('contentiq-colorblind', on ? 'on' : 'off');
-      colorblindCheck.checked = on;
-    }
-    colorblindCheck.addEventListener('change', function(){ setColorblind(colorblindCheck.checked); });
-
-    function setFont(size){
-      root.setAttribute('data-font', size);
-      setStored('contentiq-font', size);
-      document.querySelectorAll('[data-font]').forEach(function(b){ b.classList.toggle('active', b.dataset.font === size); });
-    }
-    document.querySelectorAll('[data-font]').forEach(function(btn){
-      btn.addEventListener('click', function(){ setFont(btn.dataset.font); });
-    });
-
-    function setWidth(w){
-      root.setAttribute('data-width', w);
-      setStored('contentiq-width', w);
-      document.querySelectorAll('.settings-row [data-width]').forEach(function(b){ b.classList.toggle('active', b.dataset.width === w); });
-    }
-    document.querySelectorAll('.settings-row [data-width]').forEach(function(btn){
-      btn.addEventListener('click', function(){ setWidth(btn.dataset.width); });
-    });
-
-    setThemeMode(getStored('contentiq-theme-mode') || 'auto');
-    setColor(getStored('contentiq-color') || 'sage');
-    setColorblind(getStored('contentiq-colorblind') === 'on');
-    setFont(getStored('contentiq-font') || 'default');
-    setWidth(getStored('contentiq-width') || 'normal');
-  })();
-
-  // Sign-up form: Google Forms doesn't support a clean fetch-based
-  // submission (no CORS response), so this submits normally but targets
-  // a hidden iframe, keeping the visitor on this page. The iframe's load
-  // event is used as a best-effort signal that the submission went
-  // through, Google Forms doesn't give a way to truly confirm success
-  // from outside its own domain, so this is optimistic, not guaranteed.
-  (function(){
-    var form = document.getElementById('signup-form');
-    var note = document.getElementById('form-note');
-    var success = document.getElementById('form-success');
-    var iframe = document.querySelector('iframe[name="hidden_iframe"]');
-    var submitted = false;
-
-    form.addEventListener('submit', function(){
-      submitted = true;
-    });
-
-    iframe.addEventListener('load', function(){
-      if (!submitted) return; // ignore the iframe's initial blank load
-      form.style.display = 'none';
-      note.style.display = 'none';
-      success.style.display = 'block';
-    });
-  })();
-
-  // Login placeholder, real auth isn't wired up yet.
-  document.getElementById('login-link').addEventListener('click', function(e){
-    e.preventDefault();
-    alert('Login is coming soon. For now, request access via the Sign Up form.');
-  });
-
-  // Interactive roadmap sidebar (sections 01/02)
-  (function(){
-    var stages = [
-      { ver: 'V1.0', title: 'Core analytics engine', status: 'done', badge: 'Live',
-        items: ['Manual CSV ingestion, KPI cards, timeline, per-post pages', 'Built and live on GitHub Pages'] },
-      { ver: 'V2.0', title: 'Dashboard redesign', status: 'progress', badge: 'In progress',
-        items: ['Two-tab layout, ranked cards, sortable table — shipped', 'Profile Views tab with real demographics — shipped', 'Content Pipeline tracking section — not started'] },
-      { ver: 'V3.0', title: 'Predictive analytics + AI', status: 'planned', badge: 'Scoped',
-        items: ['Trend forecasting, predicted-vs-actual tracking — scoped, no build yet', 'AI content recommendations — scoped, no build yet'] },
-      { ver: 'V4.0', title: 'Direct LinkedIn API', status: 'blocked', badge: 'Blocked',
-        items: ['Waiting on LinkedIn partner approval', 'Evaluating official alternatives in parallel'] },
-      { ver: 'V5.0', title: 'Company page analytics', status: 'planned', badge: 'Planned',
-        items: ['Straventis page data alongside personal profile'] },
-      { ver: 'V6.0', title: 'Advanced features', status: 'planned', badge: 'Planned',
-        items: ['Scope TBD'] },
-    ];
-
-    var container = document.getElementById('rm2-stages');
-    if (!container) return;
-
-    stages.forEach(function(s, i){
-      var stage = document.createElement('div');
-      stage.className = 'rm2-stage';
-
-      var badgeClass = (s.status === 'done' || s.status === 'progress') ? 'on' : 'off';
-
-      var head = document.createElement('button');
-      head.type = 'button';
-      head.className = 'rm2-head';
-      head.innerHTML =
-        '<span class="rm2-dot ' + s.status + '"></span>' +
-        '<span class="rm2-ver">' + s.ver + '</span>' +
-        '<span class="rm2-title">' + s.title + '</span>' +
-        '<span class="rm2-badge ' + badgeClass + '">' + s.badge + '</span>' +
-        '<svg class="rm2-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
-
-      var body = document.createElement('div');
-      body.className = 'rm2-body';
-      var ul = document.createElement('ul');
-      s.items.forEach(function(item){
-        var li = document.createElement('li');
-        li.textContent = item;
-        ul.appendChild(li);
+    if (settingsBtn && settingsPanel) {
+      settingsBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        settingsPanel.classList.toggle('open');
       });
-      body.appendChild(ul);
-
-      head.addEventListener('click', function(){
-        var isOpen = body.style.maxHeight && body.style.maxHeight !== '0px';
-        container.querySelectorAll('.rm2-body').forEach(function(b){ b.style.maxHeight = '0px'; });
-        container.querySelectorAll('.rm2-chevron').forEach(function(c){ c.style.transform = 'rotate(0deg)'; });
-        if (!isOpen) {
-          body.style.maxHeight = body.scrollHeight + 'px';
-          head.querySelector('.rm2-chevron').style.transform = 'rotate(180deg)';
+      document.addEventListener('click', function(e){
+        if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
+          settingsPanel.classList.remove('open');
         }
       });
-
-      stage.appendChild(head);
-      stage.appendChild(body);
-      container.appendChild(stage);
-    });
-
-    // Open V2.0 by default -- current focus
-    var secondHead = container.querySelectorAll('.rm2-head')[1];
-    if (secondHead) secondHead.click();
-  })();
-
-  // Core capabilities accordion (section 03) -- independent toggles, not exclusive
-  (function(){
-    var items = document.querySelectorAll('#feat-accordion .feat-item');
-    items.forEach(function(item){
-      var head = item.querySelector('.feat-head');
-      var body = item.querySelector('.feat-body');
-      var img = body.querySelector('.ft-image');
-
-      // scrollHeight is measured before the image has necessarily finished
-      // loading -- if opened early, the accordion would clip the image.
-      // Re-measure once the image actually loads, but only while open.
-      if (img) {
-        img.addEventListener('load', function(){
-          if (item.classList.contains('open')) {
-            body.style.maxHeight = body.scrollHeight + 'px';
-          }
-        });
-      }
-
-      head.addEventListener('click', function(){
-        var isOpen = item.classList.contains('open');
-        if (isOpen) {
-          item.classList.remove('open');
-          body.style.maxHeight = '0px';
-        } else {
-          item.classList.add('open');
-          body.style.maxHeight = body.scrollHeight + 'px';
-        }
-      });
-    });
+    }
   })();
 </script>
-
 </body>
 </html>
