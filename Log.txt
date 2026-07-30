@@ -1,0 +1,8 @@
+Loaded 1 pillars from /Users/straventis/git-repo/ai-hub/apps/contentIQ/scripts/contentiq_pillars.json
+Found 1 posts with missing pillars in /Users/straventis/git-repo/ai-hub/apps/contentIQ/src/_data/master.csv.
+Processing row 61: https://www.linkedin.com/posts/s-thiru_im-attending-what-no-one-says-about-leadership-ugcPost-7370841334632423424-P4Ck
+  [Fallback used]: Extracted text from Meta Tags.
+Loaded 1 pillars from /Users/straventis/git-repo/ai-hub/apps/contentIQ/scripts/contentiq_pillars.json
+Found 1 posts with missing pillars in /Users/straventis/git-repo/ai-hub/apps/contentIQ/src/_data/master.csv.
+Processing row 61: https://www.linkedin.com/posts/s-thiru_im-attending-what-no-one-says-about-leadership-ugcPost-7370841334632423424-P4Ck
+  [Fallback used]: Extracted text from Meta Tags.

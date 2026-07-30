@@ -1,37 +1,92 @@
 import os
+import re
 import json
 import requests
 import pandas as pd
+from pathlib import Path
+from dotenv import load_dotenv
+from bs4 import BeautifulSoup
 from google import genai
 from google.genai import types
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# ---------------------------------------------------------------------------
+# Path & Environment Setup
+# ---------------------------------------------------------------------------
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parent
 
-# Initialize Gemini Client (requires GEMINI_API_KEY environment variable)
-client = genai.Client()
+# Attempt loading .env from repo root, then script dir
+ENV_PATH_ROOT = REPO_ROOT / ".env"
+ENV_PATH_LOCAL = SCRIPT_DIR / ".env"
 
-# Set up relative paths based on repository layout
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))               # reporoot/scripts
-REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))           # reporoot
+if ENV_PATH_ROOT.exists():
+    load_dotenv(dotenv_path=ENV_PATH_ROOT)
+elif ENV_PATH_LOCAL.exists():
+    load_dotenv(dotenv_path=ENV_PATH_LOCAL)
+else:
+    load_dotenv()  # Fallback to system env vars
 
-PILLARS_FILE = os.path.join(SCRIPT_DIR, "contentiq_pillars.json")     # reporoot/scripts/contentiq_pillars.json
-CSV_FILE = os.path.join(REPO_ROOT, "src", "_data", "master.csv")      # reporoot/src/_data/master.csv
+# Verify API key is present
+api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    raise ValueError(
+        f"No Gemini API key found! Please ensure GEMINI_API_KEY is set in environment or .env"
+    )
 
+# Initialize Gemini Client explicitly
+client = genai.Client(api_key=api_key)
+
+PILLARS_FILE = os.path.join(SCRIPT_DIR, "contentiq_pillars.json")
+CSV_FILE = os.path.join(REPO_ROOT, "src", "_data", "master.csv")
+
+
+# ---------------------------------------------------------------------------
+# Core Functions
+# ---------------------------------------------------------------------------
 def load_pillars_criteria(json_file):
     """Load pillar rules and categories from contentiq_pillars.json."""
     if not os.path.exists(json_file):
-        raise FileNotFoundError(f"Could not find {json_file}")
+        raise FileNotFoundError(f"Could not find pillars config at: {json_file}")
         
     with open(json_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # If JSON is a list of strings, e.g., ["1.0 Career", "2.0 Tech"]
+    categories = []
+    formatted_rules = []
+
+    # Handle {"pillars": [{"name": "...", "definition": "..."}, ...]}
+    if isinstance(data, dict) and "pillars" in data:
+        pillar_list = data["pillars"]
+    elif isinstance(data, list):
+        pillar_list = data
+    else:
+        raise ValueError("Unsupported JSON format in contentiq_pillars.json")
+
+    for item in pillar_list:
+        if isinstance(item, dict):
+            name = item.get("name")
+            definition = item.get("definition", "")
+            sub_pillars = ", ".join(item.get("sub_pillars", []))
+            
+            categories.append(name)
+            formatted_rules.append(f"Category: {name}\nSub-pillars: {sub_pillars}\nDefinition: {definition}\n")
+        elif isinstance(item, str):
+            categories.append(item)
+            formatted_rules.append(f"- {item}")
+
+    criteria_str = "\n".join(formatted_rules)
+    return categories, criteria_str    
+
+    if not os.path.exists(json_file):
+        raise FileNotFoundError(f"Could not find pillars config at: {json_file}")
+        
+    with open(json_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    # Handle list vs dict configuration
     if isinstance(data, list):
         categories = data
         criteria_str = "\n".join([f"- {c}" for c in categories])
-    # If JSON is a dict with descriptions, e.g., {"1.0 Career": "Posts about..."}
     elif isinstance(data, dict):
         categories = list(data.keys())
         criteria_str = json.dumps(data, indent=2)
@@ -40,17 +95,44 @@ def load_pillars_criteria(json_file):
         
     return categories, criteria_str
 
+
 def fetch_linkedin_text(url):
-    """Fetch text content from a public LinkedIn post using Jina AI Reader."""
+    """Fetch text content from a public LinkedIn post with fallback strategies."""
+    
+    # Strategy 1: Try Jina AI Reader
     try:
         jina_url = f"https://r.jina.ai/{url}"
-        headers = {"X-With-Generated-Alt": "true"}
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "X-With-Generated-Alt": "true"
+        }
         response = requests.get(jina_url, headers=headers, timeout=15)
-        if response.status_code == 200:
-            return response.text[:3000] # Limit tokens
+        if response.status_code == 200 and len(response.text.strip()) > 100:
+            if "Forbidden" not in response.text and "Captcha" not in response.text:
+                return response.text[:3000]
     except Exception as e:
-        print(f"Error fetching {url}: {e}")
+        print(f"  [Jina fetch failed]: {e}")
+
+    # Strategy 2: Fallback to Meta Description Scraping
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept-Language": "en-US,en;q=0.9"
+        }
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            og_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
+            if og_desc and og_desc.get("content"):
+                desc_text = og_desc["content"].strip()
+                if len(desc_text) > 20:
+                    print("  [Fallback used]: Extracted text from Meta Tags.")
+                    return desc_text
+    except Exception as e:
+        print(f"  [Meta tag fallback failed]: {e}")
+
     return None
+
 
 def classify_text(text, categories, criteria_str):
     """Classify the text using Gemini based on rules from contentiq_pillars.json."""
@@ -68,26 +150,35 @@ def classify_text(text, categories, criteria_str):
     """
     
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.6-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
             temperature=0.0
         )
     )
     
-    category = response.text.strip()
-    return category if category in categories else "Uncategorized"
+    # Clean up any potential markdown backticks, quotes, or whitespace
+    raw_category = response.text.strip()
+    clean_category = re.sub(r'[*`"]', '', raw_category).strip()
 
+    return clean_category if clean_category in categories else "Uncategorized"
+
+
+# ---------------------------------------------------------------------------
+# Main Execution Pipeline
+# ---------------------------------------------------------------------------
 def main():
-    # 1. Load criteria from scripts/contentiq_pillars.json
+    # 1. Load criteria
     categories, criteria_str = load_pillars_criteria(PILLARS_FILE)
     print(f"Loaded {len(categories)} pillars from {PILLARS_FILE}")
 
-    # 2. Load CSV from src/_data/master.csv
+    # 2. Load CSV
     if not os.path.exists(CSV_FILE):
         raise FileNotFoundError(f"Could not find CSV at {CSV_FILE}")
 
     df = pd.read_csv(CSV_FILE)
+    # FIX: Ensure 'pillar' column allows text/string values
+    df['pillar'] = df['pillar'].astype(object)
     
     # Identify rows where 'pillar' (Column E) is missing or blank
     missing_mask = df['pillar'].isna() | (df['pillar'].astype(str).str.strip() == '')
@@ -100,11 +191,9 @@ def main():
         post_url = df.loc[idx, 'post_url']
         print(f"Processing row {idx}: {post_url}")
         
-        # Fetch post content
         content = fetch_linkedin_text(post_url)
         
         if content:
-            # Classify content via Gemini using contentiq_pillars.json
             assigned_pillar = classify_text(content, categories, criteria_str)
             df.loc[idx, 'pillar'] = assigned_pillar
             print(f" -> Classified as: {assigned_pillar}")
