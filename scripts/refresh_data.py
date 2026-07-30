@@ -82,6 +82,21 @@ def main():
     print()
 
     result = subprocess.run([sys.executable, str(script_path)])
+
+    classify_script = Path("scripts/classify_post_pillars.py")
+    if classify_script.exists():
+        print()
+        print("=" * 60)
+        print("Running pillar classification for any untagged posts...")
+        print("=" * 60)
+        print()
+        classify_result = subprocess.run([sys.executable, str(classify_script)])
+        if classify_result.returncode != 0:
+            print("\nPillar classification did not complete cleanly -- untagged")
+            print("posts will be picked up again on the next run.")
+    else:
+        print(f"\nNote: {classify_script} not found, skipping pillar classification.")
+
     sys.exit(result.returncode)
 
 
