@@ -60,38 +60,30 @@ title: "Dashboard"
   <button type="button" id="apply-custom-range">Apply</button>
 </div>
 
-<div class="kpi-row">
-  <div class="kpi-card">
-    <p class="kpi-label">Total Impressions</p>
-    <p class="kpi-value" id="kpi-total-impressions">&mdash;</p>
-  </div>
-  <div class="kpi-card">
-    <p class="kpi-label">Total Engagements</p>
-    <p class="kpi-value" id="kpi-total-engagements">&mdash;</p>
-  </div>
-  <div class="kpi-card">
-    <p class="kpi-label">Avg Engagement Rate</p>
-    <p class="kpi-value" id="kpi-rate-value">&mdash;</p>
-  </div>
-  <div class="kpi-card">
-    <p class="kpi-label">Avg Impressions / Post</p>
-    <p class="kpi-value" id="kpi-avg-impressions">&mdash;</p>
-  </div>
-  <div class="kpi-card">
-    <p class="kpi-label">Avg Engagements / Post</p>
-    <p class="kpi-value" id="kpi-avg-engagements">&mdash;</p>
-  </div>
-</div>
-
-<div class="charts-row">
-  <div class="card">
-    <div class="card-header">
-      <h2>Account Impressions Over Time</h2>
-      <button class="expand-btn" type="button" id="expand-timeline" title="Expand">&#9974;</button>
+<div class="kpi-pillar-layout">
+  <div class="kpi-row-40">
+    <div class="kpi-card">
+      <p class="kpi-label">Total Impressions</p>
+      <p class="kpi-value" id="kpi-total-impressions">&mdash;</p>
     </div>
-    <div class="chart-canvas-wrap chart-canvas-wrap-lg"><canvas id="timelineChart"></canvas></div>
+    <div class="kpi-card">
+      <p class="kpi-label">Total Engagements</p>
+      <p class="kpi-value" id="kpi-total-engagements">&mdash;</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Avg Engagement Rate</p>
+      <p class="kpi-value" id="kpi-rate-value">&mdash;</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Avg Impressions / Post</p>
+      <p class="kpi-value" id="kpi-avg-impressions">&mdash;</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Avg Engagements / Post</p>
+      <p class="kpi-value" id="kpi-avg-engagements">&mdash;</p>
+    </div>
   </div>
-  <div class="card">
+  <div class="card" style="margin-bottom:0;">
     <div class="card-header">
       <h2>Engagement Rate by Pillar</h2>
       <button class="expand-btn" type="button" id="expand-pillar" title="Expand">&#9974;</button>
@@ -202,29 +194,59 @@ title: "Dashboard"
     var fp = posts.filter(function(p){ return inRangeFor(p.date, rangeValue, customStart, customEnd); });
     var pillarMap = {};
     fp.forEach(function(p){
+      if (!p.pillar || !p.pillar.trim()) return; // skip untagged posts rather than show a blank bar
       if (!pillarMap[p.pillar]) pillarMap[p.pillar] = { total: 0, count: 0 };
       pillarMap[p.pillar].total += p.engagementRate;
       pillarMap[p.pillar].count += 1;
     });
-    var pillarLabels = Object.keys(pillarMap);
+    // Ascending order -- plain string sort works correctly here since every
+    // numbered pillar is "N.0 Name" with a single-digit N, so "1.0" < "2.0"
+    // < ... < "7.0" sorts correctly as text. Unnumbered pillars (e.g.
+    // "Straventis") sort after all numbered ones, since digits sort before
+    // letters.
+    var pillarLabels = Object.keys(pillarMap).sort();
     var pillarData = pillarLabels.map(function(k){ return (pillarMap[k].total / pillarMap[k].count * 100).toFixed(2); });
     var pillarPalette = ['#3E5C55', '#2A5C7A', '#A5680A', '#7A3B5C', '#5F7A3E', '#8A5C3E', '#3E5C7A', '#7A5C3E'];
     var pillarColors = pillarLabels.map(function(_, i){ return pillarPalette[i % pillarPalette.length]; });
     return { labels: pillarLabels, data: pillarData, colors: pillarColors };
   }
+
+  // Draws a small color square just below the x-axis, one per bar, in the
+  // same color as that bar -- a compact legend attached directly to each
+  // category label instead of a separate legend block.
+  var pillarColorSquarePlugin = {
+    id: 'pillarColorSquarePlugin',
+    afterDraw: function(chart){
+      var ctx = chart.ctx;
+      var xAxis = chart.scales.x;
+      var colors = chart.data.datasets[0].backgroundColor;
+      var meta = chart.getDatasetMeta(0);
+      meta.data.forEach(function(bar, i){
+        var size = 8;
+        var x = bar.x - size / 2;
+        var y = xAxis.bottom + 4;
+        ctx.save();
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(x, y, size, size);
+        ctx.restore();
+      });
+    }
+  };
+
   function renderPillarChart(){
     var d = buildPillarChart(currentRange.value, currentRange.start, currentRange.end);
     if (pillarChart) pillarChart.destroy();
     pillarChart = new Chart(document.getElementById('pillarChart'), {
       type: 'bar',
-      data: { labels: d.labels, datasets: [{ label: 'Avg Engagement Rate %', data: d.data, backgroundColor: d.colors, borderRadius: 6 }] },
+      plugins: [pillarColorSquarePlugin],
+      data: { labels: d.labels, datasets: [{ label: 'Avg Engagement Rate %', data: d.data, backgroundColor: d.colors, borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }] },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
           y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 6, font: { size: tickFontSize } }, title: { display: true, text: 'Avg Engagement Rate %', color: inkSoft, font: { size: 11 } } },
-          x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: tickFontSize } }, title: { display: true, text: 'Pillar', color: inkSoft, font: { size: 11 } } }
+          x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: tickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: inkSoft, font: { size: 11 } } }
         }
       }
     });
@@ -233,11 +255,22 @@ title: "Dashboard"
   // ---------- KPI row ----------
   function updateKpis(){
     var fp = filteredPosts();
-    var totalImpressions = fp.reduce(function(a, p){ return a + p.impressions; }, 0);
-    var totalEngagements = fp.reduce(function(a, p){ return a + p.engagements; }, 0);
+    var fd = filteredDaily();
+    // Total Impressions/Engagements come from daily_totals.csv, the same
+    // source the chart uses -- this is what actually happened during the
+    // selected window, matching LinkedIn's own reported number. Summing
+    // posts published *within* the window (the old approach) undercounts,
+    // since it misses ongoing impressions on older posts still accruing
+    // views during the window, and shortchanges recently-published posts
+    // that haven't had time to accumulate their full total yet.
+    var totalImpressions = fd.reduce(function(a, d){ return a + d.impressions; }, 0);
+    var totalEngagements = fd.reduce(function(a, d){ return a + d.engagements; }, 0);
+    // Rate and per-post averages stay post-based -- these are genuinely
+    // about individual posts, not account-wide daily activity, so they
+    // correctly use posts published within the window.
     var avgRate = fp.length ? fp.reduce(function(a, p){ return a + p.engagementRate; }, 0) / fp.length : 0;
-    var avgImpressions = fp.length ? totalImpressions / fp.length : 0;
-    var avgEngagements = fp.length ? totalEngagements / fp.length : 0;
+    var avgImpressions = fp.length ? fp.reduce(function(a, p){ return a + p.impressions; }, 0) / fp.length : 0;
+    var avgEngagements = fp.length ? fp.reduce(function(a, p){ return a + p.engagements; }, 0) / fp.length : 0;
 
     document.getElementById('kpi-total-impressions').textContent = totalImpressions.toLocaleString();
     document.getElementById('kpi-total-engagements').textContent = totalEngagements.toLocaleString();
@@ -251,33 +284,6 @@ title: "Dashboard"
         ? 'Tracking ' + fp.length + ' tagged posts across ' + daily.length + ' days of data'
         : 'Tracking ' + fp.length + ' tagged posts in the selected range';
     }
-  }
-
-  // ---------- Main timeline chart ----------
-  function buildTimelineDataset(rangeValue, mode, customStart, customEnd){
-    var fd = daily.filter(function(d){ return inRangeFor(d.date, rangeValue, customStart, customEnd); });
-    var source = mode === 'cumulative'
-      ? cumulativeSeries(fd, 'impressions').map(function(d){ return { date: d.date, impressions: d.value }; })
-      : fd;
-    return { labels: source.map(function(d){ return shortDate(d.date); }), values: source.map(function(d){ return d.impressions; }) };
-  }
-  var timelineChart = null;
-  function buildTimelineChart(){
-    var ds = buildTimelineDataset(currentRange.value, currentMode, currentRange.start, currentRange.end);
-    if (timelineChart) timelineChart.destroy();
-    timelineChart = new Chart(document.getElementById('timelineChart'), {
-      type: currentType,
-      data: { labels: ds.labels, datasets: [{ label: currentMode === 'cumulative' ? 'Cumulative Impressions' : 'Impressions', data: ds.values, borderColor: accent, backgroundColor: accent, tension: 0.3, fill: false, borderRadius: currentType === 'bar' ? 4 : 0 }] },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 6, font: { size: tickFontSize } }, title: { display: true, text: currentMode === 'cumulative' ? 'Cumulative Impressions' : 'Impressions', color: inkSoft, font: { size: 11 } } },
-          x: { grid: { display: false }, ticks: { color: inkSoft, maxRotation: 0, autoSkip: true, font: { size: tickFontSize } }, title: { display: true, text: 'Date', color: inkSoft, font: { size: 11 } } }
-        }
-      }
-    });
   }
 
   // ---------- Growth Overview mini charts: now share the same range/mode/type controls ----------
@@ -369,7 +375,6 @@ title: "Dashboard"
     var applyCustomBtn = document.getElementById('apply-custom-range');
 
     function refresh(){
-      buildTimelineChart();
       updateKpis();
       buildMiniCharts();
       renderPillarChart();
@@ -392,7 +397,6 @@ title: "Dashboard"
       btn.addEventListener('click', function(){
         currentMode = btn.dataset.mode;
         modeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
-        buildTimelineChart();
         buildMiniCharts();
       });
     });
@@ -401,7 +405,6 @@ title: "Dashboard"
       btn.addEventListener('click', function(){
         currentType = btn.dataset.type;
         typeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
-        buildTimelineChart();
         buildMiniCharts();
       });
     });
@@ -410,25 +413,6 @@ title: "Dashboard"
   })();
 
   // ---------- Expand-to-fullscreen wiring ----------
-  document.getElementById('expand-timeline').addEventListener('click', function(){
-    ContentIQModal.open({
-      title: 'Account Impressions Over Time', hasControls: true, hasModeToggle: true, hasTypeToggle: true,
-      defaultRange: currentRange.value === 'custom' ? 'all' : currentRange.value, defaultMode: currentMode, defaultType: currentType,
-      onRender: function(canvas, range, mode, type){
-        var ds = buildTimelineDataset(range, mode);
-        return new Chart(canvas, {
-          type: type,
-          data: { labels: ds.labels, datasets: [{ label: mode === 'cumulative' ? 'Cumulative Impressions' : 'Impressions', data: ds.values, borderColor: accent, backgroundColor: accent, tension: 0.3, fill: false, borderRadius: type === 'bar' ? 4 : 0 }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-            scales: {
-              y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 8, font: { size: tickFontSize } }, title: { display: true, text: mode === 'cumulative' ? 'Cumulative Impressions' : 'Impressions', color: inkSoft } },
-              x: { grid: { display: false }, ticks: { color: inkSoft, maxRotation: 0, font: { size: tickFontSize } }, title: { display: true, text: 'Date', color: inkSoft } }
-            } }
-        });
-      }
-    });
-  });
-
   document.getElementById('expand-pillar').addEventListener('click', function(){
     ContentIQModal.open({
       title: 'Engagement Rate by Pillar', hasControls: true, hasModeToggle: false, hasTypeToggle: false,
@@ -437,11 +421,12 @@ title: "Dashboard"
         var d = buildPillarChart(range);
         return new Chart(canvas, {
           type: 'bar',
-          data: { labels: d.labels, datasets: [{ label: 'Avg Engagement Rate %', data: d.data, backgroundColor: d.colors, borderRadius: 6 }] },
+          plugins: [pillarColorSquarePlugin],
+          data: { labels: d.labels, datasets: [{ label: 'Avg Engagement Rate %', data: d.data, backgroundColor: d.colors, borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
             scales: {
               y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 8, font: { size: tickFontSize } }, title: { display: true, text: 'Avg Engagement Rate %', color: inkSoft } },
-              x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: tickFontSize } }, title: { display: true, text: 'Pillar', color: inkSoft } }
+              x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: tickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: inkSoft } }
             } }
         });
       }

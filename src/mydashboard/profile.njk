@@ -60,29 +60,30 @@ title: "Profile Views"
   <button type="button" id="apply-custom-range">Apply</button>
 </div>
 
-<div class="kpi-row" style="grid-template-columns:repeat(3,1fr);">
-  <div class="kpi-card">
-    <p class="kpi-label">Follower Growth (selected range)</p>
-    <p class="kpi-value" id="kpi-follower-growth">&mdash;</p>
+<div class="kpi-follower-layout">
+  <div class="kpi-col-single">
+    <div class="kpi-card">
+      <p class="kpi-label">Follower Growth (selected range)</p>
+      <p class="kpi-value" id="kpi-follower-growth">&mdash;</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Connections</p>
+      <p class="kpi-value" style="font-size:calc(var(--content-font-size, 16px) * 0.85); color:var(--ink-soft);">Not available</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Following</p>
+      <p class="kpi-value" style="font-size:calc(var(--content-font-size, 16px) * 0.85); color:var(--ink-soft);">Not available</p>
+    </div>
   </div>
-  <div class="kpi-card">
-    <p class="kpi-label">Connections</p>
-    <p class="kpi-value" style="font-size:calc(var(--content-font-size, 16px) * 0.85); color:var(--ink-soft);">Not available</p>
-  </div>
-  <div class="kpi-card">
-    <p class="kpi-label">Following</p>
-    <p class="kpi-value" style="font-size:calc(var(--content-font-size, 16px) * 0.85); color:var(--ink-soft);">Not available</p>
+  <div class="card" style="margin-bottom:0;">
+    <div class="card-header">
+      <h2>Follower Growth Over Time</h2>
+      <button class="expand-btn" type="button" id="expand-followers" title="Expand">&#9974;</button>
+    </div>
+    <div class="chart-canvas-wrap chart-canvas-wrap-lg"><canvas id="followersChart"></canvas></div>
   </div>
 </div>
-<p class="mini-metric-note" style="margin-top:-16px; margin-bottom:28px;">Follower Growth is new followers gained within the tracked window, not a lifetime total &mdash; there's no historical baseline from before tracking started. Connections and Following aren't in LinkedIn's Content Analytics export at all (they're profile-page stats, not content-analytics stats) &mdash; shown honestly as unavailable rather than faked.</p>
-
-<div class="card">
-  <div class="card-header">
-    <h2>Follower Growth Over Time</h2>
-    <button class="expand-btn" type="button" id="expand-followers" title="Expand">&#9974;</button>
-  </div>
-  <canvas id="followersChart" height="90"></canvas>
-</div>
+<p class="mini-metric-note" style="margin-top:16px;">Follower Growth is new followers gained within the tracked window, not a lifetime total &mdash; there's no historical baseline from before tracking started. Connections and Following aren't in LinkedIn's Content Analytics export at all (they're profile-page stats, not content-analytics stats) &mdash; shown honestly as unavailable rather than faked.</p>
 
 <div class="card">
   <h2>Audience Demographics</h2>

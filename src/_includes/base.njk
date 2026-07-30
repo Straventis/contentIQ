@@ -217,17 +217,28 @@
   }
   .update-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
-  /* ---------- V2.0: 5-metric KPI row ---------- */
-  .kpi-row{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:32px; }
-  .kpi-row .kpi-card{ padding:14px; }
-  .kpi-row .kpi-label{ font-size:calc(var(--content-font-size, 16px) * 0.6); margin-bottom:6px; }
-  .kpi-row .kpi-value{ font-size:calc(var(--content-font-size, 16px) * 1.25); }
-  @media (max-width:900px){ .kpi-row{ grid-template-columns:repeat(2,1fr); } }
-
-  /* ---------- V2.0: charts side by side ---------- */
-  .charts-row{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-  .charts-row .card{ margin-bottom:0; }
-  @media (max-width:900px){ .charts-row{ grid-template-columns:1fr; } }
+  /* ---------- V2.0: 40/60 layout -- KPI cards (2 per row) + wide pillar chart ---------- */
+  .kpi-pillar-layout{ display:grid; grid-template-columns:40% 60%; gap:20px; align-items:stretch; margin-bottom:32px; }
+  .kpi-follower-layout{ display:grid; grid-template-columns:20% 80%; gap:20px; align-items:stretch; margin-bottom:32px; }
+  .kpi-col-single{ display:grid; grid-template-columns:1fr; gap:12px; align-content:start; }
+  .kpi-row-40{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; align-content:start; }
+  .kpi-row-40 .kpi-card{ padding:14px; }
+  .kpi-row-40 .kpi-label{
+    font-family:var(--display); font-weight:600; font-size:18px; color:var(--ink);
+    text-transform:none; letter-spacing:normal; margin:0 0 8px;
+  }
+  .kpi-row-40 .kpi-value{ font-size:calc(var(--content-font-size, 16px) * 2); }
+  .kpi-col-single .kpi-card{ padding:14px; }
+  .kpi-col-single .kpi-label{
+    font-family:var(--display); font-weight:600; font-size:18px; color:var(--ink);
+    text-transform:none; letter-spacing:normal; margin:0 0 8px;
+  }
+  .kpi-col-single .kpi-value{ font-size:calc(var(--content-font-size, 16px) * 1.6); }
+  @media (max-width:900px){
+    .kpi-pillar-layout{ grid-template-columns:1fr; }
+    .kpi-follower-layout{ grid-template-columns:1fr; }
+    .kpi-row-40{ grid-template-columns:repeat(2,1fr); }
+  }
 
   /* ---------- V2.0: Taplio-style mini metric cards ---------- */
   .mini-metric-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px; }
