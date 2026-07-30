@@ -3,9 +3,8 @@ name: Data Refresh
 on:
   schedule:
     # Matches contentiq.config.json's update_frequency_hours (currently 4h).
-    # This is a fixed, repo-wide schedule -- changing the config's number
-    # does NOT automatically change this line. Run
-    # `python3 scripts/refresh_data.py --show-cron` after editing the
+    # Changing the config's number does NOT automatically change this line.
+    # Run `python3 scripts/refresh_data.py --show-cron` after editing the
     # config to get the correct cron expression to paste in here.
     - cron: "0 */4 * * *"
   workflow_dispatch:
@@ -14,10 +13,19 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  refresh:
+  refresh-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,7 +42,8 @@ jobs:
           ZERNIO_API_KEY: ${{ secrets.ZERNIO_API_KEY }}
         run: python3 scripts/refresh_data.py
 
-      - name: Commit and push if data changed
+      - name: Commit data changes if any
+        id: data_commit
         run: |
           git config user.name "data-refresh-bot"
           git config user.email "actions@users.noreply.github.com"
@@ -45,10 +54,43 @@ jobs:
             fi
           done
           if git diff --cached --quiet; then
-            echo "No data changes, skipping commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No data changes."
           else
             git commit -m "Automated data refresh ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            # Note: this push uses the default GITHUB_TOKEN, which per
+            # GitHub's own docs will NOT trigger deploy.yml on its own.
+            # That's why this same workflow builds and deploys itself
+            # below, rather than depending on that cross-trigger.
             git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
-          # This push (if it happens) triggers the existing
-          # "Build and Deploy ContentIQ" workflow automatically.
+
+      # Always build and deploy, even if this specific run found no new
+      # data -- keeps behavior simple and predictable rather than silently
+      # skipping a deploy that a manual "Run workflow" click implied should
+      # happen.
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Inject real deploy timestamp into the landing page
+        run: |
+          BUILD_TIME=$(TZ="America/New_York" date "+%B %-d, %Y at %-I:%M %p %Z")
+          sed -i "s/__BUILD_TIME__/${BUILD_TIME}/" src/index.html
+
+      - name: Build site with Eleventy
+        run: npx @11ty/eleventy
+
+      - name: Upload build output
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "_site"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
