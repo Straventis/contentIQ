@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import time
 import requests
 import pandas as pd
 from pathlib import Path
@@ -135,7 +136,10 @@ def fetch_linkedin_text(url):
 
 
 def classify_text(text, categories, criteria_str):
-    """Classify the text using Gemini based on rules from contentiq_pillars.json."""
+   import time
+
+def classify_text(text, categories, criteria_str):
+    """Classify text using active Gemini models with backoff retry logic."""
     prompt = f"""
     Analyze the following LinkedIn post text and classify it into EXACTLY ONE category based on these rules/criteria from contentiq_pillars.json:
 
@@ -149,20 +153,38 @@ def classify_text(text, categories, criteria_str):
     Do not add extra commentary, quotes, markdown formatting, or punctuation.
     """
     
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            temperature=0.0
-        )
-    )
+    # Updated candidate list matching active endpoints in your API account
+    candidate_models = ["gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-3.6-flash"]
     
-    # Clean up any potential markdown backticks, quotes, or whitespace
-    raw_category = response.text.strip()
-    clean_category = re.sub(r'[*`"]', '', raw_category).strip()
+    for model_name in candidate_models:
+        for attempt in range(3):
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=0.0
+                    )
+                )
+                raw_category = response.text.strip()
+                clean_category = re.sub(r'[*`"]', '', raw_category).strip()
+                return clean_category if clean_category in categories else "Uncategorized"
 
-    return clean_category if clean_category in categories else "Uncategorized"
+            except Exception as e:
+                err_str = str(e)
+                if "503" in err_str or "UNAVAILABLE" in err_str or "429" in err_str:
+                    wait_time = (attempt + 1) * 2
+                    print(f"  [Model {model_name} busy. Retrying in {wait_time}s...]")
+                    time.sleep(wait_time)
+                elif "404" in err_str or "NOT_FOUND" in err_str:
+                    print(f"  [Model {model_name} deprecated/not found. Trying next candidate...]")
+                    break  # Skip to the next model in candidate_models immediately
+                else:
+                    print(f"  [Error on {model_name}: {e}]")
+                    break
 
+    print("  [All model attempts failed.]")
+    return "Uncategorized"
 
 # ---------------------------------------------------------------------------
 # Main Execution Pipeline
@@ -197,6 +219,7 @@ def main():
             assigned_pillar = classify_text(content, categories, criteria_str)
             df.loc[idx, 'pillar'] = assigned_pillar
             print(f" -> Classified as: {assigned_pillar}")
+            df.to_csv(CSV_FILE, index=False)
             updated_count += 1
         else:
             print(" -> Failed to fetch content.")

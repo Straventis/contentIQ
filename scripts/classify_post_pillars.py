@@ -54,7 +54,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 PILLARS_PATH = Path(__file__).resolve().parent / "contentiq_pillars.json"
 MASTER_PATH = REPO_ROOT / "src" / "_data" / "master.csv"
 
-GEMINI_MODEL = "gemini-3.6-flash"
+GEMINI_MODEL = "gemini-3.5-flash"
 DEFAULT_DAILY_CALL_BUDGET = 100
 
 
