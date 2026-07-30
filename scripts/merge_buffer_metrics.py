@@ -66,7 +66,7 @@ DEFAULT_DAILY_CALL_BUDGET = 100
 
 RAW_EXPORT_FIELDNAMES = [
     "buffer_post_id", "channel_id", "created_at", "content_preview",
-    "impressions", "reactions", "comments", "shares",
+    "impressions", "reactions", "comments", "shares", "external_link", "share_mode",
 ]
 
 BROWSER_HEADERS = {
@@ -104,6 +104,28 @@ def normalize_text(s: str) -> str:
     s = re.sub(r"['\u2019\u2018]", "", s)
     s = re.sub(r"[^a-z0-9\s]", " ", s)
     return re.sub(r"\s+", " ", s).strip()
+
+
+def extract_li_id(url: str):
+    """Pull the numeric LinkedIn activity/share ID out of a post URL, so
+    two different URL formats pointing at the same post (e.g. Buffer's
+    externalLink vs. what's already in master.csv's post_url) can be
+    matched exactly instead of by fuzzy text. Handles the two common
+    LinkedIn URL shapes:
+      - .../feed/update/urn:li:activity:1234567890123456789
+      - .../posts/username_slug-activity-1234567890123456789-abcd
+    Falls back to None if neither pattern is found, so exact matching
+    degrades gracefully to the fuzzy content match rather than erroring.
+    """
+    if not url:
+        return None
+    m = re.search(r"urn:li:(?:activity|share):(\d{10,20})", url)
+    if m:
+        return m.group(1)
+    m = re.search(r"activity-(\d{10,20})", url)
+    if m:
+        return m.group(1)
+    return None
 
 
 class CallBudget:
@@ -190,28 +212,6 @@ query IntrospectType($typeName: String!) {
 """
 
 
-INTROSPECT_QUERY_FIELD = """
-query IntrospectQueryField {
-  __schema {
-    queryType {
-      fields {
-        name
-        args {
-          name
-          type { name kind ofType { name kind ofType { name kind } } }
-        }
-        type {
-          name
-          kind
-          ofType { name kind }
-        }
-      }
-    }
-  }
-}
-"""
-
-
 def connect_status(api_key: str):
     budget = CallBudget(int(os.environ.get("BUFFER_DAILY_CALL_BUDGET", DEFAULT_DAILY_CALL_BUDGET)))
     dump = {"run_at": datetime.datetime.now().isoformat()}
@@ -288,48 +288,6 @@ def connect_status(api_key: str):
     else:
         print("\nStep 4/4: skipped -- no LinkedIn channel connected to this Buffer account yet.")
 
-    # ---------------------------------------------------------------
-    # Step 5: real introspection of aggregatedPostMetrics. Buffer's own
-    # docs describe this as rolling up metrics by org/date range/channel,
-    # but never show its actual field shape -- specifically whether it
-    # buckets by day or returns one total for the whole range. The
-    # former is useful for rebuilding daily_totals.csv automatically;
-    # the latter isn't, no matter how the query is called.
-    # ---------------------------------------------------------------
-    print("\nStep 5/5: introspecting aggregatedPostMetrics's real arguments and return shape...")
-    data = graphql_request(INTROSPECT_QUERY_FIELD, {}, api_key, budget)
-    query_fields = data.get("__schema", {}).get("queryType", {}).get("fields", [])
-    agg_field = next((f for f in query_fields if f["name"] == "aggregatedPostMetrics"), None)
-    dump["aggregated_post_metrics_field"] = agg_field
-
-    if not agg_field:
-        print("  aggregatedPostMetrics does not exist in this account's schema at all.")
-        print("  (Buffer's docs describe it as available, but schema access can vary by plan/account.)")
-    else:
-        arg_names = [a["name"] for a in agg_field.get("args", [])]
-        print(f"  Arguments: {', '.join(arg_names) if arg_names else '(none)'}")
-        return_type = agg_field.get("type", {})
-        return_type_name = return_type.get("name") or (return_type.get("ofType") or {}).get("name")
-        print(f"  Return type: {return_type_name}")
-
-        if return_type_name:
-            print(f"\n  Introspecting the return type '{return_type_name}' for its actual fields...")
-            data = graphql_request(INTROSPECT_TYPE_QUERY, {"typeName": return_type_name}, api_key, budget)
-            return_type_schema = data.get("__type")
-            dump["aggregated_post_metrics_return_type"] = return_type_schema
-            return_fields = [f["name"] for f in (return_type_schema or {}).get("fields", [])]
-            print(f"  Return type fields: {', '.join(return_fields)}")
-            has_date_bucket = any(kw in " ".join(return_fields).lower() for kw in ["date", "day", "bucket", "interval", "period"])
-            print(f"  Date/day-bucket-shaped field present: {has_date_bucket}")
-            if not has_date_bucket:
-                print("  -> No obvious per-day field. This may return one aggregate total per")
-                print("     call, not a daily breakdown -- would need one call per day to")
-                print("     reconstruct daily_totals.csv, likely impractical within the rate budget.")
-            else:
-                print("  -> Looks genuinely bucketed. Worth a real test call with a multi-day")
-                print("     range next to confirm it actually returns multiple rows, not just")
-                print("     a field name that happens to contain 'date'.")
-
     dump["calls_used"] = budget.used
     write_schema_dump(dump)
     print(f"\nTotal API calls used this run: {budget.used} of {budget.budget} daily budget.")
@@ -376,7 +334,10 @@ def fetch_linkedin_metrics(api_key: str, budget: CallBudget) -> list[dict]:
             id
             text
             dueAt
+            sentAt
             channelId
+            externalLink
+            shareMode
             metrics { type name value unit }
             metricsUpdatedAt
           }
@@ -420,14 +381,45 @@ def write_raw_export(posts: list[dict]):
             writer.writerow({
                 "buffer_post_id": p.get("id", ""),
                 "channel_id": p.get("channelId", ""),
-                "created_at": p.get("dueAt", ""),
+                "created_at": p.get("sentAt") or p.get("dueAt", ""),
                 "content_preview": (p.get("text") or "")[:200].replace("\n", " "),
                 "impressions": extract_metric(p.get("metrics"), "impressions"),
                 "reactions": extract_metric(p.get("metrics"), "reactions"),
                 "comments": extract_metric(p.get("metrics"), "comments"),
                 "shares": extract_metric(p.get("metrics"), "shares"),
+                "external_link": p.get("externalLink", ""),
+                "share_mode": p.get("shareMode", ""),
             })
     print(f"\nRaw export written: {RAW_EXPORT_PATH.resolve()} ({len(posts)} posts)")
+
+
+# Best-effort mapping from Buffer's shareMode to master.csv's existing
+# content_type convention. Unverified against real values yet -- Buffer's
+# actual enum wasn't visible in the schema dump the way scalar fields
+# were, so this defaults unrecognized values to "Original" rather than
+# guessing wrong. First real run's output should be checked against
+# actual shareMode values seen and this mapping adjusted if needed.
+SHARE_MODE_TO_CONTENT_TYPE = {
+    "REPOST": "Repost (plain)",
+    "SHARE": "Repost (plain)",
+    "REPOST_WITH_COMMENTARY": "Repost+Commentary",
+    "QUOTE": "Repost+Commentary",
+    "ORIGINAL": "Original",
+    None: "Original",
+    "": "Original",
+}
+
+
+def format_buffer_date(iso_str: str) -> str:
+    """Buffer's ISO8601 timestamps -> master.csv's existing M/D/YYYY
+    convention (no zero-padding), matching what's already in the file."""
+    if not iso_str:
+        return ""
+    try:
+        dt = datetime.datetime.strptime(iso_str[:10], "%Y-%m-%d")
+        return f"{dt.month}/{dt.day}/{dt.year}"
+    except ValueError:
+        return ""
 
 
 def merge_into_master(posts: list[dict]):
@@ -437,12 +429,18 @@ def merge_into_master(posts: list[dict]):
 
     enriched = [{
         "id": p.get("id", ""),
+        "li_id": extract_li_id(p.get("externalLink", "")),
         "content_preview": (p.get("text") or "")[:200],
         "reactions": extract_metric(p.get("metrics"), "reactions"),
         "comments": extract_metric(p.get("metrics"), "comments"),
         "shares": extract_metric(p.get("metrics"), "shares"),
+        "impressions": extract_metric(p.get("metrics"), "impressions"),
+        "share_mode": p.get("shareMode"),
+        "date": format_buffer_date(p.get("sentAt") or p.get("dueAt")),
+        "external_link": p.get("externalLink", ""),
     } for p in posts]
 
+    by_li_id = {e["li_id"]: e for e in enriched if e["li_id"]}
     by_content = [(normalize_text(e["content_preview"]), e) for e in enriched if e["content_preview"]]
     claimed = set()
     MIN_FUZZY_MATCH_LENGTH = 20
@@ -452,32 +450,70 @@ def merge_into_master(posts: list[dict]):
         fieldnames = reader.fieldnames
         rows = list(reader)
 
-    matched, skipped_too_short, unmatched = 0, [], []
+    matched_by_id, matched_by_content, skipped_too_short, unmatched = 0, 0, [], []
 
     for row in rows:
-        topic_norm = normalize_text(row.get("post_topic", ""))
-        if len(topic_norm) < MIN_FUZZY_MATCH_LENGTH:
-            if topic_norm:
-                skipped_too_short.append(row.get("post_topic", "")[:50])
-            continue
-
+        # Exact match first, via the URL's LinkedIn ID -- much more
+        # reliable than content matching, and immune to the
+        # same-opening-template-phrase collisions found in real data
+        # (e.g. six separate "I'm happy to share..." certification posts).
+        row_li_id = extract_li_id(row.get("post_url", ""))
         entry = None
-        for content_norm, candidate in by_content:
-            if candidate["id"] in claimed:
+        if row_li_id and row_li_id in by_li_id and by_li_id[row_li_id]["id"] not in claimed:
+            entry = by_li_id[row_li_id]
+            claimed.add(entry["id"])
+            matched_by_id += 1
+
+        if not entry:
+            topic_norm = normalize_text(row.get("post_topic", ""))
+            if len(topic_norm) < MIN_FUZZY_MATCH_LENGTH:
+                if topic_norm:
+                    skipped_too_short.append(row.get("post_topic", "")[:50])
                 continue
-            if topic_norm in content_norm[:len(topic_norm) + 100]:
-                entry = candidate
-                claimed.add(candidate["id"])
-                break
+            for content_norm, candidate in by_content:
+                if candidate["id"] in claimed:
+                    continue
+                if topic_norm in content_norm[:len(topic_norm) + 100]:
+                    entry = candidate
+                    claimed.add(candidate["id"])
+                    matched_by_content += 1
+                    break
 
         if entry:
             row["reactions"] = entry["reactions"]
             row["comments"] = entry["comments"]
             row["shares"] = entry["shares"]
-            matched += 1
-            print(f"  [match] \"{row.get('post_topic','')[:50]}\" <- \"{entry['content_preview'][:50]}\"")
         else:
             unmatched.append(row.get("post_topic", "")[:50])
+
+    # Any Buffer post not claimed by an existing row is a genuinely new
+    # post -- add it rather than silently dropping it, which is what was
+    # happening before (new posts simply never appeared until the next
+    # manual LinkedIn export).
+    new_rows = []
+    for e in enriched:
+        if e["id"] in claimed or not e["content_preview"].strip():
+            continue
+        content_type = SHARE_MODE_TO_CONTENT_TYPE.get(e["share_mode"], "Original")
+        total_engagements = e["reactions"] + e["comments"] + e["shares"]
+        engagement_rate = round(total_engagements / e["impressions"], 4) if e["impressions"] else 0
+        new_rows.append({
+            "date": e["date"],
+            "post_url": e["external_link"],
+            "post_topic": e["content_preview"][:80].strip(),
+            "content_type": content_type,
+            "pillar": "",  # picked up automatically by classify_post_pillars.py, run right after this
+            "impressions": e["impressions"],
+            "reactions": e["reactions"],
+            "comments": e["comments"],
+            "shares": e["shares"],
+            "total_engagements": total_engagements,
+            "engagement_rate": engagement_rate,
+            "new_followers": 0,
+        })
+        print(f"  [new] \"{e['content_preview'][:50]}\" (shareMode={e['share_mode']!r} -> {content_type})")
+
+    rows.extend(new_rows)
 
     with open(MASTER_PATH, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -485,11 +521,13 @@ def merge_into_master(posts: list[dict]):
         writer.writerows(rows)
 
     print(f"\nMerged into {MASTER_PATH.resolve()}:")
-    print(f"  {matched} of {len(rows)} rows matched")
+    print(f"  {matched_by_id} rows matched exactly by LinkedIn URL ID")
+    print(f"  {matched_by_content} rows matched by fuzzy content fallback")
+    print(f"  {len(new_rows)} new posts added")
     if skipped_too_short:
-        print(f"  {len(skipped_too_short)} rows skipped (topic too short/generic to match safely)")
+        print(f"  {len(skipped_too_short)} existing rows skipped (topic too short/generic to match safely)")
     if unmatched:
-        print(f"  {len(unmatched)} rows had no match:")
+        print(f"  {len(unmatched)} existing rows had no match at all:")
         for topic in unmatched[:10]:
             print(f"    - {topic}")
         if len(unmatched) > 10:

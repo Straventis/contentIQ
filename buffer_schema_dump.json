@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-07-30T17:52:16.976039",
+  "run_at": "2026-07-30T18:37:22.002391",
   "account": {
     "id": "6a54069f71344fb67de5881e",
     "organizations": [
@@ -560,54 +560,5 @@
       ]
     }
   ],
-  "aggregated_post_metrics_field": {
-    "name": "aggregatedPostMetrics",
-    "args": [
-      {
-        "name": "input",
-        "type": {
-          "name": null,
-          "kind": "NON_NULL",
-          "ofType": {
-            "name": "AggregatedPostMetricsInput",
-            "kind": "INPUT_OBJECT",
-            "ofType": null
-          }
-        }
-      }
-    ],
-    "type": {
-      "name": null,
-      "kind": "NON_NULL",
-      "ofType": {
-        "name": "AggregatedPostMetrics",
-        "kind": "OBJECT"
-      }
-    }
-  },
-  "aggregated_post_metrics_return_type": {
-    "name": "AggregatedPostMetrics",
-    "fields": [
-      {
-        "name": "metrics",
-        "type": {
-          "name": null,
-          "kind": "NON_NULL",
-          "ofType": {
-            "name": null,
-            "kind": "LIST"
-          }
-        }
-      },
-      {
-        "name": "metricsUpdatedAt",
-        "type": {
-          "name": "DateTime",
-          "kind": "SCALAR",
-          "ofType": null
-        }
-      }
-    ]
-  },
-  "calls_used": 6
+  "calls_used": 4
 }
