@@ -4,6 +4,10 @@ import requests
 import pandas as pd
 from google import genai
 from google.genai import types
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize Gemini Client (requires GEMINI_API_KEY environment variable)
 client = genai.Client()
