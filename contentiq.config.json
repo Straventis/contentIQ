@@ -1,0 +1,24 @@
+{
+  "active_source": "buffer",
+  "update_frequency_hours": 4,
+  "sources": {
+    "buffer": {
+      "enabled": true,
+      "script": "scripts/merge_buffer_metrics.py",
+      "api_key_env": "BUFFER_API_KEY",
+      "notes": "Default. Official LinkedIn Analytics API partner. Free tier covers reactions, comments, impressions -- shares excluded on free tier, confirmed via testing."
+    },
+    "taplio": {
+      "enabled": true,
+      "script": "scripts/merge_taplio_metrics.py",
+      "api_key_env": "TAPLIO_API_KEY",
+      "notes": "Working alternative. Not a confirmed official LinkedIn API partner -- has documented history of prior ToS enforcement tied to its access methods. Kept as a fallback, not the default."
+    },
+    "zernio": {
+      "enabled": false,
+      "script": "scripts/merge_zernio_metrics.py",
+      "api_key_env": "ZERNIO_API_KEY",
+      "notes": "Not yet built -- see STRV-96. URN-based exact matching once available, cleaner than Taplio's content-fallback matching. Free for up to 2 connected accounts."
+    }
+  }
+}
