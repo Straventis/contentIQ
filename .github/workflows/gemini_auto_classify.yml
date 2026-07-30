@@ -3,8 +3,10 @@ name: Auto Classify Missing Pillars via Gemini
 on:
   push:
     paths:
-      - 'master.csv' # Triggers when master.csv is modified
-  workflow_dispatch: # Allows manual trigger button in GitHub UI
+      - 'src/_data/master.csv'
+      - 'scripts/contentiq_pillars.json'
+      - 'scripts/classify_posts.py'
+  workflow_dispatch:
 
 jobs:
   classify:
@@ -22,15 +24,15 @@ jobs:
         run: |
           pip install pandas requests google-genai
 
-      - name: Run Classifier
+      - name: Run Classifier Script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python classify_posts.py
+        run: python scripts/classify_posts.py
 
       - name: Commit and Push Updated master.csv
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
-          git add master.csv
+          git add src/_data/master.csv
           git diff-index --quiet HEAD || git commit -m "Auto-classified missing post pillars [skip ci]"
           git push
