@@ -154,14 +154,14 @@
   .feat-chevron{ transition:transform .15s ease; color:var(--ink-soft); flex-shrink:0; }
   .feat-item.open .feat-chevron{ transform:rotate(180deg); }
   .feat-body{ max-height:0; overflow:hidden; transition:max-height .2s ease; }
-  .feat-body-inner{ display:flex; gap:24px; align-items:flex-start; padding:0 20px 20px 40px; }
+  .feat-body-inner{ display:flex; gap:24px; align-items:stretch; padding:0 20px 20px 40px; }
   .feat-body-text{ flex:1; min-width:0; }
   .feat-body .ft-desc{ font-size:14px; color:var(--ink-soft); line-height:1.55; margin:0 0 12px; }
   .feat-body .ft-desc:last-child{ margin-bottom:0; }
-  .feat-body .ft-image{ display:block; width:240px; height:135px; object-fit:contain; background:var(--surface); flex-shrink:0; border-radius:8px; border:1px solid var(--line); }
+  .feat-body .ft-image{ display:block; width:320px; align-self:stretch; height:auto; min-height:180px; object-fit:contain; background:var(--surface); flex-shrink:0; border-radius:8px; border:1px solid var(--line); }
   @media (max-width:640px){
     .feat-body-inner{ flex-direction:column; padding:0 20px 20px 40px; }
-    .feat-body .ft-image{ width:100%; height:auto; aspect-ratio:16/9; }
+    .feat-body .ft-image{ width:100%; height:auto; min-height:0; aspect-ratio:16/9; }
   }
 
   .signup-form{ display:flex; flex-direction:column; gap:12px; }
@@ -341,140 +341,76 @@
     <div class="feat-accordion" id="feat-accordion">
       <div class="feat-item">
         <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Post level tracking</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-<<<<<<< Updated upstream
-        <div class="feat-body"><img class="ft-image" src="/assets/features/impressions-tracking.png" alt="Account impressions chart showing daily trend over a week" loading="lazy">
-          <p class="ft-desc">LinkedIn's own dashboard only shows you a snapshot. Check today, and yesterday's exact numbers are already gone, overwritten by whatever the current total happens to be. There's no real way to see how a post actually grew, or to compare last month against this month with any precision.</p>
-          <p class="ft-desc">Every time ContentIQ syncs, it keeps the full history instead of writing over it, impressions, engagements, and reach for every post, held over time rather than collapsed into a single current number.</p>
-          <p class="ft-desc">That's the difference between knowing a post did well and knowing why. A post that spiked in the first hour and died is a different story than one that built slowly over two weeks, and only one of those is worth trying to repeat.</p>
-        </div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Pillar and format breakdown</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><img class="ft-image" src="/assets/features/pillar-breakdown.png" alt="Bar chart of average engagement rate by content pillar" loading="lazy">
-          <p class="ft-desc">Posting regularly doesn't tell you what's actually working. Without a system behind it, you're guessing whether that repost with commentary habit is paying off, or whether AI content genuinely lands better than career reflection posts, or if it's all just noise.</p>
-          <p class="ft-desc">Every post gets tagged with a content pillar, the topic, and a format, original, repost, or repost with commentary, so ContentIQ can break down engagement rate by category instead of just post by post.</p>
-          <p class="ft-desc">You get a real answer to what to write more of, grounded in your own audience's actual behavior, not a generic best practices article that has nothing to do with who's actually reading you.</p>
-        </div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Per-post growth tracking</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body">
-          <p class="ft-desc">A single number like 500 impressions doesn't tell you anything about the shape of that growth. A post that hit 500 in the first hour and flatlined is a completely different result than one that slowly climbed to 500 over ten days, even though the endpoint looks identical.</p>
-          <p class="ft-desc">Every post gets its own dedicated page, showing exactly how impressions and engagement accumulated from the moment it went live, day by day, not just the final total.</p>
-          <p class="ft-desc">Once you can see the shape of a post's growth, you start noticing real patterns, which topics get an early spike versus a slow burn, and that changes when you follow up, or whether it's worth resurfacing while it's still climbing.</p>
-        </div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Ranked post performance</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><img class="ft-image" src="/assets/features/ranked-post-performance.png" alt="Top three ranked posts by impressions, with metric selector" loading="lazy">
-          <p class="ft-desc">What's my best post sounds like a simple question, but the answer changes completely depending on whether you mean impressions, engagement rate, reactions, or total engagements, and most tools just pick one metric and quietly hide the rest.</p>
-          <p class="ft-desc">A ranked leaderboard of your top 3 posts, with a live switch across all four metrics, so you can see who's first by reach and who's first by how much people actually engaged, which are often not the same post at all.</p>
-          <p class="ft-desc">A post with huge reach but a low engagement rate and a post with modest reach that people actually stopped to react to are two very different kinds of wins. This makes that difference visible instead of averaging it away into one score.</p>
-        </div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Full sortable post table</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><img class="ft-image" src="/assets/features/sortable-post-table.png" alt="Sortable table of all posts with impressions, reactions, comments, and export button" loading="lazy">
-          <p class="ft-desc">Once you have more than a handful of posts, scanning them one at a time to find a pattern gets slow, and LinkedIn's own export is a flat, unsorted spreadsheet you have to wrangle by hand every single time.</p>
-          <p class="ft-desc">Every post, every metric, in one table, click any column header to re-sort instantly, and export exactly what you're looking at to CSV whenever you need it somewhere else.</p>
-          <p class="ft-desc">You can answer a specific question fast, show me my worst performing reposts, or sort everything by engagement rate, without opening a spreadsheet and rebuilding formulas from scratch each time.</p>
-        </div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Audience demographics</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><img class="ft-image" src="/assets/features/audience-demographics.png" alt="Audience demographics showing top companies and locations with percentage bars" loading="lazy">
-          <p class="ft-desc">You can write for the audience you imagine you have, or you can write for the audience you actually have, and most people never find out which companies, industries, or seniority levels are genuinely seeing their content.</p>
-          <p class="ft-desc">A real breakdown of who's engaging, company, location, company size, seniority, job title, and industry, pulled straight from LinkedIn's own data rather than guessed at.</p>
-          <p class="ft-desc">If you're writing for directors and the data says your audience is mostly senior individual contributors, or you assume you're reaching your target industry and it turns out you're not, this is what tells you before you keep guessing.</p>
-        </div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Follower growth tracking</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body"><img class="ft-image" src="/assets/features/follower-growth.png" alt="Follower growth mini chart showing new followers over time" loading="lazy">
-          <p class="ft-desc">LinkedIn shows you a single follower count, but not the shape of how you got there. Was last month's growth from one post that took off, or a slow steady trickle week over week. A lifetime total can't answer that.</p>
-          <p class="ft-desc">New followers gained, tracked over any time window you pick, daily or cumulative, instead of one running total that only ever goes up.</p>
-          <p class="ft-desc">You can tie follower growth back to specific posts or specific weeks, and actually see whether a content push is translating into real audience growth, not just engagement on a single post that never turns into anything lasting.</p>
-        </div>
-      </div>
-      <div class="feat-item">
-        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Expand any chart</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-        <div class="feat-body">
-          <p class="ft-desc">Small dashboard charts are fine for a quick glance, but hard to actually study. Fine details get lost, and comparing two points precisely means squinting at a card sized for an overview, not analysis.</p>
-          <p class="ft-desc">Every chart on the dashboard opens into a full screen view with its own independent range, view, and chart type controls, so you can dig into one chart without changing anything else on the page.</p>
-          <p class="ft-desc">You can properly study a single trend, grab a clean screenshot, or compare two different date ranges side by side, without being boxed into whatever size the inline card happens to be.</p>
-        </div>
-=======
         <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">LinkedIn's own dashboard only shows you a snapshot. Check today, and yesterday's exact numbers are already gone, overwritten by whatever the current total happens to be. There's no real way to see how a post actually grew, or to compare last month against this month with any precision.</p>
-          <p class="ft-desc">Every time ContentIQ syncs, it keeps the full history instead of writing over it, impressions, engagements, and reach for every post, held over time rather than collapsed into a single current number.</p>
-          <p class="ft-desc">That's the difference between knowing a post did well and knowing why. A post that spiked in the first hour and died is a different story than one that built slowly over two weeks, and only one of those is worth trying to repeat.</p>
+          <p class="ft-desc">LinkedIn's own dashboard only shows you a <strong>snapshot</strong>. Check today, and yesterday's exact numbers are already gone, overwritten by whatever the current total happens to be. There's no real way to see how a post actually grew, or to compare last month against this month with any precision.</p>
+          <p class="ft-desc">Every time ContentIQ syncs, it <strong>keeps the full history</strong> instead of writing over it, impressions, engagements, and reach for every post, held over time rather than collapsed into a single current number.</p>
+          <p class="ft-desc">That's the difference between <strong>knowing a post did well and knowing why</strong>. A post that spiked in the first hour and died is a different story than one that built slowly over two weeks, and only one of those is worth trying to repeat.</p>
           <p class="ft-desc">Every chart also switches between line and bar view, and between daily and cumulative totals, so you can look at the same data the way that actually makes the pattern clearest to you.</p>
         </div><img class="ft-image" src="/assets/features/impressions-tracking.png" alt="Account impressions chart showing daily trend over a week" loading="lazy"></div></div>
       </div>
       <div class="feat-item">
         <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Pillar and format breakdown</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">Posting regularly doesn't tell you what's actually working. Without a system behind it, you're guessing whether that repost with commentary habit is paying off, or whether AI content genuinely lands better than career reflection posts, or if it's all just noise.</p>
-          <p class="ft-desc">Every post gets tagged with a content pillar, the topic, and a format, original, repost, or repost with commentary, so ContentIQ can break down engagement rate by category instead of just post by post.</p>
-          <p class="ft-desc">You get a real answer to what to write more of, grounded in your own audience's actual behavior, not a generic best practices article that has nothing to do with who's actually reading you.</p>
+          <p class="ft-desc">Posting regularly doesn't tell you <strong>what's actually working</strong>. Without a system behind it, you're guessing whether that repost with commentary habit is paying off, or whether AI content genuinely lands better than career reflection posts, or if it's all just noise.</p>
+          <p class="ft-desc">Every post gets tagged with a content pillar, the topic, and a format, original, repost, or repost with commentary, so ContentIQ can <strong>break down engagement rate by category</strong> instead of just post by post.</p>
+          <p class="ft-desc">You get a real answer to what to write more of, grounded in <strong>your own audience's actual behavior</strong>, not a generic best practices article that has nothing to do with who's actually reading you.</p>
         </div><img class="ft-image" src="/assets/features/pillar-breakdown.png" alt="Bar chart of average engagement rate by content pillar" loading="lazy"></div></div>
       </div>
       <div class="feat-item">
         <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Per-post growth tracking</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">A single number like 500 impressions doesn't tell you anything about the shape of that growth. A post that hit 500 in the first hour and flatlined is a completely different result than one that slowly climbed to 500 over ten days, even though the endpoint looks identical.</p>
-          <p class="ft-desc">Every post gets its own dedicated page, showing exactly how impressions and engagement accumulated from the moment it went live, day by day, not just the final total.</p>
-          <p class="ft-desc">Once you can see the shape of a post's growth, you start noticing real patterns, which topics get an early spike versus a slow burn, and that changes when you follow up, or whether it's worth resurfacing while it's still climbing.</p>
+          <p class="ft-desc">A single number like 500 impressions doesn't tell you anything about <strong>the shape of that growth</strong>. A post that hit 500 in the first hour and flatlined is a completely different result than one that slowly climbed to 500 over ten days, even though the endpoint looks identical.</p>
+          <p class="ft-desc">Every post gets its own dedicated page, showing exactly how impressions and engagement accumulated from the moment it went live, <strong>day by day</strong>, not just the final total.</p>
+          <p class="ft-desc">Once you can see the shape of a post's growth, you start noticing <strong>real patterns</strong>, which topics get an early spike versus a slow burn, and that changes when you follow up, or whether it's worth resurfacing while it's still climbing.</p>
         </div><img class="ft-image" src="/assets/features/per-post-growth.png" alt="Illustration of a post growth curve building over two weeks" loading="lazy"></div></div>
       </div>
       <div class="feat-item">
         <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Ranked post performance</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">What's my best post sounds like a simple question, but the answer changes completely depending on whether you mean impressions, engagement rate, reactions, or total engagements, and most tools just pick one metric and quietly hide the rest.</p>
-          <p class="ft-desc">A ranked leaderboard of your top 3 posts, with a live switch across all four metrics, so you can see who's first by reach and who's first by how much people actually engaged, which are often not the same post at all.</p>
-          <p class="ft-desc">A post with huge reach but a low engagement rate and a post with modest reach that people actually stopped to react to are two very different kinds of wins. This makes that difference visible instead of averaging it away into one score.</p>
+          <p class="ft-desc">What's my best post sounds like a simple question, but the answer changes completely depending on <strong>which metric</strong> you mean, impressions, engagement rate, reactions, or total engagements, and most tools just pick one metric and quietly hide the rest.</p>
+          <p class="ft-desc">A ranked leaderboard of your top 3 posts, with a <strong>live switch across all four metrics</strong>, so you can see who's first by reach and who's first by how much people actually engaged, which are often not the same post at all.</p>
+          <p class="ft-desc">A post with huge reach but a low engagement rate and a post with modest reach that people actually stopped to react to are <strong>two very different kinds of wins</strong>. This makes that difference visible instead of averaging it away into one score.</p>
         </div><img class="ft-image" src="/assets/features/ranked-post-performance.png" alt="Top three ranked posts by impressions, with metric selector" loading="lazy"></div></div>
       </div>
       <div class="feat-item">
         <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Full sortable post table</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">Once you have more than a handful of posts, scanning them one at a time to find a pattern gets slow, and LinkedIn's own export is a flat, unsorted spreadsheet you have to wrangle by hand every single time.</p>
-          <p class="ft-desc">Every post, every metric, in one table, click any column header to re-sort instantly, and export exactly what you're looking at to CSV whenever you need it somewhere else.</p>
-          <p class="ft-desc">You can answer a specific question fast, show me my worst performing reposts, or sort everything by engagement rate, without opening a spreadsheet and rebuilding formulas from scratch each time.</p>
+          <p class="ft-desc">Once you have more than a handful of posts, scanning them one at a time to find a pattern <strong>gets slow</strong>, and LinkedIn's own export is a flat, unsorted spreadsheet you have to wrangle by hand every single time.</p>
+          <p class="ft-desc">Every post, every metric, in one table, click any column header to <strong>re-sort instantly</strong>, and <strong>export</strong> exactly what you're looking at to CSV whenever you need it somewhere else.</p>
+          <p class="ft-desc">You can <strong>answer a specific question fast</strong>, show me my worst performing reposts, or sort everything by engagement rate, without opening a spreadsheet and rebuilding formulas from scratch each time.</p>
         </div><img class="ft-image" src="/assets/features/sortable-post-table.png" alt="Sortable table of all posts with impressions, reactions, comments, and export button" loading="lazy"></div></div>
       </div>
       <div class="feat-item">
         <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Audience demographics</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">You can write for the audience you imagine you have, or you can write for the audience you actually have, and most people never find out which companies, industries, or seniority levels are genuinely seeing their content.</p>
-          <p class="ft-desc">A real breakdown of who's engaging, company, location, company size, seniority, job title, and industry, pulled straight from LinkedIn's own data rather than guessed at.</p>
-          <p class="ft-desc">If you're writing for directors and the data says your audience is mostly senior individual contributors, or you assume you're reaching your target industry and it turns out you're not, this is what tells you before you keep guessing.</p>
+          <p class="ft-desc">You can write for the audience you imagine you have, or you can write for the audience you <strong>actually have</strong>, and most people never find out which companies, industries, or seniority levels are genuinely seeing their content.</p>
+          <p class="ft-desc">A <strong>real breakdown</strong> of who's engaging, company, location, company size, seniority, job title, and industry, pulled straight from LinkedIn's own data rather than guessed at.</p>
+          <p class="ft-desc">If you're writing for directors and the data says your audience is mostly senior individual contributors, or you assume you're reaching your target industry and it turns out you're not, this is what <strong>tells you before you keep guessing</strong>.</p>
         </div><img class="ft-image" src="/assets/features/audience-demographics.png" alt="Audience demographics showing top companies and locations with percentage bars" loading="lazy"></div></div>
       </div>
       <div class="feat-item">
         <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Follower growth tracking</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">LinkedIn shows you a single follower count, but not the shape of how you got there. Was last month's growth from one post that took off, or a slow steady trickle week over week. A lifetime total can't answer that.</p>
-          <p class="ft-desc">New followers gained, tracked over any time window you pick, daily or cumulative, instead of one running total that only ever goes up.</p>
-          <p class="ft-desc">You can tie follower growth back to specific posts or specific weeks, and actually see whether a content push is translating into real audience growth, not just engagement on a single post that never turns into anything lasting.</p>
+          <p class="ft-desc">LinkedIn shows you a single follower count, but not <strong>the shape</strong> of how you got there. Was last month's growth from one post that took off, or a slow steady trickle week over week. A lifetime total can't answer that.</p>
+          <p class="ft-desc">New followers gained, tracked over <strong>any time window you pick</strong>, daily or cumulative, instead of one running total that only ever goes up.</p>
+          <p class="ft-desc">You can <strong>tie follower growth back to specific posts or specific weeks</strong>, and actually see whether a content push is translating into real audience growth, not just engagement on a single post that never turns into anything lasting.</p>
         </div><img class="ft-image" src="/assets/features/follower-growth.png" alt="Follower growth mini chart showing new followers over time" loading="lazy"></div></div>
       </div>
       <div class="feat-item">
         <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Expand any chart</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">Small dashboard charts are fine for a quick glance, but hard to actually study. Fine details get lost, and comparing two points precisely means squinting at a card sized for an overview, not analysis.</p>
-          <p class="ft-desc">Every chart on the dashboard opens into a full screen view with its own independent range, view, and chart type controls, so you can dig into one chart without changing anything else on the page.</p>
-          <p class="ft-desc">You can properly study a single trend, grab a clean screenshot, or compare two different date ranges side by side, without being boxed into whatever size the inline card happens to be.</p>
+          <p class="ft-desc">Small dashboard charts are fine for a quick glance, but hard to actually <strong>study</strong>. Fine details get lost, and comparing two points precisely means squinting at a card sized for an overview, not analysis.</p>
+          <p class="ft-desc">Every chart on the dashboard opens into a <strong>full screen view</strong> with its own <strong>independent</strong> range, view, and chart type controls, so you can dig into one chart without changing anything else on the page.</p>
+          <p class="ft-desc">You can <strong>properly study a single trend</strong>, grab a clean screenshot, or compare two different date ranges side by side, without being boxed into whatever size the inline card happens to be.</p>
         </div><img class="ft-image" src="/assets/features/expand-chart.png" alt="Illustration of a small chart expanding into a full-screen view" loading="lazy"></div></div>
       </div>
       <div class="feat-item">
         <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Flexible data sources</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
-          <p class="ft-desc">Every LinkedIn analytics tool eventually runs into the same wall: LinkedIn's own official API is slow to get approved and built for companies serving many users, not one person's own dashboard. Betting on a single provider means betting on their access surviving.</p>
-          <p class="ft-desc">ContentIQ doesn't lock into one source. It started on LinkedIn's own manual export, added Buffer's official Analytics API for real per-post reactions, comments, and shares, and Taplio's API as a second working source, with Zernio next in line, each one swappable through a single config setting rather than a rewrite.</p>
-          <p class="ft-desc">If one provider changes its terms, raises prices, or loses API access, the dashboard doesn't go dark. Switch the source, keep the history, keep the tool working.</p>
+          <p class="ft-desc">Every LinkedIn analytics tool eventually runs into the same wall: LinkedIn's own official API is slow to get approved and built for companies serving many users, <strong>not one person's own dashboard</strong>. Betting on a single provider means betting on their access surviving.</p>
+          <p class="ft-desc">ContentIQ <strong>doesn't lock into one source</strong>. It started on LinkedIn's own manual export, added Buffer's official Analytics API for real per-post reactions, comments, and shares, and Taplio's API as a second working source, with Zernio next in line, each one swappable through a single config setting rather than a rewrite.</p>
+          <p class="ft-desc">If one provider changes its terms, raises prices, or loses API access, <strong>the dashboard doesn't go dark</strong>. Switch the source, keep the history, keep the tool working.</p>
         </div></div></div>
->>>>>>> Stashed changes
       </div>
     </div>
 
