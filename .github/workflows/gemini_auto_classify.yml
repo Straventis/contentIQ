@@ -1,5 +1,7 @@
 name: Auto Classify Missing Pillars via Gemini
-
+env:
+    GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+  run: python3 scripts/zero-shot-llm-classify_post.py
 on:
   push:
     paths:
