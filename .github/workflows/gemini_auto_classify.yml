@@ -1,0 +1,38 @@
+name: Auto Classify Missing Pillars via Gemini
+
+on:
+  push:
+    paths:
+      - 'src/_data/master.csv'
+      - 'scripts/contentiq_pillars.json'
+      - 'scripts/classify_posts.py'
+  workflow_dispatch:
+
+jobs:
+  classify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pandas requests google-genai
+
+      - name: Run Classifier Script
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/classify_posts.py
+
+      - name: Commit and Push Updated master.csv
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Bot"
+          git add src/_data/master.csv
+          git diff-index --quiet HEAD || git commit -m "Auto-classified missing post pillars [skip ci]"
+          git push
