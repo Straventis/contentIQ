@@ -1,5 +1,5 @@
 {
-  "active_source": "manual",
+  "active_source": "buffer",
   "update_frequency_hours": 4,
   "sources": {
     "buffer": {
@@ -22,7 +22,7 @@
     }
   },
   "classifier": {
-    "active_model": "gemini",
+    "active_model": "claude-haiku-4-5",
     "models": {
       "gemini": {
         "enabled": true,
@@ -30,13 +30,13 @@
         "model_name": "gemini-3.6-flash",
         "notes": "Currently blocked by a widespread, unresolved Google-side bug affecting new API keys with the 'AQ.' prefix -- returns 401 ACCESS_TOKEN_TYPE_UNSUPPORTED regardless of code correctness, confirmed against multiple independent reports on Google's own developer forum as of 2026-07-31. Switch active_model to another provider until Google fixes this; keep this entry ready to switch back."
       },
-      "claude": {
+      "claude-haiku-4-5": {
         "enabled": true,
         "api_key_env": "ANTHROPIC_API_KEY",
         "model_name": "claude-haiku-4-5-20251001",
         "notes": "Anthropic Messages API. Haiku tier for cost, matching the fast/cheap tier used for the other two providers -- this is a simple classification task, not worth a frontier-tier model."
       },
-      "openai": {
+      "openai-gpt-5.5": {
         "enabled": true,
         "api_key_env": "OPENAI_API_KEY",
         "model_name": "gpt-5.5",
