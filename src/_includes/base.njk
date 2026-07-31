@@ -83,7 +83,7 @@
   .topbar .header-row{ display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px; margin-bottom:18px; }
   .topbar .header-row .brandmark{ justify-self:start; }
   .topbar .header-row .top-actions{ justify-self:end; }
-  .page-heading{ font-family:var(--display); font-weight:600; font-size:16px; margin:0; text-align:center; color:var(--ink); }
+  .page-heading{ font-family:var(--display); font-weight:600; font-size:clamp(20px,2.8vw,28px); letter-spacing:-.01em; margin:0; text-align:center; color:var(--ink); }
   .tabbar-row{ display:flex; gap:4px; padding:0; }
 
   /* ---------- V2.0: tab navigation shell ---------- */
@@ -99,6 +99,7 @@
   .brandmark .word{ font-family:var(--mono); font-size:13px; letter-spacing:.08em; color:var(--ink-soft); text-transform:uppercase; }
   .brandmark .word b{ color:var(--ink); font-weight:600; }
   .last-updated{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); opacity:.75; margin:0 0 20px; }
+  .last-updated-footer{ text-align:center; margin:48px 0 32px; }
 
   .top-actions{ display:flex; align-items:center; gap:10px; position:relative; }
   .settings-btn{ display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:var(--surface); cursor:pointer; color:var(--ink-soft); }
@@ -133,6 +134,10 @@
   .eyebrow{ font-family:var(--mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin:0 0 10px; }
   h1.page-title{ font-family:var(--display); font-weight:600; font-size:clamp(26px,4vw,38px); letter-spacing:-.02em; margin:0 0 8px; }
   .subtitle{ color:var(--ink-soft); font-size:15px; margin:0 0 36px; }
+  .page-meta-line{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:32px 0 32px; }
+  .page-meta-line .eyebrow-text{ font-family:var(--mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); }
+  .page-meta-line .meta-sep{ color:var(--line); }
+  .page-meta-line .subtitle-text{ color:var(--ink-soft); font-size:15px; }
   .metrics-toggle{ display:flex; gap:8px; margin-bottom:24px; }
   .range-toggle{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
   .range-btn{
@@ -411,9 +416,9 @@
   </div>
 </div>
 <main class="wrap">
-  <p class="last-updated">Data last refreshed {{ buildTime | readableDateTime }}</p>
   {{ content | safe }}
 </main>
+<p class="last-updated last-updated-footer">Data last refreshed {{ buildTime | readableDateTime }}</p>
 <script>
   (function(){
     var root = document.documentElement;
