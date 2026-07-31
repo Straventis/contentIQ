@@ -362,7 +362,27 @@ def fetch_linkedin_metrics(api_key: str, budget: CallBudget) -> list[dict]:
             break
         page += 1
 
-    return all_posts
+    # Buffer's own feed genuinely contains near-duplicate entries for the
+    # same real post -- confirmed against real data: identical content,
+    # different IDs, sometimes as little as 20 seconds apart. Left
+    # unhandled, this creates duplicate rows in master.csv once the first
+    # duplicate claims an existing row and the second has nothing left to
+    # match, getting wrongly added as a "new" post. Dedupe by normalized
+    # content here, before any matching happens, keeping whichever entry
+    # has the higher impressions (the more complete/later-synced one).
+    deduped = {}
+    for p in all_posts:
+        key = normalize_text((p.get("text") or "")[:100])
+        if not key:
+            continue
+        existing = deduped.get(key)
+        if not existing or extract_metric(p.get("metrics"), "impressions") > extract_metric(existing.get("metrics"), "impressions"):
+            deduped[key] = p
+    removed = len(all_posts) - len(deduped)
+    if removed:
+        print(f"  Deduplicated {removed} near-duplicate entries from Buffer's own feed (same content, different IDs).")
+
+    return list(deduped.values())
 
 
 def extract_metric(metrics: list, metric_type: str) -> float:
