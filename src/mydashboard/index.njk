@@ -48,7 +48,6 @@ pageHeading: "Post Performance Dashboard"
     </div>
     <div id="update-manual-group" class="hidden">
       <button class="range-btn" id="update-manual-btn" type="button">Refresh now</button>
-      <p class="update-note">Not wired to this button yet — trigger a real refresh via the repo's Actions tab → Buffer Data Refresh → Run workflow.</p>
     </div>
   </div>
 </div>
@@ -60,27 +59,54 @@ pageHeading: "Post Performance Dashboard"
 </div>
 
 <div class="kpi-pillar-layout">
+  <div class="kpi-left-col">
   <div class="kpi-row-40">
     <div class="kpi-card">
       <p class="kpi-label">Total Impressions</p>
       <p class="kpi-value" id="kpi-total-impressions">&mdash;</p>
+      <p class="kpi-trend" id="kpi-trend-impressions"></p>
     </div>
     <div class="kpi-card">
       <p class="kpi-label">Total Engagements</p>
       <p class="kpi-value" id="kpi-total-engagements">&mdash;</p>
+      <p class="kpi-trend" id="kpi-trend-engagements"></p>
     </div>
     <div class="kpi-card">
       <p class="kpi-label">Avg Engagement Rate</p>
       <p class="kpi-value" id="kpi-rate-value">&mdash;</p>
+      <p class="kpi-trend" id="kpi-trend-rate"></p>
     </div>
     <div class="kpi-card">
       <p class="kpi-label">Avg Impressions / Post</p>
       <p class="kpi-value" id="kpi-avg-impressions">&mdash;</p>
+      <p class="kpi-trend" id="kpi-trend-avg-impressions"></p>
     </div>
     <div class="kpi-card">
       <p class="kpi-label">Avg Engagements / Post</p>
       <p class="kpi-value" id="kpi-avg-engagements">&mdash;</p>
+      <p class="kpi-trend" id="kpi-trend-avg-engagements"></p>
     </div>
+  </div>
+
+  <p class="kpi-section-label">More metrics</p>
+  <div class="kpi-row-40 kpi-row-secondary">
+    <div class="kpi-card">
+      <p class="kpi-label">Posting Cadence</p>
+      <p class="kpi-value kpi-value-sm" id="kpi-cadence">&mdash;</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Best Day to Post</p>
+      <p class="kpi-value kpi-value-sm" id="kpi-best-day">&mdash;</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Comments : Reactions</p>
+      <p class="kpi-value kpi-value-sm" id="kpi-comment-ratio">&mdash;</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">Top Content Type</p>
+      <p class="kpi-value kpi-value-sm" id="kpi-top-type">&mdash;</p>
+    </div>
+  </div>
   </div>
   <div class="card" style="margin-bottom:0;">
     <div class="card-header">
@@ -189,6 +215,62 @@ pageHeading: "Post Performance Dashboard"
   function filteredDaily(){ return daily.filter(function(d){ return inRange(d.date); }); }
   function filteredPosts(){ return posts.filter(function(p){ return inRange(p.date); }); }
 
+  // Previous period = the immediately preceding window of the same length
+  // as whatever's currently selected (7 days -> prior 7 days, 28 days ->
+  // prior 28 days, custom -> a same-length window right before it). "All
+  // time" has no meaningful prior period to compare against.
+  function getPreviousPeriodBounds(){
+    if (currentRange.value === 'all') return null;
+    var days, curStart;
+    if (currentRange.value === 'custom') {
+      if (!currentRange.start || !currentRange.end) return null;
+      curStart = new Date(currentRange.start);
+      var curEnd = new Date(currentRange.end);
+      days = Math.round((curEnd - curStart) / 86400000) + 1;
+    } else {
+      days = parseInt(currentRange.value, 10);
+      curStart = new Date();
+      curStart.setDate(curStart.getDate() - days);
+    }
+    var prevEnd = new Date(curStart);
+    prevEnd.setDate(prevEnd.getDate() - 1);
+    var prevStart = new Date(prevEnd);
+    prevStart.setDate(prevStart.getDate() - days + 1);
+    return { start: prevStart, end: prevEnd };
+  }
+
+  function inPreviousPeriod(dateStr, bounds){
+    var d = new Date(dateStr);
+    return d >= bounds.start && d <= bounds.end;
+  }
+
+  function filteredDailyPrior(bounds){ return daily.filter(function(d){ return inPreviousPeriod(d.date, bounds); }); }
+  function filteredPostsPrior(bounds){ return posts.filter(function(p){ return inPreviousPeriod(p.date, bounds); }); }
+
+  // Renders "vs X last period" + a colored delta pill. isPoint means the
+  // metric is itself a percentage (engagement rate), so the delta is
+  // expressed in percentage points rather than a relative percent change.
+  function renderTrend(elId, current, prior, opts){
+    opts = opts || {};
+    var el = document.getElementById(elId);
+    if (!el) return;
+    if (prior == null) { el.innerHTML = ''; return; }
+
+    var priorText = opts.formatPrior ? opts.formatPrior(prior) : prior.toLocaleString();
+    var pillClass, pillText;
+    if (opts.isPoint) {
+      var diffPts = (current - prior) * 100;
+      if (Math.abs(diffPts) < 0.05) { pillClass = 'kpi-trend-flat'; pillText = '\u2014 flat'; }
+      else { pillClass = diffPts > 0 ? 'kpi-trend-up' : 'kpi-trend-down'; pillText = (diffPts > 0 ? '\u25B2 ' : '\u25BC ') + Math.abs(diffPts).toFixed(1) + 'pt'; }
+    } else {
+      if (prior === 0) { el.innerHTML = ''; return; }
+      var pct = ((current - prior) / prior) * 100;
+      if (Math.abs(pct) < 0.5) { pillClass = 'kpi-trend-flat'; pillText = '\u2014 flat'; }
+      else { pillClass = pct > 0 ? 'kpi-trend-up' : 'kpi-trend-down'; pillText = (pct > 0 ? '\u25B2 ' : '\u25BC ') + Math.abs(pct).toFixed(1) + '%'; }
+    }
+    el.innerHTML = '<span class="kpi-trend-prior">vs ' + priorText + ' last period</span><span class="kpi-trend-pill ' + pillClass + '">' + pillText + '</span>';
+  }
+
   function cumulativeSeries(dailyArr, key){
     var running = 0;
     return dailyArr.map(function(d){ running += d[key]; return { date: d.date, value: running }; });
@@ -293,12 +375,94 @@ pageHeading: "Post Performance Dashboard"
     document.getElementById('kpi-avg-impressions').textContent = fp.length ? Math.round(avgImpressions).toLocaleString() : '\u2014';
     document.getElementById('kpi-avg-engagements').textContent = fp.length ? avgEngagements.toFixed(1) : '\u2014';
 
+    var priorBounds = getPreviousPeriodBounds();
+    if (priorBounds) {
+      var pd = filteredDailyPrior(priorBounds);
+      var pp = filteredPostsPrior(priorBounds);
+      var priorImpressions = pd.reduce(function(a, d){ return a + d.impressions; }, 0);
+      var priorEngagements = pd.reduce(function(a, d){ return a + d.engagements; }, 0);
+      var priorRate = pp.length ? pp.reduce(function(a, p){ return a + p.engagementRate; }, 0) / pp.length : null;
+      var priorAvgImpressions = pp.length ? pp.reduce(function(a, p){ return a + p.impressions; }, 0) / pp.length : null;
+      var priorAvgEngagements = pp.length ? pp.reduce(function(a, p){ return a + p.engagements; }, 0) / pp.length : null;
+
+      renderTrend('kpi-trend-impressions', totalImpressions, priorImpressions);
+      renderTrend('kpi-trend-engagements', totalEngagements, priorEngagements);
+      renderTrend('kpi-trend-rate', avgRate, priorRate, { isPoint: true, formatPrior: function(v){ return (v * 100).toFixed(2) + '%'; } });
+      renderTrend('kpi-trend-avg-impressions', avgImpressions, priorAvgImpressions, { formatPrior: function(v){ return Math.round(v).toLocaleString(); } });
+      renderTrend('kpi-trend-avg-engagements', avgEngagements, priorAvgEngagements, { formatPrior: function(v){ return v.toFixed(1); } });
+    } else {
+      ['kpi-trend-impressions','kpi-trend-engagements','kpi-trend-rate','kpi-trend-avg-impressions','kpi-trend-avg-engagements'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = '';
+      });
+    }
+
+    updateSecondaryMetrics(fp);
+
     var subtitleEl = document.getElementById('page-subtitle');
     if (subtitleEl) {
       subtitleEl.textContent = currentRange.value === 'all'
         ? 'Tracking ' + fp.length + ' tagged posts across ' + daily.length + ' days of data'
         : 'Tracking ' + fp.length + ' tagged posts in the selected range';
     }
+  }
+
+  function updateSecondaryMetrics(fp){
+    var cadenceEl = document.getElementById('kpi-cadence');
+    var bestDayEl = document.getElementById('kpi-best-day');
+    var ratioEl = document.getElementById('kpi-comment-ratio');
+    var topTypeEl = document.getElementById('kpi-top-type');
+    if (!cadenceEl) return;
+
+    if (!fp.length) {
+      cadenceEl.textContent = '\u2014'; bestDayEl.textContent = '\u2014';
+      ratioEl.textContent = '\u2014'; topTypeEl.textContent = '\u2014';
+      return;
+    }
+
+    // Posting cadence: posts per week over the selected window.
+    var dates = fp.map(function(p){ return new Date(p.date).getTime(); });
+    var spanDays = currentRange.value === 'all'
+      ? Math.max(1, Math.round((Math.max.apply(null, dates) - Math.min.apply(null, dates)) / 86400000))
+      : (currentRange.value === 'custom' ? Math.max(1, Math.round((new Date(currentRange.end) - new Date(currentRange.start)) / 86400000)) : parseInt(currentRange.value, 10));
+    var perWeek = (fp.length / spanDays) * 7;
+    cadenceEl.textContent = perWeek.toFixed(1) + '/wk';
+
+    // Best day to post: day-of-week with the highest average engagement rate.
+    var DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var byDay = {};
+    fp.forEach(function(p){
+      var dow = new Date(p.date).getDay();
+      if (!byDay[dow]) byDay[dow] = { total: 0, count: 0 };
+      byDay[dow].total += p.engagementRate;
+      byDay[dow].count += 1;
+    });
+    var bestDow = null, bestAvg = -1;
+    Object.keys(byDay).forEach(function(dow){
+      var avg = byDay[dow].total / byDay[dow].count;
+      if (avg > bestAvg) { bestAvg = avg; bestDow = dow; }
+    });
+    bestDayEl.textContent = bestDow !== null ? DAY_NAMES[bestDow] : '\u2014';
+
+    // Comments : Reactions ratio, expressed as 1:X for readability.
+    var totalComments = fp.reduce(function(a, p){ return a + p.comments; }, 0);
+    var totalReactions = fp.reduce(function(a, p){ return a + p.reactions; }, 0);
+    ratioEl.textContent = totalComments > 0 ? '1:' + (totalReactions / totalComments).toFixed(1) : (totalReactions > 0 ? '0:' + totalReactions : '\u2014');
+
+    // Top content type by average engagement rate.
+    var byType = {};
+    fp.forEach(function(p){
+      if (!p.contentType) return;
+      if (!byType[p.contentType]) byType[p.contentType] = { total: 0, count: 0 };
+      byType[p.contentType].total += p.engagementRate;
+      byType[p.contentType].count += 1;
+    });
+    var bestType = null, bestTypeAvg = -1;
+    Object.keys(byType).forEach(function(t){
+      var avg = byType[t].total / byType[t].count;
+      if (avg > bestTypeAvg) { bestTypeAvg = avg; bestType = t; }
+    });
+    topTypeEl.textContent = bestType || '\u2014';
   }
 
   // ---------- Growth Overview mini charts: now share the same range/mode/type controls ----------
