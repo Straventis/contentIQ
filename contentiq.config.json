@@ -20,5 +20,28 @@
       "api_key_env": "ZERNIO_API_KEY",
       "notes": "Not yet built -- see STRV-96. URN-based exact matching once available, cleaner than Taplio's content-fallback matching. Free for up to 2 connected accounts."
     }
+  },
+  "classifier": {
+    "active_model": "claude",
+    "models": {
+      "gemini": {
+        "enabled": true,
+        "api_key_env": "GEMINI_API_KEY",
+        "model_name": "gemini-3.6-flash",
+        "notes": "Currently blocked by a widespread, unresolved Google-side bug affecting new API keys with the 'AQ.' prefix -- returns 401 ACCESS_TOKEN_TYPE_UNSUPPORTED regardless of code correctness, confirmed against multiple independent reports on Google's own developer forum as of 2026-07-31. Switch active_model to another provider until Google fixes this; keep this entry ready to switch back."
+      },
+      "claude": {
+        "enabled": true,
+        "api_key_env": "ANTHROPIC_API_KEY",
+        "model_name": "claude-haiku-4-5-20251001",
+        "notes": "Anthropic Messages API. Haiku tier for cost, matching the fast/cheap tier used for the other two providers -- this is a simple classification task, not worth a frontier-tier model."
+      },
+      "openai": {
+        "enabled": true,
+        "api_key_env": "OPENAI_API_KEY",
+        "model_name": "gpt-5.5",
+        "notes": "OpenAI Chat Completions API, verified against the official openai-python README example directly."
+      }
+    }
   }
 }
