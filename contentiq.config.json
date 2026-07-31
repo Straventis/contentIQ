@@ -1,5 +1,5 @@
 {
-  "active_source": "buffer",
+  "active_source": "manual",
   "update_frequency_hours": 4,
   "sources": {
     "buffer": {
@@ -22,7 +22,7 @@
     }
   },
   "classifier": {
-    "active_model": "claude",
+    "active_model": "gemini",
     "models": {
       "gemini": {
         "enabled": true,

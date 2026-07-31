@@ -2,33 +2,17 @@
 classify_post_pillars.py
 
 Reads master.csv, finds any row with an empty pillar, and uses Gemini to
-classify it against contentiq_pillars.json's taxonomy. Rewritten from
-Santhosh's original zero-shot-llm-classify_post.py with these real fixes:
+classify it against contentiq_pillars.json's taxonomy.
 
-  - No longer scrapes LinkedIn directly (Jina AI Reader + raw requests
-    fallback). LinkedIn aggressively blocks scraping and login-walls
-    non-connections viewing a post -- fragile for zero benefit, since the
-    post's real text is already sitting in that same CSV row's post_topic
-    column. Classifying from local data instead of re-fetching from the
-    web removes an entire class of failure and two dependencies
-    (requests, beautifulsoup4).
-  - CSV read/write now uses the plain csv module, matching every other
-    script in this pipeline, instead of pandas -- avoids pandas' own CSV
-    quoting/formatting behavior silently diverging from the rest of the
-    codebase, especially given how many real CSV-formatting bugs this
-    project has already hit.
-  - .env loading matches the same hand-rolled, zero-dependency pattern
-    used everywhere else instead of python-dotenv.
-  - Real rate-limit budget tracking, matching merge_buffer_metrics.py and
-    merge_taplio_metrics.py.
-  - Errors from a single post's classification no longer crash the whole
-    run -- logged and skipped, matching how a scheduled/unattended
-    pipeline needs to behave.
-  - Removed dead code (an unreachable second implementation of
-    load_pillars_criteria after the first return statement).
+Writes incrementally: master.csv is saved to disk after every single
+successful classification, not batched at the end. If the run gets
+interrupted, killed, or hits an unrecoverable error partway through,
+everything classified up to that point is already safely on disk --
+nothing is lost, and the next run only needs to pick up whatever's left.
 
-Model/import path verified against current official Google Gen AI SDK
-docs before writing this, not assumed.
+Also prints the full list of posts needing classification upfront, not
+just a count, so you can see exactly what's about to be processed before
+any API calls happen.
 
 Usage:
   1. Create a .env file in the repo root containing:
@@ -145,6 +129,13 @@ Do not add extra commentary, quotes, markdown formatting, or punctuation."""
     return None
 
 
+def save_master(rows, fieldnames):
+    with open(MASTER_PATH, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def main():
     api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
     if not api_key:
@@ -158,6 +149,7 @@ def main():
 
     categories, criteria_str = load_pillars_criteria(PILLARS_PATH)
     print(f"Loaded {len(categories)} pillars from {PILLARS_PATH}")
+    print(f"master.csv location: {MASTER_PATH}")
 
     with open(MASTER_PATH, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -165,11 +157,18 @@ def main():
         rows = list(reader)
 
     missing = [r for r in rows if not r.get("pillar", "").strip()]
-    print(f"Found {len(missing)} posts with missing pillars in {MASTER_PATH}.")
+    print(f"\nFound {len(missing)} posts with missing pillars in {MASTER_PATH}.")
 
     if not missing:
         print("Nothing to classify.")
         return
+
+    # Explicit upfront list -- exactly what's about to be processed, before
+    # any API calls happen, not just a count.
+    print("\nPosts needing classification:")
+    for r in missing:
+        print(f"  [{r.get('date', '?')}] {(r.get('post_topic') or '(no topic)')[:70]}")
+    print()
 
     client = genai.Client(api_key=api_key)
     budget = CallBudget(int(os.environ.get("GEMINI_DAILY_CALL_BUDGET", DEFAULT_DAILY_CALL_BUDGET)))
@@ -185,19 +184,18 @@ def main():
         assigned = classify_text(client, topic, categories, criteria_str, budget)
         if assigned:
             row["pillar"] = assigned
-            print(f"    -> {assigned}")
             updated += 1
+            # Write immediately -- this row's classification is safely on
+            # disk before moving to the next one, so an interruption or a
+            # crash partway through never loses already-completed work.
+            save_master(rows, fieldnames)
+            print(f"    -> {assigned}  (saved to disk)")
         else:
             print(f"    -> Could not classify, leaving blank for next run")
 
-    if updated:
-        with open(MASTER_PATH, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(rows)
-        print(f"\nUpdated {updated} of {len(missing)} rows in {MASTER_PATH}.")
-    else:
-        print("\nNo rows updated.")
+    print(f"\nUpdated {updated} of {len(missing)} rows in {MASTER_PATH}.")
+    if updated < len(missing):
+        print(f"{len(missing) - updated} row(s) remain unclassified and will be picked up on the next run.")
 
 
 if __name__ == "__main__":
