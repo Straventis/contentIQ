@@ -85,8 +85,15 @@ title: "Dashboard"
   </div>
   <div class="card" style="margin-bottom:0;">
     <div class="card-header">
-      <h2>Engagement Rate by Pillar</h2>
-      <button class="expand-btn" type="button" id="expand-pillar" title="Expand">&#9974;</button>
+      <h2 style="margin:0;">Engagement Rate by Pillar</h2>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <select class="metric-select" id="pillar-metric">
+          <option value="engagementRate">Engagement Rate</option>
+          <option value="impressions">Impressions</option>
+          <option value="reactions">Reactions</option>
+        </select>
+        <button class="expand-btn" type="button" id="expand-pillar" title="Expand">&#9974;</button>
+      </div>
     </div>
     <div class="chart-canvas-wrap chart-canvas-wrap-lg"><canvas id="pillarChart"></canvas></div>
   </div>
@@ -190,13 +197,22 @@ title: "Dashboard"
 
   // ---------- Pillar chart: now respects the date range (previously always all-time) ----------
   var pillarChart = null;
-  function buildPillarChart(rangeValue, customStart, customEnd){
+  var PILLAR_METRIC_CONFIG = {
+    engagementRate: { label: 'Avg Engagement Rate %', accumulate: function(sum, p){ return sum + p.engagementRate; }, finalize: function(total, count){ return (total / count * 100).toFixed(2); } },
+    impressions:    { label: 'Avg Impressions / Post', accumulate: function(sum, p){ return sum + p.impressions; }, finalize: function(total, count){ return Math.round(total / count); } },
+    reactions:      { label: 'Avg Reactions / Post', accumulate: function(sum, p){ return sum + p.reactions; }, finalize: function(total, count){ return (total / count).toFixed(1); } }
+  };
+  var currentPillarMetric = 'engagementRate';
+
+  function buildPillarChart(rangeValue, customStart, customEnd, metric){
+    metric = metric || currentPillarMetric;
+    var cfg = PILLAR_METRIC_CONFIG[metric];
     var fp = posts.filter(function(p){ return inRangeFor(p.date, rangeValue, customStart, customEnd); });
     var pillarMap = {};
     fp.forEach(function(p){
       if (!p.pillar || !p.pillar.trim()) return; // skip untagged posts rather than show a blank bar
       if (!pillarMap[p.pillar]) pillarMap[p.pillar] = { total: 0, count: 0 };
-      pillarMap[p.pillar].total += p.engagementRate;
+      pillarMap[p.pillar].total = cfg.accumulate(pillarMap[p.pillar].total, p);
       pillarMap[p.pillar].count += 1;
     });
     // Ascending order -- plain string sort works correctly here since every
@@ -205,10 +221,10 @@ title: "Dashboard"
     // "Straventis") sort after all numbered ones, since digits sort before
     // letters.
     var pillarLabels = Object.keys(pillarMap).sort();
-    var pillarData = pillarLabels.map(function(k){ return (pillarMap[k].total / pillarMap[k].count * 100).toFixed(2); });
+    var pillarData = pillarLabels.map(function(k){ return cfg.finalize(pillarMap[k].total, pillarMap[k].count); });
     var pillarPalette = ['#3E5C55', '#2A5C7A', '#A5680A', '#7A3B5C', '#5F7A3E', '#8A5C3E', '#3E5C7A', '#7A5C3E'];
     var pillarColors = pillarLabels.map(function(_, i){ return pillarPalette[i % pillarPalette.length]; });
-    return { labels: pillarLabels, data: pillarData, colors: pillarColors };
+    return { labels: pillarLabels, data: pillarData, colors: pillarColors, label: cfg.label };
   }
 
   // Draws a small color square just below the x-axis, one per bar, in the
@@ -234,18 +250,18 @@ title: "Dashboard"
   };
 
   function renderPillarChart(){
-    var d = buildPillarChart(currentRange.value, currentRange.start, currentRange.end);
+    var d = buildPillarChart(currentRange.value, currentRange.start, currentRange.end, currentPillarMetric);
     if (pillarChart) pillarChart.destroy();
     pillarChart = new Chart(document.getElementById('pillarChart'), {
       type: 'bar',
       plugins: [pillarColorSquarePlugin],
-      data: { labels: d.labels, datasets: [{ label: 'Avg Engagement Rate %', data: d.data, backgroundColor: d.colors, borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }] },
+      data: { labels: d.labels, datasets: [{ label: d.label, data: d.data, backgroundColor: d.colors, borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }] },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 6, font: { size: tickFontSize } }, title: { display: true, text: 'Avg Engagement Rate %', color: inkSoft, font: { size: 11 } } },
+          y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 6, font: { size: tickFontSize } }, title: { display: true, text: d.label, color: inkSoft, font: { size: 11 } } },
           x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: tickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: inkSoft, font: { size: 11 } } }
         }
       }
@@ -412,20 +428,26 @@ title: "Dashboard"
     setRange(getStoredRange() || 'all');
   })();
 
+  document.getElementById('pillar-metric').addEventListener('change', function(){
+    currentPillarMetric = this.value;
+    renderPillarChart();
+  });
+
   // ---------- Expand-to-fullscreen wiring ----------
   document.getElementById('expand-pillar').addEventListener('click', function(){
+    var titleMap = { engagementRate: 'Engagement Rate by Pillar', impressions: 'Impressions by Pillar', reactions: 'Reactions by Pillar' };
     ContentIQModal.open({
-      title: 'Engagement Rate by Pillar', hasControls: true, hasModeToggle: false, hasTypeToggle: false,
+      title: titleMap[currentPillarMetric] || 'Engagement Rate by Pillar', hasControls: true, hasModeToggle: false, hasTypeToggle: false,
       defaultRange: currentRange.value === 'custom' ? 'all' : currentRange.value,
       onRender: function(canvas, range){
-        var d = buildPillarChart(range);
+        var d = buildPillarChart(range, null, null, currentPillarMetric);
         return new Chart(canvas, {
           type: 'bar',
           plugins: [pillarColorSquarePlugin],
-          data: { labels: d.labels, datasets: [{ label: 'Avg Engagement Rate %', data: d.data, backgroundColor: d.colors, borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }] },
+          data: { labels: d.labels, datasets: [{ label: d.label, data: d.data, backgroundColor: d.colors, borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
             scales: {
-              y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 8, font: { size: tickFontSize } }, title: { display: true, text: 'Avg Engagement Rate %', color: inkSoft } },
+              y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 8, font: { size: tickFontSize } }, title: { display: true, text: d.label, color: inkSoft } },
               x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: tickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: inkSoft } }
             } }
         });
