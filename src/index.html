@@ -414,6 +414,21 @@
           <p class="ft-desc">If one provider changes its terms, raises prices, or loses API access, <strong>the dashboard doesn't go dark</strong>. Switch the source, keep the history, keep the tool working.</p>
         </div></div></div>
       </div>
+        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Automated, hands-off refresh</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
+          <p class="ft-desc">V1.0 meant manually exporting a CSV from LinkedIn every time you wanted fresh numbers, and manually tagging every new post with a content pillar before it showed up anywhere useful. That's <strong>real friction</strong> standing between posting and actually seeing how it did.</p>
+          <p class="ft-desc">The dashboard now <strong>refreshes itself</strong> on a schedule, pulling from Buffer's API, matching new posts against what's already tracked, and adding genuinely new ones automatically. Pillar tagging runs the same way, an AI classifier reads each new post and assigns it a category, no manual sorting required.</p>
+          <p class="ft-desc">You publish a post, and within hours it's <strong>tracked, tagged, and on the dashboard</strong>, with zero manual steps in between.</p>
+        </div><img class="ft-image" src="/assets/features/pillar-metric-selector.png" alt="Engagement rate by pillar chart with a metric selector dropdown" loading="lazy"></div></div>
+      </div>
+      <div class="feat-item">
+        <button class="feat-head" type="button"><span class="dot"></span><span class="ft-title">Track what's actually changing</span><svg class="feat-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div class="feat-body"><div class="feat-body-inner"><div class="feat-body-text">
+          <p class="ft-desc">A raw number on its own doesn't tell you much. 4,185 impressions this month, is that <strong>good</strong>? Compared to what? Without a baseline, every number is just a number sitting there.</p>
+          <p class="ft-desc">Every core KPI now shows its <strong>real comparison against the immediately preceding period</strong> of the same length, so switching to a 7-day view compares against the 7 days before it, not some fixed calendar week that may not line up with how you actually think about your posting rhythm.</p>
+          <p class="ft-desc">Four more numbers round it out: <strong>posting cadence</strong>, <strong>best day to post</strong> based on your own historical engagement rate by day of week, the <strong>comment-to-reaction ratio</strong> as a read on how much real discussion a post sparks versus a passive tap, and your current <strong>top-performing content type</strong>.</p>
+        </div><img class="ft-image" src="/assets/features/kpi-trends.png" alt="KPI cards showing period-over-period trend indicators and four supplemental metrics" loading="lazy"></div></div>
+      </div>
     </div>
 
     <div style="margin-top:48px; padding-top:48px; border-top:1px solid var(--line);">
@@ -601,10 +616,24 @@
     var stages = [
       { ver: 'V1.0', title: 'Core analytics engine', status: 'done', badge: 'Live',
         items: ['Manual CSV ingestion, KPI cards, timeline, per-post pages', 'Built and live on GitHub Pages'] },
-      { ver: 'V2.0', title: 'Dashboard redesign', status: 'progress', badge: 'In progress',
-        items: ['Two-tab layout, ranked cards, sortable table — shipped', 'Profile Views tab with real demographics — shipped', 'Content Pipeline tracking section — not started'] },
-      { ver: 'V3.0', title: 'Predictive analytics + AI', status: 'planned', badge: 'Scoped',
-        items: ['Trend forecasting, predicted-vs-actual tracking — scoped, no build yet', 'AI content recommendations — scoped, no build yet'] },
+      { ver: 'V2.0', title: 'Dashboard redesign + automated pipeline', status: 'done', badge: 'Live',
+        items: [
+          'Two-tab layout, ranked cards, sortable table with search + date filter — shipped',
+          'Profile Views tab with real demographics, expand/fullscreen on every chart — shipped',
+          'Automated data pipeline: Buffer as primary source, scheduled refresh, self-healing deploy workflow — shipped',
+          'AI pillar auto-classification (Gemini/Claude/OpenAI, switchable) — eliminated the last manual step — shipped',
+          'Period-over-period KPI trends + 4 new metrics (posting cadence, best day to post, comment:reaction ratio, top content type) — shipped',
+          'Content Pipeline tracking section — deferred to V3.0'
+        ] },
+      { ver: 'V3.0', title: 'Zernio integration + predictive analytics', status: 'progress', badge: 'In progress',
+        items: [
+          'Zernio API integration — URN-based exact post matching, cleaner than the current fuzzy-content fallback',
+          'Close the one remaining manual step: automate daily_totals.csv (account-wide daily impressions/engagements), currently still LinkedIn-export-only',
+          'Trend forecasting, predicted-vs-actual tracking — scoped, no build yet',
+          'AI content recommendations — scoped, no build yet',
+          'Real login/account system for personalized update intervals',
+          'Content Pipeline tracking section (carried over from V2.0)'
+        ] },
       { ver: 'V4.0', title: 'Direct LinkedIn API', status: 'blocked', badge: 'Blocked',
         items: ['Waiting on LinkedIn partner approval', 'Evaluating official alternatives in parallel'] },
       { ver: 'V5.0', title: 'Company page analytics', status: 'planned', badge: 'Planned',
@@ -657,9 +686,9 @@
       container.appendChild(stage);
     });
 
-    // Open V2.0 by default -- current focus
-    var secondHead = container.querySelectorAll('.rm2-head')[1];
-    if (secondHead) secondHead.click();
+    // Open V3.0 by default -- current focus, now that V2.0 is done
+    var thirdHead = container.querySelectorAll('.rm2-head')[2];
+    if (thirdHead) thirdHead.click();
   })();
 
   // Core capabilities accordion (section 03) -- independent toggles, not exclusive
