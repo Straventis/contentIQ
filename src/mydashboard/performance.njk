@@ -1,9 +1,9 @@
 ---
 layout: base.njk
 title: "Post Performance"
+pageHeading: "Post Performance"
 ---
 <p class="eyebrow">Content Intelligence</p>
-<h1 class="page-title">Post Performance</h1>
 <p class="subtitle">Tracking {{ posts.length }} tagged posts</p>
 
 <div class="card">
@@ -43,22 +43,24 @@ title: "Post Performance"
   <table id="perf-table">
     <colgroup>
       <col style="width:8%;">
-      <col style="width:26%;">
-      <col style="width:12%;">
-      <col style="width:7%;">
-      <col style="width:7%;">
-      <col style="width:7%;">
-      <col style="width:7%;">
-      <col style="width:7%;">
-      <col style="width:8%;">
+      <col style="width:24%;">
+      <col style="width:9%;">
       <col style="width:9%;">
       <col style="width:6%;">
+      <col style="width:6%;">
+      <col style="width:6%;">
+      <col style="width:6%;">
+      <col style="width:7%;">
+      <col style="width:8%;">
+      <col style="width:6%;">
+      <col style="width:5%;">
     </colgroup>
     <thead>
       <tr>
         <th class="sortable" data-sort="date">Date <span class="sort-arrow">&#9660;</span></th>
         <th>Content</th>
-        <th class="sortable" data-sort="contentType">Type / Pillar <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="contentType">Type <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="pillar">Pillar <span class="sort-arrow">&#9660;</span></th>
         <th class="sortable" data-sort="impressions">Impressions <span class="sort-arrow">&#9660;</span></th>
         <th class="sortable" data-sort="reactions">Reactions <span class="sort-arrow">&#9660;</span></th>
         <th class="sortable" data-sort="comments">Comments <span class="sort-arrow">&#9660;</span></th>
@@ -78,6 +80,15 @@ title: "Post Performance"
 
   // Consistent MM-DD-YY formatting everywhere a date is shown, per the
   // site-wide standardization -- posts.date arrives as M/D/YYYY text.
+  // "Repost+Commentary" has no space, so the browser has nowhere natural
+  // to wrap it and breaks mid-word ("COMMENTA" / "RY") in a narrow column.
+  // Inserting a real space after "+" for display only (not touching the
+  // underlying data used for sorting/filtering/export) gives it a clean
+  // break: "Repost +" / "Commentary".
+  function formatContentTypeDisplay(type){
+    return (type || '').replace(/\+(?=\S)/g, '+ ');
+  }
+
   function formatDateMMDDYY(dateStr){
     var d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
@@ -110,7 +121,7 @@ title: "Post Performance"
         '<div class="rank-card">' +
           '<div class="rank-card-head">' +
             '<span class="rank-badge ' + RANK_CLASS[i] + '">#' + (i + 1) + '</span>' +
-            '<span class="type-pill">' + p.contentType + '</span>' +
+            '<span class="type-pill">' + formatContentTypeDisplay(p.contentType) + '</span>' +
           '</div>' +
           '<p class="rank-metric-value">' + formatMetric(metric, p[metric]) + '</p>' +
           '<p class="rank-metric-label">' + METRIC_LABELS[metric] + '</p>' +
@@ -200,7 +211,8 @@ title: "Post Performance"
           '<tr>' +
             '<td>' + formatDateMMDDYY(p.date) + '</td>' +
             '<td><a class="post-link" href="/mydashboard/posts/' + p.slug + '/">' + escapeHtml(p.topic).slice(0, 60) + '</a></td>' +
-            '<td class="type-pillar-cell"><span class="type-pill">' + escapeHtml(p.contentType) + '</span><span class="pillar-sub">' + escapeHtml(p.pillar) + '</span></td>' +
+            '<td><span class="type-pill">' + escapeHtml(formatContentTypeDisplay(p.contentType)) + '</span></td>' +
+            '<td class="pillar-cell">' + escapeHtml(p.pillar) + '</td>' +
             '<td>' + p.impressions.toLocaleString() + '</td>' +
             '<td>' + p.reactions.toLocaleString() + '</td>' +
             '<td>' + p.comments.toLocaleString() + '</td>' +
