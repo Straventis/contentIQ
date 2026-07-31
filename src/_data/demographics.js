@@ -1,43 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-
-// Same quote-aware parser as posts.js -- demographic values shouldn't ever
-// contain commas, but keeping every CSV reader in this repo consistent
-// avoids the exact class of bug that broke pillar values earlier.
-function parseCSVLine(line) {
-  const values = [];
-  let current = "";
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (inQuotes) {
-      if (char === '"') {
-        if (line[i + 1] === '"') { current += '"'; i++; }
-        else { inQuotes = false; }
-      } else {
-        current += char;
-      }
-    } else {
-      if (char === '"') { inQuotes = true; }
-      else if (char === ",") { values.push(current); current = ""; }
-      else { current += char; }
-    }
-  }
-  values.push(current);
-  return values;
-}
-
-function parseCSV(filePath) {
-  const raw = fs.readFileSync(filePath, "utf-8").trim();
-  const lines = raw.split(/\r?\n/);
-  const headers = parseCSVLine(lines[0]);
-  return lines.slice(1).map((line) => {
-    const values = parseCSVLine(line);
-    const row = {};
-    headers.forEach((h, i) => { row[h] = values[i] !== undefined ? values[i] : ""; });
-    return row;
-  });
-}
+const { parseCSVFile } = require("../lib/csvParser.js");
 
 module.exports = function () {
   const filePath = path.join(__dirname, "demographics.csv");
@@ -45,7 +8,7 @@ module.exports = function () {
     return { pulledAt: null, categories: {} };
   }
 
-  const rows = parseCSV(filePath);
+  const rows = parseCSVFile(filePath);
   if (!rows.length) {
     return { pulledAt: null, categories: {} };
   }
