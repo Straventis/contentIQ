@@ -108,7 +108,7 @@ pageHeading: "Post Performance Dashboard"
     </div>
   </div>
   </div>
-  <div class="card" style="margin-bottom:0;">
+  <div class="card chart-fill-card" style="margin-bottom:0;">
     <div class="card-header">
       <h2 style="margin:0;">Engagement Rate by Pillar</h2>
       <div style="display:flex; align-items:center; gap:8px;">
@@ -305,8 +305,10 @@ pageHeading: "Post Performance Dashboard"
     // letters.
     var pillarLabels = Object.keys(pillarMap).sort();
     var pillarData = pillarLabels.map(function(k){ return cfg.finalize(pillarMap[k].total, pillarMap[k].count); });
-    var pillarPalette = ['#3E5C55', '#2A5C7A', '#A5680A', '#7A3B5C', '#5F7A3E', '#8A5C3E', '#3E5C7A', '#7A5C3E'];
-    var pillarColors = pillarLabels.map(function(_, i){ return pillarPalette[i % pillarPalette.length]; });
+    var scheme = window.ContentIQCharts.currentScheme();
+    var pillarColors = scheme === 'ranked'
+      ? window.ContentIQCharts.getRankedPaletteByValue(pillarData.map(Number))
+      : window.ContentIQCharts.getCategoricalPalette(scheme, pillarLabels.length);
     return { labels: pillarLabels, data: pillarData, colors: pillarColors, label: cfg.label };
   }
 
@@ -337,7 +339,7 @@ pageHeading: "Post Performance Dashboard"
     if (pillarChart) pillarChart.destroy();
     pillarChart = new Chart(document.getElementById('pillarChart'), {
       type: 'bar',
-      plugins: [pillarColorSquarePlugin],
+      plugins: [pillarColorSquarePlugin, window.ContentIQCharts.boundingBoxPlugin],
       data: { labels: d.labels, datasets: [{ label: d.label, data: d.data, backgroundColor: d.colors, borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }] },
       options: {
         responsive: true,
@@ -501,14 +503,16 @@ pageHeading: "Post Performance Dashboard"
   var miniCharts = {};
   function buildMiniChart(canvasId, labels, values, valueEl, yLabel){
     if (miniCharts[canvasId]) miniCharts[canvasId].destroy();
+    var schemeLineColor = window.ContentIQCharts.getLineColor(window.ContentIQCharts.currentScheme());
     miniCharts[canvasId] = new Chart(document.getElementById(canvasId), {
       type: currentType,
+      plugins: [window.ContentIQCharts.boundingBoxPlugin],
       data: {
         labels: labels,
         datasets: [{
           data: values,
-          borderColor: accent,
-          backgroundColor: currentType === 'bar' ? accent : accentSoft,
+          borderColor: schemeLineColor,
+          backgroundColor: currentType === 'bar' ? schemeLineColor : accentSoft,
           fill: currentType === 'line',
           tension: 0.25,
           pointRadius: 0,
@@ -591,6 +595,8 @@ pageHeading: "Post Performance Dashboard"
     });
 
     setRange(getStoredRange() || 'all');
+
+    window.addEventListener('contentiq-chart-scheme-change', function(){ refresh(); });
   })();
 
   document.getElementById('pillar-metric').addEventListener('change', function(){
@@ -608,7 +614,7 @@ pageHeading: "Post Performance Dashboard"
         var d = buildPillarChart(range, null, null, currentPillarMetric);
         return new Chart(canvas, {
           type: 'bar',
-          plugins: [pillarColorSquarePlugin],
+          plugins: [pillarColorSquarePlugin, window.ContentIQCharts.boundingBoxPlugin],
           data: { labels: d.labels, datasets: [{ label: d.label, data: d.data, backgroundColor: d.colors, borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
             scales: {
@@ -627,9 +633,11 @@ pageHeading: "Post Performance Dashboard"
         defaultRange: currentRange.value === 'custom' ? 'all' : currentRange.value, defaultMode: currentMode, defaultType: currentType,
         onRender: function(canvas, range, mode, type){
           var ds = builder(range, mode);
+          var schemeLineColor = window.ContentIQCharts.getLineColor(window.ContentIQCharts.currentScheme());
           return new Chart(canvas, {
             type: type,
-            data: { labels: ds.labels, datasets: [{ label: label, data: ds.values, borderColor: accent, backgroundColor: type === 'bar' ? accent : accentSoft, fill: type === 'line', tension: 0.25, borderWidth: 2, borderRadius: type === 'bar' ? 4 : 0 }] },
+            plugins: [window.ContentIQCharts.boundingBoxPlugin],
+            data: { labels: ds.labels, datasets: [{ label: label, data: ds.values, borderColor: schemeLineColor, backgroundColor: type === 'bar' ? schemeLineColor : accentSoft, fill: type === 'line', tension: 0.25, borderWidth: 2, borderRadius: type === 'bar' ? 4 : 0 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
               scales: {
                 y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 8, font: { size: tickFontSize } }, title: { display: true, text: yLabel, color: inkSoft } },

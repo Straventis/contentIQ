@@ -48,7 +48,6 @@ pageHeading: "Profile Views"
     </div>
     <div id="update-manual-group" class="hidden">
       <button class="range-btn" id="update-manual-btn" type="button">Refresh now</button>
-      <p class="update-note">Not wired to this button yet — trigger a real refresh via the repo's Actions tab → Buffer Data Refresh → Run workflow.</p>
     </div>
   </div>
 </div>
@@ -74,7 +73,7 @@ pageHeading: "Profile Views"
       <p class="kpi-value" style="font-size:calc(var(--content-font-size, 16px) * 0.85); color:var(--ink-soft);">Not available</p>
     </div>
   </div>
-  <div class="card" style="margin-bottom:0;">
+  <div class="card chart-fill-card" style="margin-bottom:0;">
     <div class="card-header">
       <h2>Follower Growth Over Time</h2>
       <button class="expand-btn" type="button" id="expand-followers" title="Expand">&#9974;</button>
@@ -171,15 +170,17 @@ pageHeading: "Profile Views"
   function buildFollowersChart(){
     var ds = buildFollowersDataset(currentRange.value === 'custom' ? 'all' : currentRange.value, currentMode);
     if (followersChart) followersChart.destroy();
+    var schemeLineColor = window.ContentIQCharts.getLineColor(window.ContentIQCharts.currentScheme());
     followersChart = new Chart(document.getElementById('followersChart'), {
       type: currentType,
+      plugins: [window.ContentIQCharts.boundingBoxPlugin],
       data: {
         labels: ds.labels,
         datasets: [{
           label: currentMode === 'cumulative' ? 'Cumulative New Followers' : 'New Followers',
           data: ds.values,
-          borderColor: accent,
-          backgroundColor: accent,
+          borderColor: schemeLineColor,
+          backgroundColor: schemeLineColor,
           tension: 0.3,
           fill: false,
           borderRadius: currentType === 'bar' ? 4 : 0
@@ -241,6 +242,8 @@ pageHeading: "Profile Views"
     });
 
     setRange(getStoredRange() || 'all');
+
+    window.addEventListener('contentiq-chart-scheme-change', function(){ buildFollowersChart(); });
   })();
 
   document.getElementById('expand-followers').addEventListener('click', function(){
@@ -251,9 +254,11 @@ pageHeading: "Profile Views"
       defaultMode: currentMode, defaultType: currentType,
       onRender: function(canvas, range, mode, type){
         var ds = buildFollowersDataset(range, mode);
+        var schemeLineColor = window.ContentIQCharts.getLineColor(window.ContentIQCharts.currentScheme());
         return new Chart(canvas, {
           type: type,
-          data: { labels: ds.labels, datasets: [{ label: mode === 'cumulative' ? 'Cumulative New Followers' : 'New Followers', data: ds.values, borderColor: accent, backgroundColor: accent, tension: 0.3, fill: false, borderRadius: type === 'bar' ? 4 : 0 }] },
+          plugins: [window.ContentIQCharts.boundingBoxPlugin],
+          data: { labels: ds.labels, datasets: [{ label: mode === 'cumulative' ? 'Cumulative New Followers' : 'New Followers', data: ds.values, borderColor: schemeLineColor, backgroundColor: schemeLineColor, tension: 0.3, fill: false, borderRadius: type === 'bar' ? 4 : 0 }] },
           options: {
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false } },
