@@ -1,42 +1,37 @@
 {
   "pillars": [
     {
-      "name": "1.0 Career Reflection",
-      "sub_pillars": ["Past Product/Team Nostalgia", "Certification/Milestone", "Straventis & Consulting Experience", "Active Search", "Rejection/Resilience", "Open to Work Status"],
-      "definition": "Apply when the post is a reflective, narrative-voice account of professional experience, past or current, a former job, product, team, credential earned, or the Straventis consulting journey itself. discusses the author's current job search, applying, interviewing, ATS systems, rejection, layoffs, or being open to work, present tense, unresolved. Does NOT apply if the post is about an active, in-progress job search, use Job Search & Career Transition instead."
+      "name": "Reflection",
+      "sub_pillars": ["Family/Life", "Volunteering & Mentorship", "Past Product/Team Nostalgia", "Certification/Milestone", "Straventis & Consulting Experience", "Active Search", "Rejection/Resilience", "Open to Work Status"],
+      "definition": "Apply when the post is a first-person narrative rooted outside professional project work, personal milestones, mentoring, life experience woven into a point. Does NOT apply to Straventis or employer-linked stories, use Career Reflection instead."
     },
     {
-      "name": "2.0 AI / ML",
+      "name": "AI/ML",
       "sub_pillars": ["Technical Concepts", "Model/Tooling Commentary", "AI Industry Commentary"],
       "definition": "Apply when the core subject is a general AI/ML concept, model, or tool, cloud-based or software-context. Does NOT apply if the application is specifically automotive, industrial, or embedded/edge hardware, use Automotive & Industrial AI instead. Does NOT apply if the post is about organizational/platform structure to support AI, use Platform Engineering instead."
     },
     {
-      "name": "3.0 Automotive & Industrial AI",
+      "name": "Industrial",
       "sub_pillars": ["Edge Compute", "Sensor Fusion", "LiDAR & Computer Vision", "Functional Safety (ASIL)"],
       "definition": "Apply when the post concerns AI/perception applications specifically in automotive, industrial, or embedded/edge hardware contexts, ADAS, edge inference, sensor fusion, LiDAR, computer vision, or safety-critical (ASIL) systems. Does NOT apply to general-purpose or cloud/software AI content, use AI/ML instead."
     },
     {
-      "name": "4.0 Innovation & News",
+      "name": "Innovation",
       "sub_pillars": ["Reaction to News", "Historical Parallel", "Trend Commentary"],
       "definition": "Apply when the post responds to a current event, published article, or draws a historical/comparative parallel to make a broader innovation point. Does NOT apply if the reaction is a specific AI/ML technical claim, use AI/ML instead."
     },
     {
-      "name": "5.0 Personal Story",
-      "sub_pillars": ["Family/Life", "Volunteering & Mentorship"],
-      "definition": "Apply when the post is a first-person narrative rooted outside professional project work, personal milestones, mentoring, life experience woven into a point. Does NOT apply to Straventis or employer-linked stories, use Career Reflection instead."
-    },
-    {
-      "name": "6.0 Platform Engineering",
+      "name": "Platform Engg.",
       "sub_pillars": ["Enterprise Architecture", "Data Foundation/Governance", "Systems Design"],
       "definition": "Apply when the post argues for or explains how systems, data, or organizational structure should support technology at enterprise scale. Does NOT apply if the application is domain-specific automotive/edge hardware, use Automotive & Industrial AI instead."
     },
     {
-      "name": "7.0 Product Development",
+      "name": "Product",
       "sub_pillars": ["Feature/Product Strategy", "Value Creation", "Analytics & Metrics"],
       "definition": "Apply when the post is about building, shipping, or measuring a specific product or feature, roadmap decisions, ROI, or analytics used to evaluate success."
     },
     {
-      "name": "8.0 Program Management",
+      "name": "Program Mgmt.",
       "sub_pillars": ["OKR/KPI Governance", "PMBOK Practice Areas", "Cross-Functional Delivery"],
       "definition": "Apply when the post discusses goal-setting frameworks, formal program/project practice per PMBOK areas, or cross-organizational execution discipline."
     }
