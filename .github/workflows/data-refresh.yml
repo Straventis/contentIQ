@@ -35,6 +35,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Python dependencies
+        run: pip install google-genai --break-system-packages
+
       - name: Run data refresh (source selected by contentiq.config.json)
         env:
           BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
