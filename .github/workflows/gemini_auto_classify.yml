@@ -28,7 +28,7 @@ jobs:
       - name: Run Gemini Classifier Script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python3 scripts/zero-shot-llm-classify_post.py
+        run: python3 scripts/classify_post_pillars.py 
 
       - name: Commit and push changes if CSV was updated
         run: |
