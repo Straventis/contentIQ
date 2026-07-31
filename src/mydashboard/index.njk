@@ -183,6 +183,8 @@ pageHeading: "Post Performance Dashboard"
   // Axis tick label size -- scales with the text-size setting (S/M/L/XL),
   // floors at 11px so it never gets too small to read even at the smallest setting.
   var tickFontSize = Math.max(11, Math.round(parseFloat(styles.getPropertyValue('--content-font-size')) * 0.8));
+  var pillarTickFontSize = tickFontSize + 3;
+  var pillarAxisTitleSize = 14;
 
   function shortDate(dateStr){
     var d = new Date(dateStr);
@@ -342,8 +344,8 @@ pageHeading: "Post Performance Dashboard"
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 6, font: { size: tickFontSize } }, title: { display: true, text: d.label, color: inkSoft, font: { size: 11 } } },
-          x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: tickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: inkSoft, font: { size: 11 } } }
+          y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 6, font: { size: pillarTickFontSize } }, title: { display: true, text: d.label, color: inkSoft, font: { size: pillarAxisTitleSize } } },
+          x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: pillarTickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: inkSoft, font: { size: pillarAxisTitleSize } } }
         }
       }
     });
@@ -610,8 +612,8 @@ pageHeading: "Post Performance Dashboard"
           data: { labels: d.labels, datasets: [{ label: d.label, data: d.data, backgroundColor: d.colors, borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
             scales: {
-              y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 8, font: { size: tickFontSize } }, title: { display: true, text: d.label, color: inkSoft } },
-              x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: tickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: inkSoft } }
+              y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 8, font: { size: pillarTickFontSize } }, title: { display: true, text: d.label, color: inkSoft, font: { size: pillarAxisTitleSize } } },
+              x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: pillarTickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: inkSoft, font: { size: pillarAxisTitleSize } } }
             } }
         });
       }
