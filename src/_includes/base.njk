@@ -31,6 +31,7 @@
 
     root.setAttribute('data-color', get('contentiq-color') || 'sage');
     root.setAttribute('data-colorblind', get('contentiq-colorblind') || 'off');
+    root.setAttribute('data-chart-scheme', get('contentiq-chart-scheme') || 'slate');
     root.setAttribute('data-font', get('contentiq-font') || 'default');
     root.setAttribute('data-width', get('contentiq-width') || 'normal');
   })();
@@ -39,6 +40,100 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="/mydashboard/vendor/chart.umd.js"></script>
+<script>
+window.ContentIQCharts = (function(){
+  var SCHEMES = {
+    slate:      { categorical: ['#2563EB', '#10B981', '#F59E0B', '#334155'], line: '#2563EB' },
+    accessible: { categorical: ['#0072B2', '#D55E00', '#009E73', '#CC79A7'], line: '#0072B2' },
+    ranked:     { line: '#0D9488' }
+  };
+
+  function clamp(n){ return Math.max(0, Math.min(255, n)); }
+  function hexToRgb(hex){
+    hex = hex.replace('#', '');
+    return { r: parseInt(hex.substr(0,2),16), g: parseInt(hex.substr(2,2),16), b: parseInt(hex.substr(4,2),16) };
+  }
+  function rgbToHex(r,g,b){
+    return '#' + [r,g,b].map(function(v){
+      var h = clamp(Math.round(v)).toString(16);
+      return h.length === 1 ? '0'+h : h;
+    }).join('');
+  }
+  function tint(hex, amt){ var c = hexToRgb(hex); return rgbToHex(c.r+(255-c.r)*amt, c.g+(255-c.g)*amt, c.b+(255-c.b)*amt); }
+  function shade(hex, amt){ var c = hexToRgb(hex); return rgbToHex(c.r*(1-amt), c.g*(1-amt), c.b*(1-amt)); }
+
+  // Up to 10 bars from a 4-color base: first 4 use the true base hues,
+  // next use lighter tints of those same hues (kept in family, not a
+  // random 5th color), remainder use darker shades -- stays visually
+  // organized instead of blindly repeating or introducing unrelated hues.
+  function getCategoricalPalette(scheme, count){
+    if (scheme === 'ranked') return getRankedPaletteByPosition(count);
+    var base = (SCHEMES[scheme] || SCHEMES.slate).categorical;
+    var colors = [];
+    for (var i = 0; i < count; i++){
+      if (i < base.length) { colors.push(base[i]); continue; }
+      var cycle = Math.floor(i / base.length);
+      var baseColor = base[i % base.length];
+      colors.push(cycle % 2 === 1 ? tint(baseColor, 0.3) : shade(baseColor, 0.25));
+    }
+    return colors;
+  }
+
+  // Fallback when count is known but real values aren't available.
+  function getRankedPaletteByPosition(count){
+    var tiers = ['#065F46', '#0D9488', '#5EEAD4', '#D1D5DB'];
+    var colors = [];
+    for (var i = 0; i < count; i++) colors.push(tiers[Math.min(i, 3)]);
+    return colors;
+  }
+
+  // Real ranked coloring: colors bars by each value's RANK when sorted
+  // descending, regardless of the bar's position in the original array.
+  // 1st place is always deep forest teal, wherever it happens to sit.
+  function getRankedPaletteByValue(values){
+    var indexed = values.map(function(v, i){ return { v: v, i: i }; });
+    var sorted = indexed.slice().sort(function(a, b){ return b.v - a.v; });
+    var rankOf = {};
+    sorted.forEach(function(item, rank){ rankOf[item.i] = rank; });
+    return values.map(function(v, i){
+      var rank = rankOf[i];
+      if (rank === 0) return '#065F46';
+      if (rank <= 3) return '#0D9488';
+      if (rank <= 6) return '#5EEAD4';
+      return '#D1D5DB';
+    });
+  }
+
+  function getLineColor(scheme){ return (SCHEMES[scheme] || SCHEMES.slate).line; }
+  function currentScheme(){ return document.documentElement.getAttribute('data-chart-scheme') || 'slate'; }
+
+  // Strokes a full rectangle around the plot area (all 4 sides, not just
+  // the default left+bottom axis lines) using the current theme's accent
+  // color, read live so it always matches whatever's set in Settings.
+  var boundingBoxPlugin = {
+    id: 'contentiqBoundingBox',
+    afterDraw: function(chart){
+      var area = chart.chartArea;
+      if (!area) return;
+      var ctx = chart.ctx;
+      var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#3E5C55';
+      ctx.save();
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(area.left, area.top, area.right - area.left, area.bottom - area.top);
+      ctx.restore();
+    }
+  };
+
+  return {
+    getCategoricalPalette: getCategoricalPalette,
+    getRankedPaletteByValue: getRankedPaletteByValue,
+    getLineColor: getLineColor,
+    currentScheme: currentScheme,
+    boundingBoxPlugin: boundingBoxPlugin
+  };
+})();
+</script>
 <style>
   :root{
     --bg:#F1EFEA; --surface:#FAF9F6; --ink:#211F1C; --ink-soft:#6E6A62;
@@ -228,10 +323,10 @@
 
   /* ---------- V2.0: 40/60 layout -- unified 3-col KPI grid + wide pillar chart ---------- */
   .kpi-pillar-layout{ display:grid; grid-template-columns:40% 60%; gap:20px; align-items:stretch; margin-bottom:32px; }
-  .kpi-left-col{ display:flex; flex-direction:column; gap:8px; min-width:0; }
+  .kpi-left-col{ display:flex; flex-direction:column; gap:8px; min-width:0; height:100%; }
   .kpi-follower-layout{ display:grid; grid-template-columns:20% 80%; gap:20px; align-items:stretch; margin-bottom:32px; }
   .kpi-col-single{ display:grid; grid-template-columns:1fr; gap:12px; align-content:start; }
-  .kpi-grid-9{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; align-items:stretch; }
+  .kpi-grid-9{ display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); gap:8px; align-items:stretch; flex:1; }
   .kpi-grid-9 .kpi-card{ padding:10px 12px; display:flex; flex-direction:column; }
   .kpi-grid-9 .kpi-label{
     font-family:var(--display); font-weight:600; font-size:13px; color:var(--ink);
@@ -288,7 +383,8 @@
      is off, so the container needs a real fixed height to actually control
      how tall the chart renders. */
   .chart-canvas-wrap{ position:relative; }
-  .chart-canvas-wrap-lg{ height:460px; }
+  .chart-canvas-wrap-lg{ flex:1; min-height:380px; }
+  .chart-fill-card{ display:flex; flex-direction:column; height:100%; }
   .chart-canvas-wrap-sm{ height:220px; }
 
   /* ---------- V2.0: demographics list bars ---------- */
@@ -390,6 +486,15 @@
             <input type="checkbox" id="colorblind-check">
             Colorblind friendly mode
           </label>
+        </div>
+
+        <div class="settings-group">
+          <p class="settings-group-label">Chart colors</p>
+          <div class="settings-row" style="flex-wrap:wrap;">
+            <button class="settings-btn-opt" data-chart-scheme="slate" type="button">Modern Tech Slate</button>
+            <button class="settings-btn-opt" data-chart-scheme="accessible" type="button">High-Contrast Accessible</button>
+            <button class="settings-btn-opt" data-chart-scheme="ranked" type="button">Performance Ranking</button>
+          </div>
         </div>
 
         <div class="settings-group">
@@ -532,6 +637,19 @@
     }
     colorblindCheck.addEventListener('change', function(){ setColorblind(colorblindCheck.checked); });
 
+    // ---------- Chart color scheme ----------
+    function setChartScheme(scheme){
+      root.setAttribute('data-chart-scheme', scheme);
+      setStored('contentiq-chart-scheme', scheme);
+      document.querySelectorAll('[data-chart-scheme]').forEach(function(b){
+        if (b.tagName === 'BUTTON') b.classList.toggle('active', b.dataset.chartScheme === scheme);
+      });
+      window.dispatchEvent(new CustomEvent('contentiq-chart-scheme-change'));
+    }
+    document.querySelectorAll('[data-chart-scheme]').forEach(function(btn){
+      btn.addEventListener('click', function(){ setChartScheme(btn.dataset.chartScheme); });
+    });
+
     // ---------- Font size ----------
     function setFont(size){
       root.setAttribute('data-font', size);
@@ -556,6 +674,7 @@
     setThemeMode(getStored('contentiq-theme-mode') || 'auto');
     setColor(getStored('contentiq-color') || 'sage');
     setColorblind(getStored('contentiq-colorblind') === 'on');
+    setChartScheme(getStored('contentiq-chart-scheme') || 'slate');
     setFont(getStored('contentiq-font') || 'default');
     setWidth(getStored('contentiq-width') || 'normal');
   })();

@@ -217,6 +217,7 @@
     .prose, .why-grid, .feat-accordion{ grid-column:1; }
     .why-grid{ grid-template-columns:1fr; }
     .top-actions .btn{ padding:8px 12px; font-size:11px; }
+    .top-actions{ flex-wrap:wrap; justify-content:flex-end; row-gap:8px; }
   }
   @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
 </style>
@@ -234,6 +235,7 @@
       <span class="word"><b>ContentIQ</b> · by Straventis</span>
     </div>
     <div class="top-actions" style="position:relative;">
+      <a class="btn" href="/case-study/">Case Study</a>
       <a class="btn" href="#" id="login-link">Login</a>
       <a class="btn btn-primary" href="#access">Sign Up</a>
       <button class="settings-btn" id="settings-btn" type="button" aria-label="Display settings">
