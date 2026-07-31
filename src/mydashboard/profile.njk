@@ -145,6 +145,10 @@ pageHeading: "Profile Views"
   var accent = styles.getPropertyValue('--accent').trim();
   var inkSoft = styles.getPropertyValue('--ink-soft').trim();
   var line = styles.getPropertyValue('--line').trim();
+  var baseTickFontSize = Math.max(11, Math.round(parseFloat(styles.getPropertyValue('--content-font-size')) * 0.8));
+  var tickFontSize = Math.round(baseTickFontSize * 1.25);
+  var axisTitleSize = Math.round(11 * 1.25);
+  var axisLabelColor = accent;
 
   function buildFollowersDataset(range, mode){
     var fd = daily.filter(function(d){
@@ -191,12 +195,12 @@ pageHeading: "Profile Views"
         plugins: { legend: { display: false } },
         scales: {
           y: {
-            beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft },
-            title: { display: true, text: currentMode === 'cumulative' ? 'Cumulative New Followers' : 'New Followers', color: inkSoft, font: { size: 11 } }
+            beginAtZero: true, grid: { color: line }, ticks: { color: axisLabelColor, font: { size: tickFontSize } },
+            title: { display: true, text: currentMode === 'cumulative' ? 'Cumulative New Followers' : 'New Followers', color: axisLabelColor, font: { size: axisTitleSize } }
           },
           x: {
-            grid: { display: false }, ticks: { color: inkSoft, maxRotation: 0, autoSkip: true },
-            title: { display: true, text: 'Date', color: inkSoft, font: { size: 11 } }
+            grid: { display: false }, ticks: { color: axisLabelColor, font: { size: tickFontSize }, maxRotation: 0, autoSkip: true },
+            title: { display: true, text: 'Date', color: axisLabelColor, font: { size: axisTitleSize } }
           }
         }
       }
@@ -263,8 +267,8 @@ pageHeading: "Profile Views"
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-              y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft }, title: { display: true, text: mode === 'cumulative' ? 'Cumulative New Followers' : 'New Followers', color: inkSoft } },
-              x: { grid: { display: false }, ticks: { color: inkSoft, maxRotation: 0, autoSkip: true }, title: { display: true, text: 'Date', color: inkSoft } }
+              y: { beginAtZero: true, grid: { color: line }, ticks: { color: axisLabelColor, font: { size: tickFontSize } }, title: { display: true, text: mode === 'cumulative' ? 'Cumulative New Followers' : 'New Followers', color: axisLabelColor, font: { size: axisTitleSize } } },
+              x: { grid: { display: false }, ticks: { color: axisLabelColor, font: { size: tickFontSize }, maxRotation: 0, autoSkip: true }, title: { display: true, text: 'Date', color: axisLabelColor, font: { size: axisTitleSize } } }
             }
           }
         });

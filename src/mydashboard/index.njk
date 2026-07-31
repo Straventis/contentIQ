@@ -182,9 +182,15 @@ pageHeading: "Post Performance Dashboard"
   var line = styles.getPropertyValue('--line').trim();
   // Axis tick label size -- scales with the text-size setting (S/M/L/XL),
   // floors at 11px so it never gets too small to read even at the smallest setting.
-  var tickFontSize = Math.max(11, Math.round(parseFloat(styles.getPropertyValue('--content-font-size')) * 0.8));
-  var pillarTickFontSize = tickFontSize + 3;
-  var pillarAxisTitleSize = 14;
+  var baseTickFontSize = Math.max(11, Math.round(parseFloat(styles.getPropertyValue('--content-font-size')) * 0.8));
+  var tickFontSize = Math.round(baseTickFontSize * 1.25);
+  var pillarTickFontSize = Math.round((baseTickFontSize + 3) * 1.25);
+  var pillarAxisTitleSize = Math.round(14 * 1.25);
+  var miniAxisTitleSize = Math.round(9 * 1.25);
+  // Axis label color follows the page's own accent color (Settings >
+  // Color), not the newer bar/line chart color scheme -- those are a
+  // separate, independent concern from the site's overall theme color.
+  var axisLabelColor = accent;
 
   function shortDate(dateStr){
     var d = new Date(dateStr);
@@ -258,17 +264,19 @@ pageHeading: "Post Performance Dashboard"
     if (!el) return;
     if (prior == null) { el.innerHTML = ''; return; }
 
+    function downClass(magnitude){ return magnitude > 5 ? 'kpi-trend-down-severe' : 'kpi-trend-down-mild'; }
+
     var priorText = opts.formatPrior ? opts.formatPrior(prior) : prior.toLocaleString();
     var pillClass, pillText;
     if (opts.isPoint) {
       var diffPts = (current - prior) * 100;
       if (Math.abs(diffPts) < 0.05) { pillClass = 'kpi-trend-flat'; pillText = '\u2014 flat'; }
-      else { pillClass = diffPts > 0 ? 'kpi-trend-up' : 'kpi-trend-down'; pillText = (diffPts > 0 ? '\u25B2 ' : '\u25BC ') + Math.abs(diffPts).toFixed(1) + 'pt'; }
+      else { pillClass = diffPts > 0 ? 'kpi-trend-up' : downClass(Math.abs(diffPts)); pillText = (diffPts > 0 ? '\u25B2 ' : '\u25BC ') + Math.abs(diffPts).toFixed(1) + 'pt'; }
     } else {
       if (prior === 0) { el.innerHTML = ''; return; }
       var pct = ((current - prior) / prior) * 100;
       if (Math.abs(pct) < 0.5) { pillClass = 'kpi-trend-flat'; pillText = '\u2014 flat'; }
-      else { pillClass = pct > 0 ? 'kpi-trend-up' : 'kpi-trend-down'; pillText = (pct > 0 ? '\u25B2 ' : '\u25BC ') + Math.abs(pct).toFixed(1) + '%'; }
+      else { pillClass = pct > 0 ? 'kpi-trend-up' : downClass(Math.abs(pct)); pillText = (pct > 0 ? '\u25B2 ' : '\u25BC ') + Math.abs(pct).toFixed(1) + '%'; }
     }
     el.innerHTML = '<span class="kpi-trend-prior">vs ' + priorText + ' last period</span><span class="kpi-trend-pill ' + pillClass + '">' + pillText + '</span>';
   }
@@ -346,8 +354,8 @@ pageHeading: "Post Performance Dashboard"
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 6, font: { size: pillarTickFontSize } }, title: { display: true, text: d.label, color: inkSoft, font: { size: pillarAxisTitleSize } } },
-          x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: pillarTickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: inkSoft, font: { size: pillarAxisTitleSize } } }
+          y: { beginAtZero: true, grid: { color: line }, ticks: { color: axisLabelColor, maxTicksLimit: 6, font: { size: pillarTickFontSize } }, title: { display: true, text: d.label, color: axisLabelColor, font: { size: pillarAxisTitleSize } } },
+          x: { grid: { display: false }, ticks: { color: axisLabelColor, font: { size: pillarTickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: axisLabelColor, font: { size: pillarAxisTitleSize } } }
         }
       }
     });
@@ -525,8 +533,8 @@ pageHeading: "Post Performance Dashboard"
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, ticks: { color: inkSoft, font: { size: tickFontSize }, maxTicksLimit: 4 }, grid: { color: line }, title: { display: true, text: yLabel, color: inkSoft, font: { size: 9 } } },
-          x: { ticks: { color: inkSoft, font: { size: tickFontSize }, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 }, grid: { display: false } }
+          y: { beginAtZero: true, ticks: { color: axisLabelColor, font: { size: tickFontSize }, maxTicksLimit: 4 }, grid: { color: line }, title: { display: true, text: yLabel, color: axisLabelColor, font: { size: miniAxisTitleSize } } },
+          x: { ticks: { color: axisLabelColor, font: { size: tickFontSize }, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 }, grid: { display: false } }
         }
       }
     });
@@ -618,8 +626,8 @@ pageHeading: "Post Performance Dashboard"
           data: { labels: d.labels, datasets: [{ label: d.label, data: d.data, backgroundColor: d.colors, borderRadius: 6, barPercentage: 0.5, categoryPercentage: 0.6 }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
             scales: {
-              y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 8, font: { size: pillarTickFontSize } }, title: { display: true, text: d.label, color: inkSoft, font: { size: pillarAxisTitleSize } } },
-              x: { grid: { display: false }, ticks: { color: inkSoft, font: { size: pillarTickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: inkSoft, font: { size: pillarAxisTitleSize } } }
+              y: { beginAtZero: true, grid: { color: line }, ticks: { color: axisLabelColor, maxTicksLimit: 8, font: { size: pillarTickFontSize } }, title: { display: true, text: d.label, color: axisLabelColor, font: { size: pillarAxisTitleSize } } },
+              x: { grid: { display: false }, ticks: { color: axisLabelColor, font: { size: pillarTickFontSize }, padding: 16 }, title: { display: true, text: 'Pillar', color: axisLabelColor, font: { size: pillarAxisTitleSize } } }
             } }
         });
       }
@@ -640,8 +648,8 @@ pageHeading: "Post Performance Dashboard"
             data: { labels: ds.labels, datasets: [{ label: label, data: ds.values, borderColor: schemeLineColor, backgroundColor: type === 'bar' ? schemeLineColor : accentSoft, fill: type === 'line', tension: 0.25, borderWidth: 2, borderRadius: type === 'bar' ? 4 : 0 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
               scales: {
-                y: { beginAtZero: true, grid: { color: line }, ticks: { color: inkSoft, maxTicksLimit: 8, font: { size: tickFontSize } }, title: { display: true, text: yLabel, color: inkSoft } },
-                x: { grid: { display: false }, ticks: { color: inkSoft, maxRotation: 0, font: { size: tickFontSize } }, title: { display: true, text: 'Date', color: inkSoft } }
+                y: { beginAtZero: true, grid: { color: line }, ticks: { color: axisLabelColor, maxTicksLimit: 8, font: { size: tickFontSize } }, title: { display: true, text: yLabel, color: axisLabelColor, font: { size: miniAxisTitleSize } } },
+                x: { grid: { display: false }, ticks: { color: axisLabelColor, maxRotation: 0, font: { size: tickFontSize } }, title: { display: true, text: 'Date', color: axisLabelColor, font: { size: miniAxisTitleSize } } }
               } }
           });
         }
