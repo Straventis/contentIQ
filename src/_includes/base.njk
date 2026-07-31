@@ -164,6 +164,8 @@
   .card{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:24px; margin-bottom:32px; overflow-x:auto; }
   .card h2{ font-family:var(--display); font-weight:600; font-size:18px; margin:0 0 18px; }
   table{ width:100%; border-collapse:collapse; font-size:var(--content-font-size, 14px); }
+  #perf-table{ table-layout:fixed; }
+  #perf-table td:first-child{ white-space:nowrap; overflow-wrap:normal; word-break:normal; }
   th{ font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); }
   td{ padding:12px; border-bottom:1px solid var(--line); overflow-wrap:anywhere; word-break:break-word; }
   tr:last-child td{ border-bottom:none; }
