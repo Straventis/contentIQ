@@ -503,6 +503,13 @@ def merge_into_master(posts: list[dict]):
             row["reactions"] = entry["reactions"]
             row["comments"] = entry["comments"]
             row["shares"] = entry["shares"]
+            # Backfill content_type if this row was somehow left empty --
+            # confirmed against real data that posts.js filters out any row
+            # with an empty content_type entirely, silently hiding them
+            # from the dashboard even though they're genuinely tagged with
+            # a pillar. Only fills a gap, never overwrites an existing value.
+            if not (row.get("content_type") or "").strip():
+                row["content_type"] = SHARE_MODE_TO_CONTENT_TYPE.get(entry["share_mode"], "Original")
         else:
             unmatched.append(row.get("post_topic", "")[:50])
 

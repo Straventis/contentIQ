@@ -1,47 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-
-// Proper quote-aware CSV parsing. A plain line.split(",") breaks the moment
-// any field (e.g. a post title) contains a comma inside quotes -- which
-// happens routinely with real post titles ("Output, Inference, and
-// Prediction: Why Engineers...") and silently shifts every column after it,
-// corrupting pillar/content_type/impressions for that row. This parser
-// respects quoted fields per standard CSV rules, including escaped "" for a
-// literal quote character inside a quoted field.
-function parseCSVLine(line) {
-  const values = [];
-  let current = "";
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (inQuotes) {
-      if (char === '"') {
-        if (line[i + 1] === '"') { current += '"'; i++; } // escaped quote
-        else { inQuotes = false; }
-      } else {
-        current += char;
-      }
-    } else {
-      if (char === '"') { inQuotes = true; }
-      else if (char === ",") { values.push(current); current = ""; }
-      else { current += char; }
-    }
-  }
-  values.push(current);
-  return values;
-}
-
-function parseCSV(filePath) {
-  const raw = fs.readFileSync(filePath, "utf-8").trim();
-  const lines = raw.split(/\r?\n/);
-  const headers = parseCSVLine(lines[0]);
-  return lines.slice(1).map((line) => {
-    const values = parseCSVLine(line);
-    const row = {};
-    headers.forEach((h, i) => { row[h] = values[i] !== undefined ? values[i] : ""; });
-    return row;
-  });
-}
+const { parseCSVFile } = require("../lib/csvParser.js");
 
 function slugify(text) {
   return text
@@ -60,8 +19,8 @@ module.exports = function () {
   const masterPath = path.join(__dirname, "master.csv");
   const snapshotPath = path.join(__dirname, "post_snapshots.csv");
 
-  const master = parseCSV(masterPath);
-  const snapshots = parseCSV(snapshotPath);
+  const master = parseCSVFile(masterPath);
+  const snapshots = parseCSVFile(snapshotPath);
 
   // Only include posts that have been manually tagged with a content_type,
   // untagged historical posts stay out of the dashboard for now.
