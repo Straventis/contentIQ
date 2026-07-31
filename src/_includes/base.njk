@@ -291,6 +291,15 @@
 
   /* ---------- V2.0: All Post Performance sortable table ---------- */
   .table-toolbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .table-filters{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap; }
+  .table-filters .range-toggle{ margin-bottom:0; }
+  .table-search{
+    font-family:var(--sans); font-size:14px; padding:8px 14px; border-radius:20px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink); min-width:220px; flex:1; max-width:320px;
+  }
+  .type-pillar-cell{ display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
+  .type-pillar-cell .type-pill{ white-space:normal; text-align:center; line-height:1.3; }
+  .pillar-sub{ font-size:11px; color:var(--ink-soft); line-height:1.3; }
   .export-btn{
     font-family:var(--mono); font-size:12px; padding:8px 16px; border-radius:8px;
     border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer;

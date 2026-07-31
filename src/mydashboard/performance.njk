@@ -24,33 +24,47 @@ title: "Post Performance"
     <h2 style="margin:0;">All post performance</h2>
     <button class="export-btn" id="export-csv" type="button">Export CSV</button>
   </div>
+  <div class="table-filters">
+    <input type="text" class="table-search" id="perf-search" placeholder="Search posts&hellip;">
+    <div class="range-toggle" id="perf-range-group">
+      <button class="range-btn" data-range="7" type="button">7 days</button>
+      <button class="range-btn" data-range="14" type="button">14 days</button>
+      <button class="range-btn active" data-range="28" type="button">28 days</button>
+      <button class="range-btn" data-range="all" type="button">All time</button>
+      <button class="range-btn" data-range="custom" type="button">Custom</button>
+    </div>
+  </div>
+  <div class="custom-range-inputs" id="perf-custom-range" style="display:none;">
+    <input type="date" id="perf-range-start">
+    <span>to</span>
+    <input type="date" id="perf-range-end">
+    <button type="button" id="perf-apply-custom-range">Apply</button>
+  </div>
   <table id="perf-table">
     <colgroup>
-      <col style="width:7%;">
-      <col style="width:24%;">
-      <col style="width:10%;">
-      <col style="width:10%;">
-      <col style="width:5%;">
-      <col style="width:5%;">
-      <col style="width:5%;">
-      <col style="width:5%;">
-      <col style="width:5%;">
-      <col style="width:6%;">
       <col style="width:8%;">
-      <col style="width:5%;">
+      <col style="width:26%;">
+      <col style="width:12%;">
+      <col style="width:7%;">
+      <col style="width:7%;">
+      <col style="width:7%;">
+      <col style="width:7%;">
+      <col style="width:7%;">
+      <col style="width:8%;">
+      <col style="width:9%;">
+      <col style="width:6%;">
     </colgroup>
     <thead>
       <tr>
         <th class="sortable" data-sort="date">Date <span class="sort-arrow">&#9660;</span></th>
         <th>Content</th>
-        <th class="sortable" data-sort="contentType">Type <span class="sort-arrow">&#9660;</span></th>
-        <th class="sortable" data-sort="pillar">Pillar <span class="sort-arrow">&#9660;</span></th>
-        <th class="sortable" data-sort="impressions">Impr. <span class="sort-arrow">&#9660;</span></th>
-        <th class="sortable" data-sort="reactions">React. <span class="sort-arrow">&#9660;</span></th>
-        <th class="sortable" data-sort="comments">Comm. <span class="sort-arrow">&#9660;</span></th>
-        <th class="sortable" data-sort="shares">Repo. <span class="sort-arrow">&#9660;</span></th>
-        <th class="sortable" data-sort="engagements">Engag. <span class="sort-arrow">&#9660;</span></th>
-        <th class="sortable" data-sort="engagementRate">Engag.% <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="contentType">Type / Pillar <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="impressions">Impressions <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="reactions">Reactions <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="comments">Comments <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="shares">Reposts <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="engagements">Engagements <span class="sort-arrow">&#9660;</span></th>
+        <th class="sortable" data-sort="engagementRate">Engagement Rate <span class="sort-arrow">&#9660;</span></th>
         <th>Tags</th>
         <th>Actions</th>
       </tr>
@@ -61,6 +75,19 @@ title: "Post Performance"
 
 <script>
   var posts = {{ posts | json | safe }};
+
+  // Consistent MM-DD-YY formatting everywhere a date is shown, per the
+  // site-wide standardization -- posts.date arrives as M/D/YYYY text.
+  function formatDateMMDDYY(dateStr){
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    var mm = String(d.getMonth() + 1).padStart(2, '0');
+    var dd = String(d.getDate()).padStart(2, '0');
+    var yy = String(d.getFullYear()).slice(-2);
+    return mm + '-' + dd + '-' + yy;
+  }
+
+  var LINKEDIN_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124zM7.114 20.452H3.558V9h3.556v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>';
 
   var METRIC_LABELS = {
     impressions: 'Impressions',
@@ -88,7 +115,7 @@ title: "Post Performance"
           '<p class="rank-metric-value">' + formatMetric(metric, p[metric]) + '</p>' +
           '<p class="rank-metric-label">' + METRIC_LABELS[metric] + '</p>' +
           '<a class="rank-topic" href="/mydashboard/posts/' + p.slug + '/">' + p.topic + '</a>' +
-          '<div class="rank-meta"><span>' + p.date + '</span><span>&middot;</span><span>' + p.pillar + '</span></div>' +
+          '<div class="rank-meta"><span>' + formatDateMMDDYY(p.date) + '</span><span>&middot;</span><span>' + p.pillar + '</span></div>' +
         '</div>';
     }).join('');
   }
@@ -107,12 +134,22 @@ title: "Post Performance"
     setStored(select.value);
   });
 
-  // ---------- All Post Performance: sortable table + tags + export ----------
+  // ---------- All Post Performance: search + date filter + sortable table + tags + export ----------
   (function(){
     var tbody = document.getElementById('perf-tbody');
-    var headers = document.querySelectorAll('th.sortable');
+    var headers = document.querySelectorAll('#perf-table th.sortable');
+    var searchInput = document.getElementById('perf-search');
+    var rangeButtons = document.querySelectorAll('#perf-range-group .range-btn');
+    var customRangeInputs = document.getElementById('perf-custom-range');
+    var rangeStartInput = document.getElementById('perf-range-start');
+    var rangeEndInput = document.getElementById('perf-range-end');
+    var applyCustomBtn = document.getElementById('perf-apply-custom-range');
+
     var sortKey = 'date';
     var sortDir = -1; // newest / highest first by default
+    var searchTerm = '';
+    var currentRangeValue = '28';
+    var customStart = null, customEnd = null;
 
     function getTags(){ try { return JSON.parse(localStorage.getItem('contentiq-post-tags') || '{}'); } catch(e){ return {}; } }
     function setTags(tags){ try { localStorage.setItem('contentiq-post-tags', JSON.stringify(tags)); } catch(e){} }
@@ -124,8 +161,27 @@ title: "Post Performance"
       });
     }
 
-    function renderTable(){
-      var sorted = posts.slice().sort(function(a, b){
+    function inDateRange(dateStr){
+      if (currentRangeValue === 'all') return true;
+      var d = new Date(dateStr);
+      if (currentRangeValue === 'custom') {
+        if (!customStart || !customEnd) return true;
+        return d >= new Date(customStart) && d <= new Date(customEnd);
+      }
+      var days = parseInt(currentRangeValue, 10);
+      var cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
+      return d >= cutoff;
+    }
+
+    function getFilteredSorted(){
+      var term = searchTerm.trim().toLowerCase();
+      var filtered = posts.filter(function(p){
+        if (!inDateRange(p.date)) return false;
+        if (term && p.topic.toLowerCase().indexOf(term) === -1) return false;
+        return true;
+      });
+      return filtered.sort(function(a, b){
         var av = a[sortKey], bv = b[sortKey];
         if (sortKey === 'date') { av = new Date(av).getTime(); bv = new Date(bv).getTime(); }
         if (typeof av === 'string') { av = av.toLowerCase(); bv = bv.toLowerCase(); }
@@ -133,15 +189,18 @@ title: "Post Performance"
         if (av > bv) return 1 * sortDir;
         return 0;
       });
+    }
+
+    function renderTable(){
+      var sorted = getFilteredSorted();
 
       tbody.innerHTML = sorted.map(function(p){
         var tag = tagStore[p.id] || '';
         return '' +
           '<tr>' +
-            '<td>' + p.date + '</td>' +
+            '<td>' + formatDateMMDDYY(p.date) + '</td>' +
             '<td><a class="post-link" href="/mydashboard/posts/' + p.slug + '/">' + escapeHtml(p.topic).slice(0, 60) + '</a></td>' +
-            '<td><span class="type-pill">' + escapeHtml(p.contentType) + '</span></td>' +
-            '<td>' + escapeHtml(p.pillar) + '</td>' +
+            '<td class="type-pillar-cell"><span class="type-pill">' + escapeHtml(p.contentType) + '</span><span class="pillar-sub">' + escapeHtml(p.pillar) + '</span></td>' +
             '<td>' + p.impressions.toLocaleString() + '</td>' +
             '<td>' + p.reactions.toLocaleString() + '</td>' +
             '<td>' + p.comments.toLocaleString() + '</td>' +
@@ -150,7 +209,7 @@ title: "Post Performance"
             '<td class="' + (p.engagementRate >= 0.015 ? 'rate-good' : '') + '">' + (p.engagementRate * 100).toFixed(2) + '%</td>' +
             '<td><input class="tag-input" type="text" placeholder="Add tags" value="' + escapeHtml(tag) + '" data-post-id="' + p.id + '"></td>' +
             '<td><div class="row-actions">' +
-              '<a class="action-icon" href="' + p.url + '" target="_blank" rel="noopener" title="Open on LinkedIn">&#8599;</a>' +
+              '<a class="action-icon" href="' + p.url + '" target="_blank" rel="noopener" title="Open on LinkedIn">' + LINKEDIN_ICON + '</a>' +
               '<a class="action-icon" href="/mydashboard/posts/' + p.slug + '/" title="View details">&#128065;</a>' +
             '</div></td>' +
           '</tr>';
@@ -179,13 +238,33 @@ title: "Post Performance"
       });
     });
 
+    searchInput.addEventListener('input', function(){
+      searchTerm = searchInput.value;
+      renderTable();
+    });
+
+    rangeButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        currentRangeValue = btn.dataset.range;
+        rangeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
+        customRangeInputs.style.display = currentRangeValue === 'custom' ? 'flex' : 'none';
+        if (currentRangeValue !== 'custom') renderTable();
+      });
+    });
+
+    applyCustomBtn.addEventListener('click', function(){
+      customStart = rangeStartInput.value;
+      customEnd = rangeEndInput.value;
+      renderTable();
+    });
+
     document.getElementById('export-csv').addEventListener('click', function(){
       var cols = ['date','topic','contentType','pillar','impressions','reactions','comments','shares','engagements','engagementRate'];
       var header = ['Date','Topic','Type','Pillar','Impressions','Reactions','Comments','Reposts','Engagements','Engagement Rate'];
       var lines = [header.join(',')];
-      posts.forEach(function(p){
+      getFilteredSorted().forEach(function(p){
         var row = cols.map(function(c){
-          var v = p[c];
+          var v = c === 'date' ? formatDateMMDDYY(p[c]) : p[c];
           if (typeof v === 'string' && (v.indexOf(',') > -1 || v.indexOf('"') > -1)) {
             v = '"' + v.replace(/"/g, '""') + '"';
           }
