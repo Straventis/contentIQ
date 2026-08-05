@@ -113,9 +113,13 @@ pageHeading: "Post Performance Dashboard"
       <h2 style="margin:0;">Engagement Rate by Pillar</h2>
       <div style="display:flex; align-items:center; gap:8px;">
         <select class="metric-select" id="pillar-metric">
-          <option value="engagementRate">Engagement Rate</option>
-          <option value="impressions">Impressions</option>
-          <option value="reactions">Reactions</option>
+          <option value="engagementRate">Avg. Engagement Rate</option>
+          <option value="impressions">Avg. Impressions/Post</option>
+          <option value="reactions">Avg. Reactions/Post</option>
+          <option value="totalImpressions">Total Impressions</option>
+          <option value="totalReactions">Total Reactions</option>
+          <option value="totalEngagements">Total Engagements</option>
+          <option value="totalComments">Total Comments</option>
         </select>
         <button class="expand-btn" type="button" id="expand-pillar" title="Expand">&#9974;</button>
       </div>
@@ -289,9 +293,13 @@ pageHeading: "Post Performance Dashboard"
   // ---------- Pillar chart: now respects the date range (previously always all-time) ----------
   var pillarChart = null;
   var PILLAR_METRIC_CONFIG = {
-    engagementRate: { label: 'Avg Engagement Rate %', accumulate: function(sum, p){ return sum + p.engagementRate; }, finalize: function(total, count){ return (total / count * 100).toFixed(2); } },
-    impressions:    { label: 'Avg Impressions / Post', accumulate: function(sum, p){ return sum + p.impressions; }, finalize: function(total, count){ return Math.round(total / count); } },
-    reactions:      { label: 'Avg Reactions / Post', accumulate: function(sum, p){ return sum + p.reactions; }, finalize: function(total, count){ return (total / count).toFixed(1); } }
+    engagementRate:  { label: 'Avg Engagement Rate %', accumulate: function(sum, p){ return sum + p.engagementRate; }, finalize: function(total, count){ return (total / count * 100).toFixed(2); } },
+    impressions:     { label: 'Avg Impressions / Post', accumulate: function(sum, p){ return sum + p.impressions; }, finalize: function(total, count){ return Math.round(total / count); } },
+    reactions:       { label: 'Avg Reactions / Post', accumulate: function(sum, p){ return sum + p.reactions; }, finalize: function(total, count){ return (total / count).toFixed(1); } },
+    totalImpressions:{ label: 'Total Impressions', accumulate: function(sum, p){ return sum + p.impressions; }, finalize: function(total){ return Math.round(total); } },
+    totalReactions:  { label: 'Total Reactions', accumulate: function(sum, p){ return sum + p.reactions; }, finalize: function(total){ return Math.round(total); } },
+    totalEngagements:{ label: 'Total Engagements', accumulate: function(sum, p){ return sum + p.engagements; }, finalize: function(total){ return Math.round(total); } },
+    totalComments:   { label: 'Total Comments', accumulate: function(sum, p){ return sum + p.comments; }, finalize: function(total){ return Math.round(total); } }
   };
   var currentPillarMetric = 'engagementRate';
 
@@ -614,7 +622,11 @@ pageHeading: "Post Performance Dashboard"
 
   // ---------- Expand-to-fullscreen wiring ----------
   document.getElementById('expand-pillar').addEventListener('click', function(){
-    var titleMap = { engagementRate: 'Engagement Rate by Pillar', impressions: 'Impressions by Pillar', reactions: 'Reactions by Pillar' };
+    var titleMap = {
+      engagementRate: 'Engagement Rate by Pillar', impressions: 'Impressions by Pillar', reactions: 'Reactions by Pillar',
+      totalImpressions: 'Total Impressions by Pillar', totalReactions: 'Total Reactions by Pillar',
+      totalEngagements: 'Total Engagements by Pillar', totalComments: 'Total Comments by Pillar'
+    };
     ContentIQModal.open({
       title: titleMap[currentPillarMetric] || 'Engagement Rate by Pillar', hasControls: true, hasModeToggle: false, hasTypeToggle: false,
       defaultRange: currentRange.value === 'custom' ? 'all' : currentRange.value,
