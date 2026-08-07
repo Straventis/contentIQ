@@ -1,28 +1,33 @@
 {
-  "run_at": "2026-07-30T18:37:22.002391",
+  "run_at": "2026-08-07T10:51:54.218691",
   "account": {
     "id": "6a54069f71344fb67de5881e",
     "organizations": [
       {
         "id": "6a54069f71344fb67de58820",
-        "name": "My Organization"
+        "name": "Straventis"
       }
     ]
   },
   "channels": [
+    {
+      "id": "6a5406f680cc80cdcaa81501",
+      "name": "straventisadvisory",
+      "service": "linkedin"
+    },
+    {
+      "id": "6a5406f680cc80cdcaa81502",
+      "name": "s-thiru",
+      "service": "linkedin"
+    },
     {
       "id": "6a564f4180cc80cdcab1dd94",
       "name": "straventisadvisory",
       "service": "instagram"
     },
     {
-      "id": "6a5406f680cc80cdcaa81501",
-      "name": "straventis-advisory",
-      "service": "linkedin"
-    },
-    {
-      "id": "6a5406f680cc80cdcaa81502",
-      "name": "s-thiru",
+      "id": "6a749b4299afb443491249c7",
+      "name": "4rged",
       "service": "linkedin"
     }
   ],
@@ -300,232 +305,82 @@
   },
   "sample_linkedin_posts": [
     {
-      "id": "6a6b8bd1d3da14bddd0c7134",
+      "id": "6a74f04360fda186211a3b54",
       "channelId": "6a5406f680cc80cdcaa81501",
       "channelService": "linkedin",
-      "dueAt": "2026-07-30T17:37:21.863Z",
-      "externalLink": "https://www.linkedin.com/feed/update/urn:li:share:7488649037634510849",
+      "dueAt": "2026-08-06T23:28:00.000Z",
+      "externalLink": "https://www.linkedin.com/feed/update/urn:li:share:7491274009590861824",
+      "ideaId": null,
+      "isCustomScheduled": true,
+      "metricsUpdatedAt": "2026-08-07T05:24:01.710Z",
+      "notificationStatus": null,
+      "schedulingType": "automatic",
+      "sentAt": "2026-08-06T23:28:26.159Z",
+      "sharedNow": false,
+      "shareMode": "customScheduled",
+      "status": "sent",
+      "text": "As a followup to my post \"Why AI bills scale faster than the value they deliver?\" (link in comments)\n\nMost enterprise AI initiatives hit the exact same wall: the bill scales faster than the value.\n\nWe tried to solve this with \"no-code\" AI tools, but once you get past the pilot stage, the same three problems always emerge:\n\n   \ud835\udfcf. \ud835\udc13\ud835\udc21\ud835\udc1e \ud835\udc08\ud835\udc27\ud835\udc2d\ud835\udc1e\ud835\udc20\ud835\udc2b\ud835\udc1a\ud835\udc2d\ud835\udc22\ud835\udc28\ud835\udc27 \ud835\udc13\ud835\udc2b\ud835\udc1a\ud835\udc29: You end up stitching together four different platforms, quietly recreating the integration complexity no-code promised to remove.\n   \ud835\udfd0. \ud835\udc13\ud835\udc21\ud835\udc1e \ud835\udc12\ud835\udc1c\ud835\udc1a\ud835\udc25\ud835\udc22\ud835\udc27\ud835\udc20 \ud835\udc0f\ud835\udc1e\ud835\udc27\ud835\udc1a\ud835\udc25\ud835\udc2d\ud835\udc32: : Usage-based pricing works fine for a five-person team, but the math breaks the second your volume or agent complexity actually scales.\n    \ud835\udfd1. \ud835\udc13\ud835\udc21\ud835\udc1e \ud835\udc02\ud835\udc28\ud835\udc27\ud835\udc2c\ud835\udc2e\ud835\udc25\ud835\udc2d\ud835\udc1a\ud835\udc27\ud835\udc2d \ud835\udc13\ud835\udc1a\ud835\udc31: \"No-code\" quietly stops being no-code, requiring trained builders for anything beyond moderate complexity.\n\nThe root cause isn't just the tooling; it's an AI pricing math problem driven by flat architecture.\n\nRight now, most teams route every single task, whether it\u2019s a one-line summary or complex multi-step reasoning, through the same frontier-level model. Using a frontier model for basic document parsing is like hiring a senior architect to rename a file. The financial waste is completely self-inflicted.\n\nThe actual unlock for production AI is tiered intelligence.\n\nIt is the shift to a multi-model architecture with distinct lanes: one for heavy reasoning, one for production orchestration, and a lightweight tier for high-volume everyday tasks (like chat and document handling) where input tokens drop to $1 per million with massive 2M context windows. You finally match the model to the task instead of overpaying for intelligence you don't need on every single API call.\n\nBut here is the real trap: H\ud835\udc28\ud835\udc30 \ud835\udc1d\ud835\udc28 \ud835\udc32\ud835\udc28\ud835\udc2e \ud835\udc1b\ud835\udc2e\ud835\udc22\ud835\udc25\ud835\udc1d \ud835\udc2d\ud835\udc21\ud835\udc1e \ud835\udc2b\ud835\udc28\ud835\udc2e\ud835\udc2d\ud835\udc22\ud835\udc27\ud835\udc20 \ud835\udc25\ud835\udc28\ud835\udc20\ud835\udc22\ud835\udc1c \ud835\udc2d\ud835\udc28 \ud835\udc1a\ud835\udc1c\ud835\udc2d\ud835\udc2e\ud835\udc1a\ud835\udc25\ud835\udc25\ud835\udc32 \ud835\udc24\ud835\udc27\ud835\udc28\ud835\udc30 \ud835\udc2d\ud835\udc21\ud835\udc1e \ud835\udc1d\ud835\udc22\ud835\udc1f\ud835\udc1f\ud835\udc1e\ud835\udc2b\ud835\udc1e\ud835\udc27\ud835\udc1c\ud835\udc1e \ud835\udc22\ud835\udc27 \ud835\udc29\ud835\udc2b\ud835\udc28\ud835\udc1d\ud835\udc2e\ud835\udc1c\ud835\udc2d\ud835\udc22\ud835\udc28\ud835\udc27? \n\nIf your system can't accurately classify a task's complexity on the fly, you will either blow the budget anyway or ship a bad answer with total confidence.\n\nIf your AI spend is scaling faster than the ROI it delivers, the current architecture is fundamentally broken. We don't just need cheaper tokens.\n\nWe need a completely new playbook. \n",
+      "via": "buffer",
+      "createdAt": "2026-08-06T20:36:19.875Z",
+      "updatedAt": "2026-08-07T05:24:01.710Z",
+      "metrics": [
+        {
+          "type": "reactions",
+          "name": "Reactions",
+          "value": 0,
+          "unit": "count"
+        },
+        {
+          "type": "comments",
+          "name": "Comments",
+          "value": 1,
+          "unit": "count"
+        },
+        {
+          "type": "engagementRate",
+          "name": "Eng. Rate",
+          "value": 100,
+          "unit": "percentage"
+        },
+        {
+          "type": "impressions",
+          "name": "Impressions",
+          "value": 1,
+          "unit": "count"
+        },
+        {
+          "type": "reach",
+          "name": "Reach",
+          "value": 1,
+          "unit": "count"
+        },
+        {
+          "type": "shares",
+          "name": "Shares",
+          "value": 0,
+          "unit": "count"
+        }
+      ]
+    },
+    {
+      "id": "6a74cc1559ef54aac018ebe8",
+      "channelId": "6a5406f680cc80cdcaa81501",
+      "channelService": "linkedin",
+      "dueAt": "2026-08-06T19:41:00.000Z",
+      "externalLink": "https://www.linkedin.com/feed/update/urn:li:share:7491216871673839616",
       "ideaId": null,
       "isCustomScheduled": false,
-      "metricsUpdatedAt": null,
+      "metricsUpdatedAt": "2026-08-07T05:24:01.709Z",
       "notificationStatus": null,
-      "schedulingType": null,
-      "sentAt": "2026-07-30T17:37:43.748Z",
-      "sharedNow": true,
-      "shareMode": "shareNow",
-      "status": "sent",
-      "text": "Remember last week's discussion about Microsoft and their \"principled stand\" on open weights for American competitiveness? https://www.linkedin.com/posts/satyanadella_open-weights-and-american-ai-leadership-activity-7486411389939392514--paP?utm_source=share&utm_medium=member_ios&rcm=ACoAAASrT0sBvdQnYhIMyN_5UEWSh_IliJaQrZU\nToday's announcement regarding Kimi K3 from Beijing-based Moonshot AI proves my point: The philosophy is secondary to the Azure meter.\nHere is a factual analysis of the announcement that Microsoft isn't saying out loud:\n1. \"Open\" vs. \"Geopolitically Restricted Closed\"\nLast week, Microsoft backed the argument that open weights matter for American competitiveness. This week, they are championing Kimi K3, a model from a Beijing-based lab (Moonshot AI), on Microsoft Foundry. Furthermore, Kimi K3 is not truly open. The license mandates that any company making over $20M in revenue using the model must negotiate a separate agreement with Moonshot. This isn't open; it\u2019s a gatekeeper model with commercial traps.\n2. The Performance vs. Control Paradox\nThe specs on Kimi K3 are undeniable: 2.8T MoE parameters, 1M token window, and it beats GPT-5.6 (the OpenAI crown jewel Microsoft uses in M365) on several frontier coding and document benchmarks.\nSo, the best performing model on Azure Foundry is now Chinese-developed and restricted. Why would Microsoft push this?\n3. The Inconvenient Truth: It's Just About Azure Compute\nThis isn't about fostering true open innovation; it's about Azure consumption. Kimi K3 costs $16.50 per million output tokens on Azure. Microsoft is perfectly happy to host a restricted, geopolitically complicated model, because every token generated bills Azure compute. The narrative of \"American competitiveness\" has been replaced by the pursuit of consumption revenue, regardless of where the weight comes from.\nLast week\u2019s tension has resolved: The flag Microsoft is planting isn't in the ground; it's on a toll booth.\n\nhttps://www.neowin.net/news/kimi-k3-model-is-now-deployable-on-microsoft-foundry-through-fireworks-ai/",
-      "via": "buffer",
-      "createdAt": "2026-07-30T17:37:21.772Z",
-      "updatedAt": "2026-07-30T17:37:22.477Z",
-      "metrics": [
-        {
-          "type": "reactions",
-          "name": "Reactions",
-          "value": 0,
-          "unit": "count"
-        },
-        {
-          "type": "comments",
-          "name": "Comments",
-          "value": 0,
-          "unit": "count"
-        },
-        {
-          "type": "engagementRate",
-          "name": "Eng. Rate",
-          "value": 0,
-          "unit": "percentage"
-        },
-        {
-          "type": "impressions",
-          "name": "Impressions",
-          "value": 0,
-          "unit": "count"
-        },
-        {
-          "type": "shares",
-          "name": "Shares",
-          "value": 0,
-          "unit": "count"
-        }
-      ]
-    },
-    {
-      "id": "6a6a1dac57a88eb1271988f7",
-      "channelId": "6a5406f680cc80cdcaa81501",
-      "channelService": "linkedin",
-      "dueAt": "2026-07-23T22:17:13.066Z",
-      "externalLink": "https://www.linkedin.com/feed/update/urn:li:share:7486182660264886272",
-      "ideaId": null,
-      "isCustomScheduled": true,
-      "metricsUpdatedAt": "2026-07-30T13:31:03.582Z",
-      "notificationStatus": null,
-      "schedulingType": null,
-      "sentAt": "2026-07-23T22:17:13.066Z",
+      "schedulingType": "automatic",
+      "sentAt": "2026-08-06T19:41:22.890Z",
       "sharedNow": false,
-      "shareMode": "customScheduled",
+      "shareMode": "addToQueue",
       "status": "sent",
-      "text": "The technology moves fast enough that staying hands on with it isn't optional, it's the actual job.\nJust finished the Edge AI for Microcontrollers Specialization, working through real inference constraints on hardware with none of the headroom a full GPU gives you. That's a genuinely different discipline than cloud scale AI work, and it's exactly the kind of constraint clients are dealing with right now when edge deployment enters the conversation.\nThis one connects to real prior experience too, years spent on 0 to 1 hardware and AI products where edge compute, sensor data, and perception all had to converge into one working system, with real vendors and real dependencies, not a slide deck. That background is part of what Straventis brings into a client conversation, not theory, direct experience with where these systems actually get hard.\nStaying current on the technical side is part of how we stay useful to the people we work with.\n#EdgeAI #EmbeddedSystems #TechnicalAdvisory #Straventis",
-      "via": "network",
-      "createdAt": "2026-07-23T22:17:13.066Z",
-      "updatedAt": "2026-07-30T13:31:03.582Z",
-      "metrics": [
-        {
-          "type": "reactions",
-          "name": "Reactions",
-          "value": 0,
-          "unit": "count"
-        },
-        {
-          "type": "comments",
-          "name": "Comments",
-          "value": 0,
-          "unit": "count"
-        },
-        {
-          "type": "engagementRate",
-          "name": "Eng. Rate",
-          "value": 0,
-          "unit": "percentage"
-        },
-        {
-          "type": "impressions",
-          "name": "Impressions",
-          "value": 0,
-          "unit": "count"
-        },
-        {
-          "type": "shares",
-          "name": "Shares",
-          "value": 0,
-          "unit": "count"
-        }
-      ]
-    },
-    {
-      "id": "6a699323e027d938630ebff1",
-      "channelId": "6a5406f680cc80cdcaa81501",
-      "channelService": "linkedin",
-      "dueAt": "2026-07-30T00:33:00.000Z",
-      "externalLink": "https://www.linkedin.com/feed/update/urn:li:share:7488391253668044800",
-      "ideaId": null,
-      "isCustomScheduled": true,
-      "metricsUpdatedAt": "2026-07-30T13:31:03.582Z",
-      "notificationStatus": null,
-      "schedulingType": null,
-      "sentAt": "2026-07-30T00:33:22.878Z",
-      "sharedNow": false,
-      "shareMode": "customScheduled",
-      "status": "sent",
-      "text": "From the McKinseys; article what resonated  with me is the paradigm shift in seeing AI as acoworker. This fundamentally shifts the human role from being an isolated executor of tasks to an orchestrator of intelligent systems. The future of work is a direct partnership between people, software agents, and physical robots.\ufffc\ufffc\n\nThis reminds me of the dynamic between a master chef and a team of highly skilled sous-chefs; the sous-chefs (agents) handle the repetitive chopping and prep work, allowing the master chef (the human) to focus entirely on the final seasoning, taste-testing, and presentation. \n\nThe same In software product development, developers act as orchestrators by using coding agents to rapidly draft boilerplate code and run automated tests. This allows the human product engineers to redirect their focus toward high-level system architecture, complex debugging, and defining the overall product strategy.\ufffc https://www.mckinsey.com/mgi/our-research/agents-robots-and-us-skill-partnerships-in-the-age-of-ai?cid=eml-web",
+      "text": "Weaponized Memory: Why We Give Feedback Too Much Power\n\nWhat Kat Sterner shared in her post below really resonates. Remarks from people can sometimes land hard. Her story about one specific comment reminded me of my own experiences. It also reminded me of what I learned about the remembering self.\n\nA few questions popped into my head. \n\ud835\udc02\ud835\udc1a\ud835\udc27 \ud835\udc1a \ud835\udc27\ud835\udc1e\ud835\udc20\ud835\udc1a\ud835\udc2d\ud835\udc22\ud835\udc2f\ud835\udc1e \ud835\udc1c\ud835\udc28\ud835\udc26\ud835\udc26\ud835\udc1e\ud835\udc27\ud835\udc2d \ud835\udc1a\ud835\udc1c\ud835\udc2d\ud835\udc2e\ud835\udc1a\ud835\udc25\ud835\udc25\ud835\udc32 \ud835\udc29\ud835\udc2b\ud835\udc28\ud835\udc1d\ud835\udc2e\ud835\udc1c\ud835\udc1e \ud835\udc1a \ud835\udc29\ud835\udc28\ud835\udc2c\ud835\udc22\ud835\udc2d\ud835\udc22\ud835\udc2f\ud835\udc1e \ud835\udc28\ud835\udc2e\ud835\udc2d\ud835\udc1c\ud835\udc28\ud835\udc26\ud835\udc1e? \nMaybe \ud835\udc1c\ud835\udc28\ud835\udc26\ud835\udc26\ud835\udc1e\ud835\udc27\ud835\udc2d\ud835\udc2c \ud835\udc1a\ud835\udc2b\ud835\udc1e \ud835\udc23\ud835\udc2e\ud835\udc2c\ud835\udc2d \ud835\udc30\ud835\udc28\ud835\udc2b\ud835\udc1d\ud835\udc2c . It is completely up to us how we process them. \ud835\udc13\ud835\udc30\ud835\udc28 \ud835\udc2c\ud835\udc22\ud835\udc1d\ud835\udc1e\ud835\udc2c \ud835\udc28\ud835\udc1f \ud835\udc2d\ud835\udc21\ud835\udc1e \ud835\udc2c\ud835\udc1a\ud835\udc26\ud835\udc1e \ud835\udc1c\ud835\udc28\ud835\udc22\ud835\udc27. \n\nWe often rush to categorize feedback as strictly good or bad. Empowering or shrinking. But what if they are just words.\nWhat if our brains actually do the heavy lifting to make them hurt. I can not count how many times my memory of an event completely contradicts the other person. Even when we stood in the exact same room. \n\nDaniel Kahneman and his research on the \"remembering self\" proves this brilliantly. He showed that human memory does not record objective reality. Our minds construct flawed stories based on our internal state. We anchor heavily on how we felt at the peak or end of an experience.\n\nObjectively speaking, that feedback was probably not a deliberate attempt to shrink you. It was just a clumsy data point. A data point your own remembering self weaponized into a narrative that lasted for years.\n\nHuman perception is scientifically proven to be unreliable. Both ours and theirs. So are we giving imposter syndrome way too much power. We treat it as an enemy to defeat rather than just the background noise of a flawed human mind. \n",
       "via": "buffer",
-      "createdAt": "2026-07-29T05:44:03.366Z",
-      "updatedAt": "2026-07-30T13:31:03.582Z",
-      "metrics": [
-        {
-          "type": "reactions",
-          "name": "Reactions",
-          "value": 1,
-          "unit": "count"
-        },
-        {
-          "type": "comments",
-          "name": "Comments",
-          "value": 0,
-          "unit": "count"
-        },
-        {
-          "type": "engagementRate",
-          "name": "Eng. Rate",
-          "value": 16.666666666666664,
-          "unit": "percentage"
-        },
-        {
-          "type": "impressions",
-          "name": "Impressions",
-          "value": 7,
-          "unit": "count"
-        },
-        {
-          "type": "shares",
-          "name": "Shares",
-          "value": 0,
-          "unit": "count"
-        }
-      ]
-    },
-    {
-      "id": "6a617013e2f31fa6761a1759",
-      "channelId": "6a5406f680cc80cdcaa81501",
-      "channelService": "linkedin",
-      "dueAt": "2026-07-21T20:30:01.299Z",
-      "externalLink": "https://www.linkedin.com/feed/update/urn:li:share:7485395088026669056",
-      "ideaId": null,
-      "isCustomScheduled": true,
-      "metricsUpdatedAt": "2026-07-30T13:31:03.582Z",
-      "notificationStatus": null,
-      "schedulingType": null,
-      "sentAt": "2026-07-21T20:30:01.299Z",
-      "sharedNow": false,
-      "shareMode": "customScheduled",
-      "status": "sent",
-      "text": "LinkedIn gives you a snapshot of your posts. It doesn't give you a story. So, at Straventis Advisory Group we decided to help you build your story in your words.\n\nhttps://lnkd.in/eDhNSJKy",
-      "via": "network",
-      "createdAt": "2026-07-21T18:07:41.035Z",
-      "updatedAt": "2026-07-30T13:31:03.582Z",
-      "metrics": [
-        {
-          "type": "reactions",
-          "name": "Reactions",
-          "value": 0,
-          "unit": "count"
-        },
-        {
-          "type": "comments",
-          "name": "Comments",
-          "value": 0,
-          "unit": "count"
-        },
-        {
-          "type": "engagementRate",
-          "name": "Eng. Rate",
-          "value": 0,
-          "unit": "percentage"
-        },
-        {
-          "type": "impressions",
-          "name": "Impressions",
-          "value": 1,
-          "unit": "count"
-        },
-        {
-          "type": "shares",
-          "name": "Shares",
-          "value": 0,
-          "unit": "count"
-        }
-      ]
-    },
-    {
-      "id": "6a5a8ba2448fbb66c703632b",
-      "channelId": "6a5406f680cc80cdcaa81501",
-      "channelService": "linkedin",
-      "dueAt": "2026-07-17T20:08:02.417Z",
-      "externalLink": "https://www.linkedin.com/feed/update/urn:li:share:7483975940147134464",
-      "ideaId": null,
-      "isCustomScheduled": false,
-      "metricsUpdatedAt": "2026-07-30T13:31:03.582Z",
-      "notificationStatus": null,
-      "schedulingType": null,
-      "sentAt": "2026-07-17T20:08:29.954Z",
-      "sharedNow": true,
-      "shareMode": "shareNow",
-      "status": "sent",
-      "text": "\ud835\udc16\ud835\udc21\ud835\udc32 \ud835\udc0f\ud835\udc25\ud835\udc1a\ud835\udc2d\ud835\udc1f\ud835\udc28\ud835\udc2b\ud835\udc26 \ud835\udc13\ud835\udc21\ud835\udc22\ud835\udc27\ud835\udc24\ud835\udc22\ud835\udc27\ud835\udc20 \ud835\udc0d\ud835\udc1e\ud835\udc1e\ud835\udc1d\ud835\udc2c \ud835\udc04\ud835\udc27\ud835\udc2d\ud835\udc1e\ud835\udc2b\ud835\udc29\ud835\udc2b\ud835\udc22\ud835\udc2c\ud835\udc1e \ud835\udc00\ud835\udc2b\ud835\udc1c\ud835\udc21\ud835\udc22\ud835\udc2d\ud835\udc1e\ud835\udc1c\ud835\udc2d\ud835\udc2e\ud835\udc2b\ud835\udc1e? \n\ud835\ude08\ud835\ude2f\ud835\ude25 \ud835\ude29\ud835\ude30\ud835\ude38 \ud835\ude34\ud835\ude35\ud835\ude33\ud835\ude30\ud835\ude2f\ud835\ude28 \ud835\ude22\ud835\ude33\ud835\ude24\ud835\ude29\ud835\ude2a\ud835\ude35\ud835\ude26\ud835\ude24\ud835\ude35\ud835\ude36\ud835\ude33\ud835\ude22\ud835\ude2d \ud835\ude27\ud835\ude30\ud835\ude36\ud835\ude2f\ud835\ude25\ud835\ude22\ud835\ude35\ud835\ude2a\ud835\ude30\ud835\ude2f\ud835\ude34 \ud835\ude31\ud835\ude33\ud835\ude26\ud835\ude31\ud835\ude22\ud835\ude33\ud835\ude26 \ud835\ude22\ud835\ude2f \ud835\ude30\ud835\ude33\ud835\ude28\ud835\ude22\ud835\ude2f\ud835\ude2a\ud835\ude3b\ud835\ude22\ud835\ude35\ud835\ude2a\ud835\ude30\ud835\ude2f \ud835\ude27\ud835\ude30\ud835\ude33 \ud835\ude22\ud835\ude28\ud835\ude26\ud835\ude2f\ud835\ude35\ud835\ude2a\ud835\ude24 \ud835\ude08\ud835\ude10\n\nEvery platform team I've been part of eventually runs into the same wall. The roadmap is clear, the backlog is prioritized, the team is capable, and the platform still can't move fast without breaking something two teams over. Almost \ud83d\udc47\ufe0f",
-      "via": "buffer",
-      "createdAt": "2026-07-17T20:08:02.373Z",
-      "updatedAt": "2026-07-30T13:31:03.582Z",
+      "createdAt": "2026-08-06T18:01:57.204Z",
+      "updatedAt": "2026-08-07T05:24:01.709Z",
       "metrics": [
         {
           "type": "reactions",
@@ -542,13 +397,193 @@
         {
           "type": "engagementRate",
           "name": "Eng. Rate",
-          "value": 5,
+          "value": 25,
           "unit": "percentage"
         },
         {
           "type": "impressions",
           "name": "Impressions",
           "value": 4,
+          "unit": "count"
+        },
+        {
+          "type": "reach",
+          "name": "Reach",
+          "value": 2,
+          "unit": "count"
+        },
+        {
+          "type": "shares",
+          "name": "Shares",
+          "value": 0,
+          "unit": "count"
+        }
+      ]
+    },
+    {
+      "id": "6a74a15ad91bb932e30eada7",
+      "channelId": "6a5406f680cc80cdcaa81501",
+      "channelService": "linkedin",
+      "dueAt": "2026-08-06T17:34:00.000Z",
+      "externalLink": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7491184909181505536",
+      "ideaId": null,
+      "isCustomScheduled": true,
+      "metricsUpdatedAt": "2026-08-07T05:24:01.710Z",
+      "notificationStatus": null,
+      "schedulingType": "automatic",
+      "sentAt": "2026-08-06T17:34:22.901Z",
+      "sharedNow": false,
+      "shareMode": "customScheduled",
+      "status": "sent",
+      "text": "The AI Pricing Math Problem\n\nMost no-code AI tools share the same 3 problems once you're past the pilot stage.\n\nYou end up stitching together 4 or more tools since no single platform does everything well, which quietly recreates the integration complexity no-code was supposed to remove.\n\nUsage based pricing works fine for a 5 person team, then breaks the moment volume or agent complexity actually scales.\n\nAnd \"no-code\" quietly stops being no-code, most enterprise platforms still need trained builders or consultants for anything beyond moderate complexity.\n\nWe built 4RGE around a different math problem, the pricing one. Every task, a one line summary or complex multi-step reasoning, usually gets billed like it needs the same frontier level model. That's not sustainable at production scale.\n\n4RGE is 3 models, not 1. Magma for hard reasoning and architecture. Blaze for production coding and orchestration. Ember for high-volume everyday tasks, chat, summaries, document handling. Route the task to the right tier instead of paying frontier prices for every call.\n\nInput tokens start at $1 per million on Ember, output at $2. Context windows scale to 2M tokens, fewer passes to process the same document or dataset.\n\nIf your AI bill is scaling faster than the value it delivers, that's the problem this was built to fix.\n\n4rged.ai ",
+      "via": "buffer",
+      "createdAt": "2026-08-06T14:59:38.472Z",
+      "updatedAt": "2026-08-07T05:24:01.710Z",
+      "metrics": [
+        {
+          "type": "reactions",
+          "name": "Reactions",
+          "value": 0,
+          "unit": "count"
+        },
+        {
+          "type": "comments",
+          "name": "Comments",
+          "value": 1,
+          "unit": "count"
+        },
+        {
+          "type": "engagementRate",
+          "name": "Eng. Rate",
+          "value": 150,
+          "unit": "percentage"
+        },
+        {
+          "type": "impressions",
+          "name": "Impressions",
+          "value": 2,
+          "unit": "count"
+        },
+        {
+          "type": "reach",
+          "name": "Reach",
+          "value": 2,
+          "unit": "count"
+        },
+        {
+          "type": "shares",
+          "name": "Shares",
+          "value": 0,
+          "unit": "count"
+        }
+      ]
+    },
+    {
+      "id": "6a7389926c7f4f1a619c15f6",
+      "channelId": "6a5406f680cc80cdcaa81501",
+      "channelService": "linkedin",
+      "dueAt": "2026-08-05T21:30:00.000Z",
+      "externalLink": "https://www.linkedin.com/feed/update/urn:li:share:7490881969870852096",
+      "ideaId": null,
+      "isCustomScheduled": true,
+      "metricsUpdatedAt": "2026-08-07T05:24:01.709Z",
+      "notificationStatus": null,
+      "schedulingType": "automatic",
+      "sentAt": "2026-08-05T21:30:36.108Z",
+      "sharedNow": false,
+      "shareMode": "customScheduled",
+      "status": "sent",
+      "text": "Datalake and the Messy House Share\n\nPlatform engineering is the ultimate test of shared-room sanity. Managing the data clusters in my metadata project at was like living in a chaotic student house. Everyone claims they clean up after themselves, but then the cloud bill suddenly spikes 18%.\n\nThe culprit? A silent \"row explosion\"\n\nDuring metadata enrichment, an uncontrolled many-to-many join across 8 genres, 40 actors, and 25 localization variants took a single movie title and multiplied it into millions of duplicate rows. No jobs crashed, but Spark was melting, and storage was entering critical exponential growth.\n\nTo stop the finger-pointing, I acted as the \"Air Traffic Controller\". We locked down strict \"Definition of Done\" gates, swapped nested joins for Common Table Expressions (CTEs), and enforced row amplification ratio alerts.\nThe result? Clean dishes, optimized clusters, and $800K in annual engineering savings.\n\n#PlatformEngineering #DataOps #CloudCost #TechLeadership #DataGovernance",
+      "via": "buffer",
+      "createdAt": "2026-08-05T19:05:54.764Z",
+      "updatedAt": "2026-08-07T05:24:01.709Z",
+      "metrics": [
+        {
+          "type": "reactions",
+          "name": "Reactions",
+          "value": 0,
+          "unit": "count"
+        },
+        {
+          "type": "comments",
+          "name": "Comments",
+          "value": 1,
+          "unit": "count"
+        },
+        {
+          "type": "engagementRate",
+          "name": "Eng. Rate",
+          "value": 20,
+          "unit": "percentage"
+        },
+        {
+          "type": "impressions",
+          "name": "Impressions",
+          "value": 5,
+          "unit": "count"
+        },
+        {
+          "type": "reach",
+          "name": "Reach",
+          "value": 3,
+          "unit": "count"
+        },
+        {
+          "type": "shares",
+          "name": "Shares",
+          "value": 0,
+          "unit": "count"
+        }
+      ]
+    },
+    {
+      "id": "6a7388535e3e2087ef8486fb",
+      "channelId": "6a5406f680cc80cdcaa81501",
+      "channelService": "linkedin",
+      "dueAt": "2026-08-06T17:55:00.000Z",
+      "externalLink": "https://www.linkedin.com/feed/update/urn:li:share:7491190109883580416",
+      "ideaId": null,
+      "isCustomScheduled": true,
+      "metricsUpdatedAt": "2026-08-07T05:24:01.710Z",
+      "notificationStatus": null,
+      "schedulingType": "automatic",
+      "sentAt": "2026-08-06T17:55:02.794Z",
+      "sharedNow": false,
+      "shareMode": "customScheduled",
+      "status": "sent",
+      "text": "The \"last-mile\" Trap in Enterprise AI\n\nWe need to talk about the \"last-mile\" trap in enterprise AI.\n\nEd King just published a brilliant breakdown of why so many AI deployments get stuck at 90% done. The culprit? We are overloading LLMs with tasks they have no business doing.\n\nHe calls the solution \"Engineered Ignorance.\" I call it proper architectural sequencing.\n\nRight now, too many teams are giving LLMs raw access to messy CRM data and asking them to dynamically figure out business logic, system workflows, and API schemas on the fly. To keep the model from going off the rails, teams are forced to build massively complex \"harnesses.\" It is slow, highly expensive, and a security nightmare.\n\nThe fix is exactly what we used to do in traditional software: abstraction.\n\nStop making the LLM guess your business rules: Don't give it raw API access to your CRM and hope it figures out who an active customer is. Run a deterministic data pipeline to build a clean \"Customer\" dataset, and only expose that to the model.\n\nStop making the LLM execute complex workflows: Don't ask the AI to orchestrate data enrichment, routing, and scoring. Build a single, deterministic tool called \"Add Lead\" and let the AI just push the button.\n\nProbabilistic models are for reasoning and unstructured data. Deterministic pipelines are for business rules. If you mix the two, your architecture will collapse at scale.\n\nIf your AI strategy requires the model to understand your entire enterprise architecture just to execute a task, you are building it wrong. Read Ed's full article . it is a masterclass in AI pragmatism. \n\n#EnterpriseArchitecture #ArtificialIntelligence #SystemsThinking #DataArchitecture #LLMOps #TechLeadership #GenerativeAI \nhttps://www.linkedin.com/pulse/build-engineered-ignorance-your-ai-solution-ed-king-93mwc ",
+      "via": "buffer",
+      "createdAt": "2026-08-05T19:00:34.885Z",
+      "updatedAt": "2026-08-07T05:24:01.710Z",
+      "metrics": [
+        {
+          "type": "reactions",
+          "name": "Reactions",
+          "value": 0,
+          "unit": "count"
+        },
+        {
+          "type": "comments",
+          "name": "Comments",
+          "value": 1,
+          "unit": "count"
+        },
+        {
+          "type": "engagementRate",
+          "name": "Eng. Rate",
+          "value": 25,
+          "unit": "percentage"
+        },
+        {
+          "type": "impressions",
+          "name": "Impressions",
+          "value": 4,
+          "unit": "count"
+        },
+        {
+          "type": "reach",
+          "name": "Reach",
+          "value": 2,
           "unit": "count"
         },
         {
