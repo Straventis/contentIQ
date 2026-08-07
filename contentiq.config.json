@@ -22,17 +22,31 @@
     }
   },
   "classifier": {
-    "active_model": "claude-haiku-4-5",
+    "active_model": "gemini-3.1-flash-lite",
     "models": {
-      "gemini": {
+      "gemini-3.6-flash": {
         "enabled": true,
         "api_key_env": "GEMINI_API_KEY",
         "model_name": "gemini-3.6-flash",
         "notes": "Currently blocked by a widespread, unresolved Google-side bug affecting new API keys with the 'AQ.' prefix -- returns 401 ACCESS_TOKEN_TYPE_UNSUPPORTED regardless of code correctness, confirmed against multiple independent reports on Google's own developer forum as of 2026-07-31. Switch active_model to another provider until Google fixes this; keep this entry ready to switch back."
       },
+      {
+      "gemini-3.5-flash": {
+        "enabled": true,
+        "api_key_env": "GEMINI_API_KEY",
+        "model_name": "gemini-3.5-flash",
+        "notes": "Currently blocked by a widespread, unresolved Google-side bug affecting new API keys with the 'AQ.' prefix -- returns 401 ACCESS_TOKEN_TYPE_UNSUPPORTED regardless of code correctness, confirmed against multiple independent reports on Google's own developer forum as of 2026-07-31. Switch active_model to another provider until Google fixes this; keep this entry ready to switch back."
+      },
+      {
+      "gemini-3.1-flash-lite": {
+        "enabled": true,
+        "api_key_env": "GEMINI_API_KEY",
+        "model_name": "gemini-3.1-flash-lite",
+        "notes": "Currently blocked by a widespread, unresolved Google-side bug affecting new API keys with the 'AQ.' prefix -- returns 401 ACCESS_TOKEN_TYPE_UNSUPPORTED regardless of code correctness, confirmed against multiple independent reports on Google's own developer forum as of 2026-07-31. Switch active_model to another provider until Google fixes this; keep this entry ready to switch back."
+      },
       "claude-haiku-4-5": {
         "enabled": true,
-        "api_key_env": "ANTHROPIC_API_KEY",
+        "api_key_env": "CLAUDE_API_KEY",
         "model_name": "claude-haiku-4-5-20251001",
         "notes": "Anthropic Messages API. Haiku tier for cost, matching the fast/cheap tier used for the other two providers -- this is a simple classification task, not worth a frontier-tier model."
       },
